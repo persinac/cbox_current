@@ -1,0 +1,25 @@
+@charset "utf-8";
+/* CSS Document */
+body {
+	width 750px;
+	font-family: Arial, Verdana, sans-serif;
+	color: #665544;	
+}
+
+h1 {
+	color: #CCC;
+	background-color: #000;
+	padding: 10px;
+	margin-left: 50px;	
+}
+
+ul {
+	text-align: right
+}
+
+li {
+	color: #CCC;
+	display: inline;
+	margin-right: 20px;	
+}
+
