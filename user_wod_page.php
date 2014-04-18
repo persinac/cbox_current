@@ -73,9 +73,10 @@ mysql_select_db($database_cboxConn, $cboxConn);
 <meta charset="utf-8">
 <title>Untitled Document</title>
 <!-- Bootstrap core CSS and Custom CSS-->
-<link href="dist/css/user_wod_page.css" rel="stylesheet">
+
 <link href="dist/css/bootstrap.min.css" rel="stylesheet"> 
 <link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
+<link href="dist/css/user_wod_page.css" rel="stylesheet">
 <style>
 	p#wod_descrip {text-indent:15px;}
 </style>
@@ -416,7 +417,7 @@ function loadWODData(data, level_performed)
 		}
 		html_sec1 +="<p>Type of WOD: "+type_of_wod+"</p>";
 		html_sec1 +="<p>Description: </p>";
-		alert(descrip);
+		//alert(descrip);
 		$.map( descrip.split(','), function( n ) {
 		  //alert(n.length);
 		  descripLength += n.length;
@@ -425,9 +426,9 @@ function loadWODData(data, level_performed)
 		  //if(){}
 		  //alert("index of colon = "+colon);
 		  if(colon > 0) {
-			  alert("index of colon = "+colon +", n.substring(0,colon) "+n.substring(0,colon+1));
+			  ////alert("index of colon = "+colon +", n.substring(0,colon) "+n.substring(0,colon+1));
 			  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(0,colon+1)+"</p>";
-			  alert("n.substring(colon+2) "+n.substring(colon+2));
+			  //alert("n.substring(colon+2) "+n.substring(colon+2));
 			  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(colon+2)+"</p>";
 			} else {
 		  html_sec1 +="<p id=\"wod_descrip\">"+n+"</p>";

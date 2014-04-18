@@ -14,13 +14,13 @@ if (isset($_SESSION['MM_UserID'])) {
 }
 mysql_select_db($database_cboxConn, $cboxConn);
 
-echo "<!doctype html>
-<html>
-<head>
-<meta charset=\"utf-8\">
-<title>Untitled Document</title>
-</head>
-<body>";
+#echo "<!doctype html>
+#<html>
+#<head>
+#<meta charset=\"utf-8\">
+#<title>Untitled Document</title>
+#</head>
+#<body>";
 
 $t_movement = "";
 $t_weight = "";
@@ -30,6 +30,9 @@ $t_wod_specifics = $_POST['num_of_rounds'];
 $t_date = $_POST['date'];
 $t_wodID = "";
 $t_name_of_wod = "";
+$t_buy_in = "";
+$t_cash_out = "";
+$t_penalty = "";
 
 $t_string_builder = "";
 $rx_wod = "";
@@ -53,7 +56,7 @@ if(!(empty($t_wod_specifics))) {
 		$nov_wod .= $t_wod_specifics . " :20 on :10 off of: ";
 	}
 }
-echo "RX: ".$rx_wod . ", INTER: " . $inter_wod . ", NOV: " . $nov_wod;
+#echo "RX: ".$rx_wod . ", INTER: " . $inter_wod . ", NOV: " . $nov_wod;
 foreach( $_POST['movement'] as $cnt => $mvmnt ) 
 {
 	$t_movement = $_POST['movement'][$cnt];
@@ -131,7 +134,7 @@ if(! $retval )
 echo "Entered data successfully\n";
 mysql_close($cboxConn);
 
-echo "<body>
-</body>
-</html>";
+#echo "<body>
+#</body>
+#</html>";
 ?>

@@ -134,6 +134,9 @@ if (isset($_SESSION['MM_UserID'])) {
           <option value="HERO">HEROES</option>
 		</select>
         <div id="specific_to_wod"></div>
+        Buy In: <input type="text" name="buy_in" class="extra_wod_stuff" id="buy_in"/>
+        Cash Out: <input type="text" name="cash_out" class="extra_wod_stuff" id="cash_out"/>
+        Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" size="50"placeholder="Everytime you drop the bar..."/>
 	</p>
         <div id="new_wod_row">
             Movement: <input type="text" name="movement[]" class="movement" id="movement_0"/> 
@@ -364,10 +367,27 @@ $( "#wod_type_selector" ).change(function() {
 		str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
 		} else if($( this ).text() == "AMRAP") {
 			str = "Time: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
-			}else if($( this ).text() == "TABATA") {
+			} else if($( this ).text() == "TABATA") {
 				str = "Number of Intervals: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
-			}else if($( this ).text() == "GIRLS") {
-				str = "";
+			} else if($( this ).text() == "GIRLS") {
+				str = "Girls: <select id=\"girl_selector\" name=\"girl_selector\">";
+				str +="<option value=\"Angie\">Angie</option>";
+				str += "<option value=\"Angie\">Barbara</option>";
+				str +="<option value=\"Angie\">Chelsea</option>";
+				str +="<option value=\"Angie\">Cindy</option>";
+				str +="<option value=\"Angie\">Diane</option>";
+				str +="<option value=\"Angie\">Elizabeth</option>";
+				str +="<option value=\"Angie\">Fran</option>";
+				str +="<option value=\"Angie\">Grace</option>";
+				str +="<option value=\"Angie\">Helen</option>";
+				str +="<option value=\"Angie\">Isabel</option>";
+				str +="<option value=\"Angie\">Jackie</option>";
+				str +="<option value=\"Angie\">Karen</option>";
+				str +="<option value=\"Angie\">Linda</option>";
+				str +="<option value=\"Angie\">Mary</option>";
+				str +="<option value=\"Angie\">Nancy</option>";
+				str +="</select>";
+		
 			}else if($( this ).text() == "HEROES") {
 				str = "";
 			}
@@ -578,13 +598,13 @@ function addScaledRows()
 	$('.movement').each(function(i, item) {
         var movement =  $('#movement_'+i+'').val();
 		movementArray.push(movement);
-		alert("Movement: "+movement);
+		//alert("Movement: "+movement);
     });
 	
 	$('.weight').each(function(i, item) {
         var weight =  $('#weight_'+i+'').val();
 		weightArray.push(weight);
-		alert("weight: "+weight);
+		//alert("weight: "+weight);
     });
 	
 	//alert("Post weight check");
@@ -592,7 +612,7 @@ function addScaledRows()
 	$('.reps').each(function(i, item) {
         var reps =  $('#reps_'+i+'').val();
 		repArray.push(reps);
-		alert("reps: "+reps);
+		//alert("reps: "+reps);
     });
 	
 	var row = "";
@@ -600,7 +620,7 @@ function addScaledRows()
 	for(var i = 1; i < movementArray.length; i++) {
 	row = '<p id="rowNum'+i+'">Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_'+i+'" value="'+ movementArray[i] +'"> Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_'+i+'"> Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_'+i+'"></p>';
 	$('#inter_new_wod_row').append(row);
-	alert("Movement["+i+"] = " + movementArray[i]);
+	//alert("Movement["+i+"] = " + movementArray[i]);
 	}
 	
 	for(var j = 1; j < movementArray.length; j++) {
