@@ -80,10 +80,13 @@ if (isset($_SESSION['MM_UserID'])) {
 <title>Administrator</title>
 
 <!-- Bootstrap core CSS -->
-    <link href="dist/css/jquery.datepick.css" rel="stylesheet">
+     <!--<link href="dist/css/jquery.datepick.css" rel="stylesheet">-->
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="dist/css/admin_page.css" rel="stylesheet">
+    <!--<link href="dist/css/admin_page.css" rel="stylesheet">
+    -->
  	<link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="dist/css/admin_page.css" rel="stylesheet">
+    <link href="dist/css/jquery.datepick.css" rel="stylesheet">
 <!--
 
 -->
@@ -134,9 +137,13 @@ if (isset($_SESSION['MM_UserID'])) {
           <option value="HERO">HEROES</option>
 		</select>
         <div id="specific_to_wod"></div>
-        Buy In: <input type="text" name="buy_in" class="extra_wod_stuff" id="buy_in"/>
-        Cash Out: <input type="text" name="cash_out" class="extra_wod_stuff" id="cash_out"/>
-        Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" size="50"placeholder="Everytime you drop the bar..."/>
+        <div>
+        <p>
+        Buy In: <input type="text" name="buy_in" class="extra_wod_stuff" id="buy_in" placeholder="optional"/>
+        Cash Out: <input type="text" name="cash_out" class="extra_wod_stuff" id="cash_out" placeholder="optional"/>
+        Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" size="50" placeholder="Everytime you drop the bar..."/>
+        </p>
+        </div>
 	</p>
         <div id="new_wod_row">
             Movement: <input type="text" name="movement[]" class="movement" id="movement_0"/> 
@@ -588,21 +595,43 @@ function addRow(frm) {
 }
 function removeRow(rnum) {
 	$('#rowNum'+rnum).remove();
+	$('#inter_rowNum'+rnum).remove();
+	$('#nov_rowNum'+rnum).remove();
+	
+	//alert("Exercise to remove: " + movementArray[rnum] + " " +weightArray[rnum]+ " " +repArray[rnum]);
+
 	if(rowNum > 0) {
+		//pop the top value from each array
+		movementArray.pop();
+		weightArray.pop();
+		repArray.pop();
 		rowNum = rowNum -1;	
+		for(var i = 0; i < movementArray.length; i++) 
+		{
+			//alert("Post remove: " + movementArray[i] + " " +weightArray[i]+ " " +repArray[i])
+		}
 	}
 }
 
 function addScaledRows()
 {
+	var length = 0;
+	/*
+	* The following loops need to dynamically check for duplicate row entries
+	* It would be ideal if this is done using the #movement_i value
+	*
+	* Maybe create a method to get the max id for each input value currently on
+	* the modal and use that in the for loops? 
+	*/
 	$('.movement').each(function(i, item) {
-        var movement =  $('#movement_'+i+'').val();
+        var movement =  $('#movement_'+(i)+'').val();
 		movementArray.push(movement);
 		//alert("Movement: "+movement);
+		length = i;
     });
 	
 	$('.weight').each(function(i, item) {
-        var weight =  $('#weight_'+i+'').val();
+        var weight =  $('#weight_'+(i)+'').val();
 		weightArray.push(weight);
 		//alert("weight: "+weight);
     });
@@ -610,28 +639,36 @@ function addScaledRows()
 	//alert("Post weight check");
 	
 	$('.reps').each(function(i, item) {
-        var reps =  $('#reps_'+i+'').val();
+        var reps =  $('#reps_'+(i)+'').val();
 		repArray.push(reps);
 		//alert("reps: "+reps);
     });
-	
+	$('#inter_movement_0').val(movementArray[0])
+	$('#inter_weight_0').val(weightArray[0])
+	$('#inter_reps_0').val(repArray[0])
+	$('#nov_movement_0').val(movementArray[0])
+	$('#nov_weight_0').val(weightArray[0])
+	$('#nov_reps_0').val(repArray[0])
 	var row = "";
 	//first intermediate
-	for(var i = 1; i < movementArray.length; i++) {
-	row = '<p id="rowNum'+i+'">Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_'+i+'" value="'+ movementArray[i] +'"> Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_'+i+'"> Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_'+i+'"></p>';
-	$('#inter_new_wod_row').append(row);
-	//alert("Movement["+i+"] = " + movementArray[i]);
-	}
-	
-	for(var j = 1; j < movementArray.length; j++) {
-	row = '<p id="rowNum'+j+'">Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_'+j+'"> Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_'+j+'"> Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_'+j+'"></p>';
-	$('#novice_new_wod_row').append(row);
+	if(length > 0) {
+		for(var i = 1; i < movementArray.length; i++) 
+		{	
+		row = '<p id="inter_rowNum'+i+'">Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_'+i+'" value="'+ movementArray[i] +'"> Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_'+i+'" value="'+weightArray[i]+'"> Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_'+i+'" value="'+repArray[i]+'"></p>';
+		$('#inter_new_wod_row').append(row);
+		//alert("Movement["+i+"] = " + movementArray[i]);
+		}
+		
+		for(var j = 1; j < movementArray.length; j++) {
+		row = '<p id="nov_rowNum'+j+'">Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_'+j+'" value="'+ movementArray[j] +'"> Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_'+j+'" value="'+weightArray[j]+'"> Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_'+j+'" value="'+repArray[j]+'"></p>';
+		$('#novice_new_wod_row').append(row);
+		}
 	}
 }
 
 function loadRxIntoScale()
 {
-	alert("Load RX data into Scaled form");
+	//alert("Load RX data into Scaled form");
 }
 
 function submitWOD() {
