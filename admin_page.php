@@ -60,7 +60,7 @@ if (isset($_SESSION['MM_UserID'])) {
 	else {
 			session_regenerate_id();
 	}
-    //declare session variables and assign them
+    //declare boxID session variable and assign them
     $_SESSION['MM_BoxID'] = $row[0];   
 
     if (isset($_SESSION['PrevUrl']) && false) {
@@ -231,20 +231,36 @@ var data_one;
 var data_two;
 var data_three;
 
+var rowNum = 0;
+
+/*
+* Once the document is  loaded, grab the WoD information
+*
+*/
 $(document).ready(function() {
 	event.preventDefault();
-	//load past wods/str/pwods
 	getPastWODS(<?php echo $_SESSION['MM_BoxID'] ?>);
 	getPastStrength(<?php echo $_SESSION['MM_BoxID'] ?>);
 	getPastPostWODS(<?php echo $_SESSION['MM_BoxID'] ?>);
 });
 
+/*
+* Set up the datepicker object
+*
+*/
 $(function() {
 	event.preventDefault();
-    $("#datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: true, autoSize: true});
+    $("#datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
 	
   });
   
+/*
+* Catches when the user presses submit on the 
+* scaled modal (known as the example_modal - needs to be renamed)
+*
+* Serializes the forms into separate arrays, and then
+* concatenate to be processed later
+*/
 $(function() {
 	//twitter bootstrap script
 	$("button#submit").click(function(){
@@ -260,6 +276,15 @@ $(function() {
 	});
 });
 
+/*
+* Catches typos in the forms
+* 
+* Movement inputs: only alphabetical characters
+* Weight inputs: only numerical
+* Rep inputs: only numerical
+*
+* Should eventually prevent user from submitting
+*/
 $( this ).focusout(function (event) {
 	var id = event.target.id;
 	var value = "";
@@ -354,7 +379,11 @@ $( this ).focusout(function (event) {
 	
 });
 
-
+/*
+* Load RX button clicked in example_modal
+*
+* Call the function addScaledRows
+*/
 $(function() {
 	$("button#load").click(function() {
     	//alert("CLICKEDDDDD!!!!!");
@@ -365,6 +394,17 @@ $(function() {
     });
 });
 
+/*
+* WoD type Dropdown changes values
+*
+* Change the specifics of each type of wod 
+* according to the dropdown selection
+*
+* Need to update: 
+*	Finish girls
+*	Add heroes
+*   change girls' values
+*/
 $( "#wod_type_selector" ).change(function() {
     var str = "";
     $( "#wod_type_selector option:selected" ).each(function() 
@@ -403,16 +443,20 @@ $( "#wod_type_selector" ).change(function() {
     });
   }).trigger( "change" );
 
+  
+/********************************* GETTER METHODS *********************************/
 
+/*
+* Called when page is finished loading
+* Used to gather all the WoDs specific to Admin's
+* box. 
+*
+*/
 function getPastWODS(box_id)
 {
 	var boxID = box_id;
-	
-	//$('.tbl_past_wod').empty();
-	var html = "";
-	
 
-	//alert("HTML: " + html )
+	var html = "";
 	$('.tbl_past_wod').html(html);
 	//now load data into table
 	$.ajax(
@@ -433,6 +477,12 @@ function getPastWODS(box_id)
 	//alert("Past WODs FIN");
 }
 
+/*
+* Called when page is finished loading
+* Used to gather all the Strength specific to Admin's
+* box. 
+*
+*/
 function getPastStrength(box_id)
 {
 	var boxID = box_id;
@@ -461,6 +511,12 @@ function getPastStrength(box_id)
 	//alert("Past WODs FIN");
 }
 
+/*
+* Called when page is finished loading
+* Used to gather all the Post WoDs specific to Admin's
+* box. 
+*
+*/
 function getPastPostWODS(box_id)
 {
 	var boxID = box_id;
@@ -489,7 +545,15 @@ function getPastPostWODS(box_id)
 	});
 }
 
+/******************************** LOAD TABLES **************************************/
 
+/*
+* Called in getPastWODS function.
+* Parses the ajax request - JSON - format, and
+* places the results in descending order in a table 
+* in the appropriate DOM.
+*
+*/
 function loadPastWODS(data_wods)
 {
 	var t_data = data_wods;
@@ -526,6 +590,13 @@ function loadPastWODS(data_wods)
 	
 }
 
+/*
+* Called in getPastStrength function.
+* Parses the ajax request - JSON - format, and
+* places the results in descending order in a table 
+* in the appropriate DOM.
+*
+*/
 function loadPastStr(data)
 {
 	var t_data = data;
@@ -556,6 +627,13 @@ function loadPastStr(data)
 	
 }
 
+/*
+* Called in getPastPostWODS function.
+* Parses the ajax request - JSON - format, and
+* places the results in descending order in a table 
+* in the appropriate DOM.
+*
+*/
 function loadPastPWODS(data)
 {
 	var t_data = data;
@@ -585,7 +663,15 @@ function loadPastPWODS(data)
 	$('.tbl_body_past_pwod').html(html_sec1);
 }
 
-var rowNum = 0;
+/************************************** DYNAMIC CONTENT **********************************/
+
+/*
+* Called from the  new_wod_form in the input div
+* Creates a new <p> which holds the new rows of input
+* Increments rowNum by 1 each time the button is pressed,
+* and uses rowNum to id the paragraph and input text fields
+*
+*/
 function addRow(frm) {
 	rowNum ++;
 	var row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'"> Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'"> <input type="button" value="Remove" onclick="removeRow('+rowNum+');"></p>';
@@ -593,6 +679,15 @@ function addRow(frm) {
 	frm.add_qty.value = '';
 	frm.add_name.value = '';
 }
+
+/*
+* Called from the  new_wod_form in the input div
+* Removes a <p> which holds the rows of input. 
+* Decrements rowNum by 1 each time the button is pressed
+* 
+* Cannot remove the first line of inputs
+*
+*/
 function removeRow(rnum) {
 	$('#rowNum'+rnum).remove();
 	$('#inter_rowNum'+rnum).remove();
@@ -613,6 +708,13 @@ function removeRow(rnum) {
 	}
 }
 
+/*
+* Called from the  example_modal when user presses Load RX Data.
+* Creates a new <p> which holds the new rows of input, uses for 
+* loop to populate the forms based on RX data. Loads RX movements
+* and weight automatically in form for better user experience
+* 
+*/
 function addScaledRows()
 {
 	var length = 0;
@@ -666,11 +768,29 @@ function addScaledRows()
 	}
 }
 
+/*
+* Not used...
+*/
 function loadRxIntoScale()
 {
 	//alert("Load RX data into Scaled form");
 }
 
+/*********************************** FINAL SUBMIT *****************************************/
+
+/*
+* Called when the user submits the form on the main page.
+* Serializes the RX form and the concatenates it with the 
+* concatenated intermediate and novice arrays. Submit via
+* ajax call. 
+*
+* Performs final input checking to ensure invalid characters
+* are not present
+*
+* Returns a popup notification of whatever the MySQL result
+* is.
+*
+*/
 function submitWOD() {
 	
 	if($("#datepicker").val().length == 0){

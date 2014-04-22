@@ -1,4 +1,6 @@
 <?php
+	//Used to prevent unauthorized users just typing in the URL to access
+	//the site
 	session_start();
 	
 	if(!(isset($_SESSION['MM_Username'])))
