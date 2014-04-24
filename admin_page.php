@@ -73,7 +73,7 @@ if (isset($_SESSION['MM_UserID'])) {
 }
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -141,7 +141,7 @@ if (isset($_SESSION['MM_UserID'])) {
         <p>
         Buy In: <input type="text" name="buy_in" class="extra_wod_stuff" id="buy_in" placeholder="optional"/>
         Cash Out: <input type="text" name="cash_out" class="extra_wod_stuff" id="cash_out" placeholder="optional"/>
-        Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" size="50" placeholder="Everytime you drop the bar..."/>
+        Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" placeholder="Everytime you drop the bar..."/>
         </p>
         </div>
 	</p>
@@ -238,7 +238,7 @@ var rowNum = 0;
 *
 */
 $(document).ready(function() {
-	event.preventDefault();
+	//event.preventDefault();
 	getPastWODS(<?php echo $_SESSION['MM_BoxID'] ?>);
 	getPastStrength(<?php echo $_SESSION['MM_BoxID'] ?>);
 	getPastPostWODS(<?php echo $_SESSION['MM_BoxID'] ?>);
@@ -249,7 +249,7 @@ $(document).ready(function() {
 *
 */
 $(function() {
-	event.preventDefault();
+	//event.preventDefault();
     $("#datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
 	
   });

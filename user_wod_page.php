@@ -220,7 +220,6 @@ mysql_select_db($database_cboxConn, $cboxConn);
 <script id="source" language="javascript" type="text/javascript">
 $(document).ready(function() {
 	//load everything
-	//first get the current date
 	getCurrentDate();
 	getBoxName();
 	//get wod
@@ -228,7 +227,7 @@ $(document).ready(function() {
 	//get postWod
 	//get strength
 });
-
+var today = new Date();
 var wod_description ="";
 var wod_name = "";
 var wod_type = "";
@@ -289,44 +288,36 @@ $(function() {
 		var actualTime = "00:15:09";
 		var time_comp = "";
 		var rounds_compl = 1;
-		//alert("Variables: " +today+", "+actualTime);
-		//alert("Variables: " +wod_description);
-		//alert("Variables: " +level_perf);
-		//alert("Variables: " +rounds_compl);
-		//alert("Variables: " +time_comp);
-		//alert("Variables: " +pwod_id);
-		//alert("Variables: " +strID);
 		
-		//alert("datastring: " + datastring.value);
 		$.each(datastring, function(i, field)
 		{
     		//alert("DATA: " + field.name + " : " + field.value);
 			actualTime = field.value;
   		});
-		alert("actualtime: " + actualTime);
+
 		$.ajax({
-		type: "POST",
-		url: "addUserWOD.php",
-		data: { 
-			"wod_id": today, //build this based on box id and date - I think I've got this variable in PHP
-			"wod_descrip" : "", 
-			"level_perf" : level_perf,
-			"rounds_compl": rounds_compl,
-			"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
-			"pwod_id" : pwod_id, //same as wod_id
-			"strength_id" : strID, //same as wod_id
-			"actualTime" : actualTime
-			}, 
-		success: function(msg)
-		{
-			alert(msg);
-			//loadWODData(msg, level_performed);
-		}
-	});
+			type: "POST",
+			url: "addUserWOD.php",
+			data: { 
+				"wod_id": today, //build this based on box id and date - I think I've got this variable in PHP
+				"wod_descrip" : "", 
+				"level_perf" : level_perf,
+				"rounds_compl": rounds_compl,
+				"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
+				"pwod_id" : pwod_id, //same as wod_id
+				"strength_id" : strID, //same as wod_id
+				"actualTime" : actualTime
+				}, 
+			success: function(msg)
+			{
+				alert(msg);
+				//loadWODData(msg, level_performed);
+			}
+		});
     });
 });
 
-var today = new Date();
+
 function getCurrentDate()
 {
 	var dd = today.getDate();
@@ -383,7 +374,6 @@ function loadUserBoxInfo(data)
 {
 	//alert(data);
 	var currentDate = today;
-	//alert("DATA: " + data + ", today: " + currentDate);
 	$('#box_loc').empty();
 	
 	var html = "";
@@ -401,43 +391,35 @@ function loadWODData(data, level_performed)
 	var descrip = "";
 	var descripLength = 0;
 	
+	//alert("DATA: " + data + ":::::::: DATA[0].name_of_wod: " + data.name_of_wod);
+	wodname = data[0].name_of_wod;
+	type_of_wod = data[0].type_of_wod;
+	if(level_performed == "rx") {
+		descrip = data[0].rx_descrip;
+	} else if (level_performed == "intermediate") {
+		descrip = data[0].inter_descrip;
+	} else {
+		descrip = data[0].nov_descrip;
+	}
 	
-		wodname = data[0].name_of_wod;
-		type_of_wod = data[0].type_of_wod;
-		if(level_performed == "rx") {
-			descrip = data[0].rx_descrip;
-		} else if (level_performed == "intermediate") {
-			descrip = data[0].inter_descrip;
+	if(wodname != "-") {
+		html_sec1 += "<h3>"+wodname+"</h3>";
+	}
+	html_sec1 +="<p>Type of WOD: "+type_of_wod+"</p>";
+	html_sec1 +="<p>Description: </p>";
+	$.map( descrip.split(','), function( n ) {
+	  descripLength += n.length;
+	  var colon = n.indexOf(":");
+	  if(colon > 0) {
+		  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(0,colon+1)+"</p>";
+		  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(colon+2)+"</p>";
 		} else {
-			descrip = data[0].nov_descrip;
+	  html_sec1 +="<p id=\"wod_descrip\">"+n+"</p>";
 		}
-		
-		if(wodname != "-") {
-			html_sec1 += "<h3>"+wodname+"</h3>";
-		}
-		html_sec1 +="<p>Type of WOD: "+type_of_wod+"</p>";
-		html_sec1 +="<p>Description: </p>";
-		//alert(descrip);
-		$.map( descrip.split(','), function( n ) {
-		  //alert(n.length);
-		  descripLength += n.length;
-		  //alert(descripLength);
-		  var colon = n.indexOf(":");
-		  //if(){}
-		  //alert("index of colon = "+colon);
-		  if(colon > 0) {
-			  ////alert("index of colon = "+colon +", n.substring(0,colon) "+n.substring(0,colon+1));
-			  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(0,colon+1)+"</p>";
-			  //alert("n.substring(colon+2) "+n.substring(colon+2));
-			  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(colon+2)+"</p>";
-			} else {
-		  html_sec1 +="<p id=\"wod_descrip\">"+n+"</p>";
-			}
-		});
+	});
 		
 	wod_type = type_of_wod;
 	wod_description = descrip;
-	//alert("type of wod: " + type_of_wod + ", wod_type: " + wod_type);
 	//Update html content
 	if(descripLength > 150){//alert(">150"); 
 	$('#wod_div').addClass("long_description");}
