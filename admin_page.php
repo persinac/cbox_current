@@ -142,12 +142,13 @@ if (isset($_SESSION['MM_UserID'])) {
         Buy In: <input type="text" name="buy_in" class="extra_wod_stuff" id="buy_in" placeholder="optional"/>
         Cash Out: <input type="text" name="cash_out" class="extra_wod_stuff" id="cash_out" placeholder="optional"/>
         Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" placeholder="Everytime you drop the bar..."/>
+        Special: <input type="text" name="special" class="extra_wod_stuff" id="special" placeholder="Every minute on the minute..."/>
         </p>
         </div>
 	</p>
-        <div id="new_wod_row">
+        <div id="new_wod_row" class="new_wod_row">
             Movement: <input type="text" name="movement[]" class="movement" id="movement_0"/> 
-            Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_0"/> 
+            Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_0" placeholder="Guys/Girls"/> 
             Reps: <input type="text" name="reps[]" class="reps" id="reps_0"/>
             <p></p>
         </div> <!-- END OF new_wod -->
@@ -165,10 +166,10 @@ if (isset($_SESSION['MM_UserID'])) {
         <div class="modal-body">
         	<!-- Grab number of rows and place that many into here -->  
             <form method="POST" id="inter_new_wod_form" class="new_wod">
-                <div id="inter_new_wod_row">
                 <h4>Intermediate</h4>
+				<div id="inter_new_wod_row">
                     Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_0"/> 
-                    Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_0"/> 
+                    Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_0" placeholder="Guys/Girls"/> 
                     Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_0"/>
                     <p></p>
                     
@@ -179,7 +180,7 @@ if (isset($_SESSION['MM_UserID'])) {
                 <div id="novice_new_wod_row">
                 <h4>Novice</h4>
                     Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_0"/> 
-                    Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_0"/> 
+                    Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_0" placeholder="Guys/Girls"/> 
                     Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_0"/>
                     <p></p>
                     
@@ -212,9 +213,10 @@ if (isset($_SESSION['MM_UserID'])) {
 <!-- Placed at the end of the document so the pages load faster -->
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="dist/js/bootstrap.min.js"></script>
 <script src="dist/js/jquery.plugin.min.js"></script>
 <script src="dist/js/jquery.datepick.min.js"></script>
-<script src="dist/js/bootstrap.min.js"></script>
+
 
 <!--
 
@@ -232,6 +234,9 @@ var data_two;
 var data_three;
 
 var rowNum = 0;
+
+var previousVal = "";
+var currentVal = "";
 
 /*
 * Once the document is  loaded, grab the WoD information
@@ -289,11 +294,15 @@ $( this ).focusout(function (event) {
 	var id = event.target.id;
 	var value = "";
 	var mvmReg = /^[a-zA-Z\s]*$/;
-	var weightAndRepsReg = /^[0-9]*$/;
+	var weightReg = /^[0-9\/]*$/;
+	var repsReg = /^[0-9]*$/;
 	/* RX Form */
 	if ( id.indexOf("movement_") >= 0 )
 	{
 		value = $("#" + id).val();
+		if(id == "movement_0") {
+			currentVal = value
+		}
 		if(!mvmReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
@@ -302,7 +311,7 @@ $( this ).focusout(function (event) {
 		}
     } else if( id.indexOf("weight_") >= 0 ) {
 		value = $("#" + id).val();
-		if(!weightAndRepsReg.test(value))
+		if(!weightReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
 		} else {
@@ -311,7 +320,7 @@ $( this ).focusout(function (event) {
 	} else if( id.indexOf("reps_") >= 0 ) {
 		value = $("#" + id).val();
 		//alert("ID: "+id+", value: "+ value);
-		if(!weightAndRepsReg.test(value))
+		if(!repsReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
 		} else {
@@ -331,7 +340,7 @@ $( this ).focusout(function (event) {
 		}
     } else if( id.indexOf("inter_weight_") >= 0 ) {
 		value = $("#" + id).val();
-		if(!weightAndRepsReg.test(value))
+		if(!weightReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
 		} else {
@@ -340,7 +349,7 @@ $( this ).focusout(function (event) {
 	} else if( id.indexOf("inter_reps_") >= 0 ) {
 		value = $("#" + id).val();
 		//alert("ID: "+id+", value: "+ value);
-		if(!weightAndRepsReg.test(value))
+		if(!repsReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
 		} else {
@@ -360,7 +369,7 @@ $( this ).focusout(function (event) {
 		}
     } else if( id.indexOf("nov_weight_") >= 0 ) {
 		value = $("#" + id).val();
-		if(!weightAndRepsReg.test(value))
+		if(!weightReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
 		} else {
@@ -369,7 +378,7 @@ $( this ).focusout(function (event) {
 	} else if( id.indexOf("nov_reps_") >= 0 ) {
 		value = $("#" + id).val();
 		//alert("ID: "+id+", value: "+ value);
-		if(!weightAndRepsReg.test(value))
+		if(!repsReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
 		} else {
@@ -673,11 +682,10 @@ function loadPastPWODS(data)
 *
 */
 function addRow(frm) {
-	rowNum ++;
-	var row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'"> Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'"> <input type="button" value="Remove" onclick="removeRow('+rowNum+');"></p>';
+	rowNum++;
+	console.log("RowNum ADDED ROW: "+rowNum);
+	var row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'"> Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'"> <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
 	$('#new_wod_row').append(row);
-	frm.add_qty.value = '';
-	frm.add_name.value = '';
 }
 
 /*
@@ -689,23 +697,58 @@ function addRow(frm) {
 *
 */
 function removeRow(rnum) {
+	var movement =  "";
+	var weight =  "";
+	var reps =  "";
+	var counter = 0;
+	var rowc  = 0;
+	movement =  $('#movement_'+rnum+'').val();
+	weight =  $('#weight_'+rnum+'').val();
+	reps =  $('#reps_'+rnum+'').val();
 	$('#rowNum'+rnum).remove();
 	$('#inter_rowNum'+rnum).remove();
 	$('#nov_rowNum'+rnum).remove();
 	
+	
 	//alert("Exercise to remove: " + movementArray[rnum] + " " +weightArray[rnum]+ " " +repArray[rnum]);
-
-	if(rowNum > 0) {
-		//pop the top value from each array
-		movementArray.pop();
-		weightArray.pop();
-		repArray.pop();
-		rowNum = rowNum -1;	
-		for(var i = 0; i < movementArray.length; i++) 
-		{
-			//alert("Post remove: " + movementArray[i] + " " +weightArray[i]+ " " +repArray[i])
+	//reset all the ids of existing rows
+	
+	var myDiv = document.getElementById( "new_wod_row" ); 
+	var inputArr = myDiv.getElementsByTagName( "input" ); 
+	
+	console.log("ARRAYLENGTH: " + inputArr.length);
+	var hasChanged = false;
+	for (var i = 0; i < inputArr.length; i++) 
+	{ 
+		var tempString = inputArr[i].getAttribute( 'id' );
+		if(tempString == "removebutton") {
+			console.log("button");
+			console.log("i: "+i+", rowc: "+rowc);
 		}
+		 else {
+			if(rowc%3==0) {
+				hasChanged = false;
+				counter++;
+			}
+			var t_index = tempString.indexOf("_"); 
+			var t_id = tempString.substring(t_index+1, tempString.length);
+			console.log("ID: "+t_id + ", INDEX: "+t_index +", rowCount variable: "+rowc+" counter: " + counter); 
+			if(document.getElementById("movement_"+t_id+"") && hasChanged == false)
+			{
+				//alert("movement_"+t_id+"  exists");
+				
+				document.getElementById("movement_"+t_id+"").id = "movement_"+(counter-1);
+				document.getElementById("weight_"+t_id+"").id = "weight_"+(counter-1);
+				document.getElementById("reps_"+t_id+"").id = "reps_"+(counter-1);
+				hasChanged = true;
+			}
+			rowc++;
+		}	
 	}
+	if(rowNum > 0) {
+			rowNum--;
+			console.log("RowNum REMOVED ROW: "+rowNum);
+		}
 }
 
 /*
@@ -717,54 +760,56 @@ function removeRow(rnum) {
 */
 function addScaledRows()
 {
-	var length = 0;
-	/*
-	* The following loops need to dynamically check for duplicate row entries
-	* It would be ideal if this is done using the #movement_i value
-	*
-	* Maybe create a method to get the max id for each input value currently on
-	* the modal and use that in the for loops? 
-	*/
-	$('.movement').each(function(i, item) {
-        var movement =  $('#movement_'+(i)+'').val();
-		movementArray.push(movement);
-		//alert("Movement: "+movement);
-		length = i;
-    });
+	var movement =  "";
+	var weight =  "";
+	var reps =  "";
+	var x = 7;
+	var rowCount = 0;
+	var newMvmArray = $("#new_wod_form").serializeArray();
+	$.each(newMvmArray, function(i, field){
+		if(i >= 7 && i%3==1) {
+			x = i;
+			movement =  $('#movement_'+rowCount+'').val();
+			weight =  $('#weight_'+rowCount+'').val();
+			reps =  $('#reps_'+rowCount+'').val();
+			if(typeof movement === 'undefined')
+			{
+				console.log("UNDEFINED!!!! X = "+x+", RowCount: "+rowCount+", Movement: " +movement + ", Weight: " + weight + ", Reps: " + reps);
+			} else {
+				movementArray.push(movement);
+				weightArray.push(weight);
+				repArray.push(reps);
+			 }
+			rowCount++;
+		}
+		x = i + 3
+  	});
 	
-	$('.weight').each(function(i, item) {
-        var weight =  $('#weight_'+(i)+'').val();
-		weightArray.push(weight);
-		//alert("weight: "+weight);
-    });
-	
-	//alert("Post weight check");
-	
-	$('.reps').each(function(i, item) {
-        var reps =  $('#reps_'+(i)+'').val();
-		repArray.push(reps);
-		//alert("reps: "+reps);
-    });
-	$('#inter_movement_0').val(movementArray[0])
-	$('#inter_weight_0').val(weightArray[0])
-	$('#inter_reps_0').val(repArray[0])
-	$('#nov_movement_0').val(movementArray[0])
-	$('#nov_weight_0').val(weightArray[0])
-	$('#nov_reps_0').val(repArray[0])
-	var row = "";
-	//first intermediate
-	if(length > 0) {
-		for(var i = 1; i < movementArray.length; i++) 
+	for(var k = 0; k < movementArray.length; k++)
+	{
+		console.log("Row to be inserted: " + movementArray[k] + " "+weightArray[k]+" "+ repArray[k]);
+	}
+	if(movementArray.length > 0) 
+	{
+		var row = "";
+		//first intermediate
+		$('#inter_new_wod_row').empty();
+		for(var i = 0; i < movementArray.length; i++) 
 		{	
-		row = '<p id="inter_rowNum'+i+'">Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_'+i+'" value="'+ movementArray[i] +'"> Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_'+i+'" value="'+weightArray[i]+'"> Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_'+i+'" value="'+repArray[i]+'"></p>';
-		$('#inter_new_wod_row').append(row);
-		//alert("Movement["+i+"] = " + movementArray[i]);
+			row = '<p id="inter_rowNum'+i+'">Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_'+i+'" value="'+ movementArray[i] +'"> Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_'+i+'" value="'+weightArray[i]+'"> Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_'+i+'" value="'+repArray[i]+'"></p>';
+			$('#inter_new_wod_row').append(row);
 		}
-		
-		for(var j = 1; j < movementArray.length; j++) {
-		row = '<p id="nov_rowNum'+j+'">Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_'+j+'" value="'+ movementArray[j] +'"> Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_'+j+'" value="'+weightArray[j]+'"> Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_'+j+'" value="'+repArray[j]+'"></p>';
-		$('#novice_new_wod_row').append(row);
+		$('#novice_new_wod_row').empty();
+		for(var j = 0; j < movementArray.length; j++) {
+			row = '<p id="nov_rowNum'+j+'">Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_'+j+'" value="'+ movementArray[j] +'"> Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_'+j+'" value="'+weightArray[j]+'"> Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_'+j+'" value="'+repArray[j]+'"></p>';
+			$('#novice_new_wod_row').append(row);
 		}
+	}
+	//empty the arrays
+	while (movementArray.length > 0) {
+		movementArray.pop();
+		weightArray.pop();
+		repArray.pop();
 	}
 }
 
@@ -800,67 +845,45 @@ function submitWOD() {
 	var datastring = $("#new_wod_form").serializeArray();
 	var sendRequest = true;
 
-	//alert("DATASTRING: " + datastring.toString());
-	//alert("data_three: " + data_three.toString());
-	
 	var data_four = datastring.concat(data_three);
-	//alert("data_four: " + data_four.toString());
-	//WORKING
+	alert("data_four: " + data_four.toString());
 	$('.movement').each(function(i, item) {
         var movement =  $('#movement_'+i+'').val();
 		var characterReg = /^[a-zA-Z\s]*$/;
 		if(!characterReg.test(movement)) {
 			sendRequest = false;
-			//alert("Invalid character at: Movement " + (i+1));
 			$('#movement_'+i+'').addClass("big_input_wod_error");
 		} else if (movement.length == 0) {
 			$('#movement_'+i+'').addClass("big_input_wod_error");
 			sendRequest = false;
 		}
-		//else { movementArray.push(movement); }
-        //alert(movement);
     });
-	
-	//alert("Post Movement check");
 	
 	$('.weight').each(function(i, item) {
-		//alert("Inside weight check");
         var weight =  $('#weight_'+i+'').val();
-		//var characterReg = /^\d+$/;
-		var characterReg = /^[0-9]*$/;
+		var characterReg = /^[0-9\/]*$/;
 		if(!characterReg.test(weight)) {
 			sendRequest = false;
-			//alert("Invalid character at: Weight " + (i+1));
 			$('#weight_'+i+'').addClass("big_input_wod_error ");
 		}
-		//else { weightArray.push(weight); }
-        //alert(weight);
     });
 	
-	//alert("Post weight check");
-	
 	$('.reps').each(function(i, item) {
-		//alert("Inside reps check");
         var reps =  $('#reps_'+i+'').val();
 		var characterReg = /^[0-9]*$/;
 		if(!characterReg.test(reps)) {
 			sendRequest = false;
-			//alert("Invalid character at: Reps " + (i+1));
 			$('#reps_'+i+'').addClass("big_input_wod_error ");
 		} else if (reps.length == 0) {
 			$('#reps_'+i+'').addClass("big_input_wod_error");
 			sendRequest = false;
 		}
-		//else { repArray.push(reps); }
-        //alert(reps);
     });
 	
-	
 	$.each(data_four, function(i, field){
-    	//alert("DATA: " +field.name + ":" + field.value + " ");
+    	alert("DATA: " +field.name + ":" + field.value + " ");
   	});
-	
-	
+
 	//sendRequest = false;
 	if(sendRequest == true) {
         $.ajax({

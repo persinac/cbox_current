@@ -30,9 +30,10 @@ $t_wod_specifics = $_POST['num_of_rounds'];
 $t_date = $_POST['date'];
 $t_wodID = "";
 $t_name_of_wod = "";
-$t_buy_in = "";
-$t_cash_out = "";
-$t_penalty = "";
+$t_buy_in = $_POST['buy_in'];
+$t_cash_out = $_POST['cash_out'];
+$t_penalty = $_POST['penalty'];
+$t_special = $_POST['special'];
 
 $t_string_builder = "";
 $rx_wod = "";
@@ -40,6 +41,21 @@ $inter_wod = "";
 $nov_wod = "";
 
 if(!(empty($t_wod_specifics))) {
+	if(strlen($t_special) >0) {
+			$rx_wod .= "Special instructions: " . $t_special . " ";
+			$inter_wod .= "Special instructions: " . $t_special . " ";
+			$nov_wod .= "Special instructions: " . $t_special . " ";
+	}
+	if(strlen($t_penalty) >0) {
+			$rx_wod .= "Penalty: " . $t_penalty . " ";
+			$inter_wod .= "Penalty: " . $t_penalty . " ";
+			$nov_wod .= "Penalty: " . $t_penalty . " ";
+	}
+	if(strlen($t_buy_in) >0) {
+			$rx_wod .= "Buy in: " . $t_buy_in . " then ";
+			$inter_wod .= "Buy in: " . $t_buy_in . " then ";
+			$nov_wod .= "Buy in: " . $t_buy_in . " then ";
+	}
 	if($t_typeOfWOD == "RFT") {
 		$rx_wod .= $t_wod_specifics . " rounds for time of: ";
 		$inter_wod .= $t_wod_specifics . " rounds for time of: ";
@@ -104,7 +120,11 @@ foreach( $_POST['nov_movement'] as $cnt => $mvmnt )
 		$nov_wod .= $t_reps . " reps of " . $t_movement . " @ bodweight, " ;
 	}
 }
-
+if(strlen($t_cash_out) >0) {
+	$rx_wod .= "Cash out: " . $t_cash_out . "";
+	$inter_wod .= "Cash out: " . $t_cash_out . "";
+	$nov_wod .= "Cash out: " . $t_cash_out . "";
+}
 #######
 #
 # MySql insert
