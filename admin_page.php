@@ -95,6 +95,17 @@ if (isset($_SESSION['MM_UserID'])) {
 <body>
 
 <div id="div_container">
+    <div id="navbar_main">
+        <ul id="navbar_main_ul"> 
+            <li id="home" ><a href="Admin_home_page.php" >HOME</a></li> 
+            <li id="compare"><a href="#" >COMPARE</a></li> 
+            <li id="wod" ><a href="user_wod_page.php" >WOD</a></li> 
+            <li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li>
+            <li id="admin" class="active"><a href="#" >Admin</a></li>
+            <li id="account" ><a href="#" >ACCOUNT</a></li> 
+            <li id="logout" ><a href="#" >LOGOUT</a></li>
+        </ul> 
+    </div>
 
     <hr class="featurette-divider">
     <h1>Past WODs</h1>
@@ -198,7 +209,25 @@ if (isset($_SESSION['MM_UserID'])) {
     
     <hr class="featurette-divider">
     <div id="new_strength">
-    	<p>NEW STRENGTH FORM HERE</p>
+        <form method="POST" id="new_strength_form" class="new_str">
+            <p id="str_type_p">
+                Date: <input type="text" name="date" class="datepicker" id="str_datepicker"/> 
+                Movement: <input type="text" name="strength_mov" class="strength_mov" id="strength_mov_0"/> 
+                Rep Scheme: <input type="text" name="str_reps" class="strength_reps" id="strength_reps" placeholder="5x5, 5-4-3-2-1, etc etc" />
+                Weight Instructions: <select id="str_instruction_selector" name="str_instruction_selector">
+                  <option value="PER">Percentage of 1RM</option>
+                  <option value="AHAP">As Heavy as Possible</option>
+                  <option value="ILES">Increase Load Each set</option>
+                  <option value="LSS">Load Stays Same</option>
+                </select>
+                <div id="strength_instructions"></div>
+                <div id="specific_to_strength">
+                    Special Instructions: <input type="text" name="special_str" class="extra_str_stuff" id="strength_special_instructions" placeholder="..."/>
+                </div>
+            </p>
+            <input onclick="submitStrength(this.form);" type="button" value="Submit Strength" />
+            </form>
+        </div> <!-- END OF new_wod_container -->
     </div><!-- END OF past_post_wods -->
     
     <hr class="featurette-divider">
@@ -249,6 +278,15 @@ $(document).ready(function() {
 	getPastPostWODS(<?php echo $_SESSION['MM_BoxID'] ?>);
 });
 
+$("#navbar_main_ul li").click(function() {
+		//event.preventDefault();
+		var id = jQuery(this).attr("id");
+		if(id=="logout" || id=="LOGOUT") {
+			alert("LOGGING OUT");
+			window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+		}
+	});	
+
 /*
 * Set up the datepicker object
 *
@@ -256,7 +294,7 @@ $(document).ready(function() {
 $(function() {
 	//event.preventDefault();
     $("#datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
-	
+	$("#str_datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
   });
   
 /*
@@ -319,7 +357,7 @@ $( this ).focusout(function (event) {
 		}
 	} else if( id.indexOf("reps_") >= 0 ) {
 		value = $("#" + id).val();
-		//alert("ID: "+id+", value: "+ value);
+		alert("ID: "+id+", value: "+ value);
 		if(!repsReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
@@ -423,34 +461,54 @@ $( "#wod_type_selector" ).change(function() {
 		str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
 		} else if($( this ).text() == "AMRAP") {
 			str = "Time: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
-			} else if($( this ).text() == "TABATA") {
-				str = "Number of Intervals: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
-			} else if($( this ).text() == "GIRLS") {
-				str = "Girls: <select id=\"girl_selector\" name=\"girl_selector\">";
-				str +="<option value=\"Angie\">Angie</option>";
-				str += "<option value=\"Angie\">Barbara</option>";
-				str +="<option value=\"Angie\">Chelsea</option>";
-				str +="<option value=\"Angie\">Cindy</option>";
-				str +="<option value=\"Angie\">Diane</option>";
-				str +="<option value=\"Angie\">Elizabeth</option>";
-				str +="<option value=\"Angie\">Fran</option>";
-				str +="<option value=\"Angie\">Grace</option>";
-				str +="<option value=\"Angie\">Helen</option>";
-				str +="<option value=\"Angie\">Isabel</option>";
-				str +="<option value=\"Angie\">Jackie</option>";
-				str +="<option value=\"Angie\">Karen</option>";
-				str +="<option value=\"Angie\">Linda</option>";
-				str +="<option value=\"Angie\">Mary</option>";
-				str +="<option value=\"Angie\">Nancy</option>";
-				str +="</select>";
-		
-			}else if($( this ).text() == "HEROES") {
-				str = "";
-			}
+		} else if($( this ).text() == "TABATA") {
+			str = "Number of Intervals: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
+		} else if($( this ).text() == "GIRLS") {
+			str = "Girls: <select id=\"girl_selector\" name=\"girl_selector\">";
+			str +="<option value=\"Angie\">Angie</option>";
+			str += "<option value=\"Angie\">Barbara</option>";
+			str +="<option value=\"Angie\">Chelsea</option>";
+			str +="<option value=\"Angie\">Cindy</option>";
+			str +="<option value=\"Angie\">Diane</option>";
+			str +="<option value=\"Angie\">Elizabeth</option>";
+			str +="<option value=\"Angie\">Fran</option>";
+			str +="<option value=\"Angie\">Grace</option>";
+			str +="<option value=\"Angie\">Helen</option>";
+			str +="<option value=\"Angie\">Isabel</option>";
+			str +="<option value=\"Angie\">Jackie</option>";
+			str +="<option value=\"Angie\">Karen</option>";
+			str +="<option value=\"Angie\">Linda</option>";
+			str +="<option value=\"Angie\">Mary</option>";
+			str +="<option value=\"Angie\">Nancy</option>";
+			str +="</select>";
+	
+		}else if($( this ).text() == "HEROES") {
+			str = "";
+		}
 		//Update html content
 		$('#specific_to_wod').append(str);
     });
   }).trigger( "change" );
+  
+$( "#str_instruction_selector" ).change(function() {
+    var str = "";
+    $( "#str_instruction_selector option:selected" ).each(function() 
+	{
+		$('#strength_instructions').empty();
+		if($( this ).val() == "PER"){
+		str = "Percentage of 1RM: <input type=\"text\" name=\"weight_instruction\" class=\"weight_instruction\" id=\"percent_of_onerm\"/>";
+		} else if($( this ).val() == "AHAP") {
+			str = "As heavy as possible <input type=\"hidden\" name=\"weight_instruction\" class=\"weight_instruction\" id=\"ahap\"/>";
+		} else if($( this ).val() == "ILES") {
+			str = "Increase load by: <input type=\"text\" name=\"weight_instruction\" class=\"weight_instruction\" id=\"iles\"/>lbs each set (optional instruction)";
+		} else if($( this ).val() == "LSS") {
+			str = "Load Stays the same <input type=\"hidden\" name=\"weight_instruction\" class=\"weight_instruction\" id=\"lss\"/>";
+		}
+		//Update html content
+		$('#strength_instructions').append(str);
+    });
+  }).trigger( "change" );
+
 
   
 /********************************* GETTER METHODS *********************************/
@@ -837,13 +895,13 @@ function loadRxIntoScale()
 *
 */
 function submitWOD() {
-	
+	var sendRequest = true;
 	if($("#datepicker").val().length == 0){
 		sendRequest = false;
 	}
 	
 	var datastring = $("#new_wod_form").serializeArray();
-	var sendRequest = true;
+	
 
 	var data_four = datastring.concat(data_three);
 	alert("data_four: " + data_four.toString());
@@ -890,6 +948,72 @@ function submitWOD() {
             type: "POST",
             url: "php_form_test.php",
             data: data_four,
+            success: function(data) {
+                 alert('Data send:' + data);
+            }
+        });
+	}
+}
+
+/*
+* Called when the user submits the form on the main page.
+* Serializes the RX form and the concatenates it with the 
+* concatenated intermediate and novice arrays. Submit via
+* ajax call. 
+*
+* Performs final input checking to ensure invalid characters
+* are not present
+*
+* Returns a popup notification of whatever the MySQL result
+* is.
+*
+*/
+function submitStrength() {
+	var sendRequest = true;
+	if($("#str_datepicker").val().length == 0){
+		sendRequest = false;
+	}
+	
+	var strength_data = $("#new_strength_form").serializeArray();
+	
+	alert("strength_data: " + strength_data.toString());
+	var movement =  $('#strength_mov_0'+'').val();
+	var reps = $('#strength_reps'+'').val();
+	var strength_instructions = $('#strength_special_instructions'+'').val();
+	var moveReg = /^[a-zA-Z\s]*$/;
+	var repsReg = /^[a-z0-9\-]*$/;
+	var weightReg = /^[0-9]*$/;
+	if(!moveReg.test(movement)) {
+		sendRequest = false;
+		$('#strength_mov_0').addClass("big_input_wod_error");
+	} else if (movement.length == 0) {
+		$('#strength_mov_0').addClass("big_input_wod_error");
+		sendRequest = false;
+	}
+	
+	if(!repsReg.test(reps)) {
+		sendRequest = false;
+		$('#strength_reps').addClass("big_input_wod_error");
+	} else if (reps.length == 0) {
+		$('#strength_reps').addClass("big_input_wod_error");
+		sendRequest = false;
+	}
+	
+	if(!moveReg.test(strength_instructions)) {
+		sendRequest = false;
+		$('#strength_special_instructions').addClass("big_input_wod_error");
+	}
+	
+	$.each(strength_data, function(i, field){
+    	//alert("DATA: " +field.name + ":" + field.value + " ");
+  	});
+
+	//sendRequest = false;
+	if(sendRequest == true) {
+        $.ajax({
+            type: "POST",
+            url: "adminAddStrength.php",
+            data: strength_data,
             success: function(data) {
                  alert('Data send:' + data);
             }

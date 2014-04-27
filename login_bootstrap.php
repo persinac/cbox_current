@@ -35,6 +35,9 @@ function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDe
 // *** Validate request to login to this site.
 if (!isset($_SESSION)) {
   session_start();
+} else if (isset($_SESSION)) {
+  session_destroy();
+  session_start();	
 }
 
 $loginForm = $_SERVER['PHP_SELF'];
