@@ -108,11 +108,11 @@ mysql_select_db($database_cboxConn, $cboxConn);
     </div>
     
     <div id="post_wod_div">
-    	<p>post wod stuff</p>
+    	<p id="temp_pwod">post wod stuff</p>
     </div>
     
     <div id="strength_div">
-    	<p>strength stuff</p>
+    	<p id="temp_strength">strength stuff</p>
     </div>
 	
 	<div id="add_custom_modal" class="modal" style="display:none; ">
@@ -183,6 +183,29 @@ mysql_select_db($database_cboxConn, $cboxConn);
         </div>
     </div>
 	
+	<!-- Strength pop up -->
+    <div id="strength_modal" class="modal" style="display:none; ">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3>Add Strength</h3>
+        </div>
+        <div class="modal-body">
+        	<!-- Grab number of rows and place that many into here -->  
+            <form method="POST" id="add_strength_form" class="add_strength">
+                <div id="add_strength_row">
+                <h4>Strength</h4>
+                    Set 1 Weight: <input type="text" name="strength_weight_0" class="strength_weight" id="strength_weight_0" /> lbs Reps Completed: <input type="text" name="strength_reps_0" class="strength_reps" id="strength_reps_0" /> 
+                    <p></p>   
+                </div> <!-- END OF new_strength -->
+             </form> 
+        </div>
+        <div class="modal-footer">
+		  <button class="btn btn-success" onclick="addRow(this.form);" type="button" id="add_strength">Add Set</button>
+          <button class="btn btn-success" id="submit_strength">Submit</button>
+          <a href="#" class="btn" data-dismiss="modal">Close</a>
+        </div>
+    </div>
+	
 	
 	<div class="btn-group" id="level_selector">
 	  <button type="button" class="btn btn-default" id="lvl_rx">RX</button>
@@ -196,7 +219,7 @@ mysql_select_db($database_cboxConn, $cboxConn);
 			</p><p>
 			<a data-toggle="modal" href="#add_custom_modal" class="btn btn-default" name="wod_custom" id="wod_custom">Add Scaled WOD</a>
 			</p><p>
-			<button class="btn btn-primary" name="strength" id="strength" type="button">Add Strength</button>
+			<button class="btn btn-primary" data-toggle="modal" name="strength" id="strength" type="button">Add Strength</button>
 			</p><p>
 			<button class="btn btn-default" name="post_wod" id="post_wod" type="button">Add Post WOD</button>
 			</p><p>
@@ -227,6 +250,7 @@ $(document).ready(function() {
 	getWOD("rx");
 	//get postWod
 	//get strength
+	getStrength();
 });
 
 var wod_description ="";
@@ -234,6 +258,9 @@ var wod_name = "";
 var wod_type = "";
 var level_perf = "";
 var time = "";
+var type_of_wod = "";
+var amrap_time = "";
+var rft_rounds = "";
 
 $(function(){
 	$("button#wod_").click(function() {
@@ -257,6 +284,18 @@ $(function(){
 	});
 });
 
+$(function(){
+	$("button#strength").click(function() {
+		var modalHeight = "";
+		var modalWidth = "";
+		modalHeight = '50% !important';
+		modalWidth = '50% !important';
+		$('#strength_modal').css('margin-top', modalHeight);
+		$('#strength_modal').css('margin-left', modalWidth);
+		$('#strength_modal').modal('show');
+	});
+});
+
 $(function() {
 	$("button#lvl_rx").click(function() {
     	//alert("CLICKEDDDDD!!!!!");
@@ -275,7 +314,6 @@ $(function() {
 
 $(function() {
 	$("button#lvl_nov").click(function() {
-    	//alert("CLICKEDDDDD!!!!!");
 		//add wod
 		getWOD("nov")
     });
@@ -289,13 +327,6 @@ $(function() {
 		var actualTime = "00:15:09";
 		var time_comp = "";
 		var rounds_compl = 1;
-		//alert("Variables: " +today+", "+actualTime);
-		//alert("Variables: " +wod_description);
-		//alert("Variables: " +level_perf);
-		//alert("Variables: " +rounds_compl);
-		//alert("Variables: " +time_comp);
-		//alert("Variables: " +pwod_id);
-		//alert("Variables: " +strID);
 		
 		//alert("datastring: " + datastring.value);
 		$.each(datastring, function(i, field)
@@ -303,8 +334,8 @@ $(function() {
 			alert("DATA: " + field.name + " : " + field.value);
 			actualTime = field.value;
 		});
-		var send = false;
-		alert("actualtime: " + actualTime);
+		var send = true;
+		//alert("actualtime: " + actualTime);
 		if(send==true) {
 			$.ajax({
 				type: "POST",
@@ -313,7 +344,7 @@ $(function() {
 					"wod_id": today, //build this based on box id and date - I think I've got this variable in PHP
 					"wod_descrip" : "", 
 					"level_perf" : level_perf,
-					"rounds_compl": rounds_compl,
+					"rounds_compl": rft_rounds,
 					"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
 					"pwod_id" : pwod_id, //same as wod_id
 					"strength_id" : strID, //same as wod_id
@@ -344,8 +375,8 @@ $(function() {
 			alert("DATA: " + field.name + " : " + field.value);
 			rounds_compl = field.value;
 		});
-		alert("rounds_compl: " + rounds_compl);
-		var send = false;
+		//alert("rounds_compl: " + rounds_compl);
+		var send = true;
 		if(send==true) {
 			$.ajax({
 				type: "POST",
@@ -358,7 +389,7 @@ $(function() {
 					"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
 					"pwod_id" : pwod_id, //same as wod_id
 					"strength_id" : strID, //same as wod_id
-					"actualTime" : actualTime
+					"actualTime" : amrap_time
 					}, 
 				success: function(msg)
 				{
@@ -368,6 +399,82 @@ $(function() {
 			});
 		}
     });
+});
+
+$(function() {
+	$("button#submit_strength").click(function() {
+		var datastring = $('#add_strength_form').serializeArray();
+		var str_id = "";
+		var strID = "";
+		var values = "";
+		var send = true;
+		//alert("datastring: " + datastring.value);
+		
+		$('.strength_weight').each(function(i, item) {
+			var weight =  $('#strength_weight_'+i+'').val();
+			alert("Weight at: " + i + " = " + weight)
+			var characterReg = /^[0-9]*$/;
+			if(!characterReg.test(weight)) {
+				send = false;
+				alert("Doesn't like weight value at " + i);
+				$('#strength_weight_'+i+'').addClass("big_input_wod_error");
+			} else if (weight.length == 0) {
+				$('#strength_weight_'+i+'').addClass("big_input_wod_error");
+				send = false;
+				alert("Doesn't like weight length at: " + i);
+			}
+		});
+	
+		$('.strength_reps').each(function(i, item) {
+			var reps =  $('#strength_reps_'+i+'').val();
+			var characterReg = /^[0-9\[\]]*$/;
+			if(!characterReg.test(reps)) {
+				send = false;
+				alert("Doesn't like reps");
+				$('#strength_reps_'+i+'').addClass("big_input_wod_error ");
+			} else if (reps.length == 0) {
+				$('#strength_reps_'+i+'').addClass("big_input_wod_error");
+				send = false;
+				alert("Doesn't like reps");
+			}
+		});
+		var counter = 0;
+		var weight_value = "";
+		$.each(datastring, function(i, field)
+		{
+			if(counter == 0) {
+				if(i==0) {
+					weight_value += "" + field.value;
+					counter++;
+				} else {
+					weight_value += "-" + field.value;
+					counter++;
+				}
+			} else if(counter == 1) {
+				weight_value += "[" + field.value + "]" ;
+				counter = 0;
+			}
+			//alert("DATA: " + field.name + " : " + field.value);
+			
+		});
+		
+		//send = false;
+		if(send==true) {
+			alert("weight_val: " + weight_value);
+			$.ajax({
+				type: "POST",
+				url: "addUserStrength.php",
+				data: { "strength_id": today,
+					"strength_val" : weight_value
+					}, 
+				success: function(msg)
+				{
+					alert(msg);
+					//loadWODData(msg, level_performed);
+				}
+			});
+		}
+	});
 });
 
 var today = new Date();
@@ -423,6 +530,22 @@ function getWOD(level_performed)
 	});
 }
 
+function getStrength()
+{
+	$("#temp_strength").empty();
+	$.ajax({
+		type: "POST",
+		url: "getCurrentStrength.php",
+		data: { "datastring" : today}, 
+		dataType: "json",
+		success: function(msg)
+		{
+			loadStrengthData(msg);
+		}
+	});
+}
+
+
 function loadUserBoxInfo(data)
 {
 	//alert(data);
@@ -440,8 +563,7 @@ function loadWODData(data, level_performed)
 {
 	var html_sec1 = "";
 	var sec1_classID = "cftwod_sec1_data";   
-	var wodname = "";
-	var type_of_wod = "";
+	var wodname = "";	
 	var descrip = "";
 	var descripLength = 0;
 	
@@ -455,7 +577,9 @@ function loadWODData(data, level_performed)
 		} else {
 			descrip = data[0].nov_descrip;
 		}
-		
+		amrap_time = data[0].time;
+		rft_rounds = data[0].rounds;
+		//alert("AMRAP: " + amrap_time + ", RFT: " + rft_rounds);
 		if(wodname != "-") {
 			html_sec1 += "<h3>"+wodname+"</h3>";
 		}
@@ -466,12 +590,12 @@ function loadWODData(data, level_performed)
 		  //alert(n.length);
 		  descripLength += n.length;
 		  //alert(descripLength);
-		  var colon = n.indexOf(":");
+		  var colon = n.indexOf(";");
 		  //if(){}
 		  //alert("index of colon = "+colon);
 		  if(colon > 0) {
-			  ////alert("index of colon = "+colon +", n.substring(0,colon) "+n.substring(0,colon+1));
-			  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(0,colon+1)+"</p>";
+			  //alert("index of colon = "+colon +", n.substring(0,colon) "+n.substring(0,colon));
+			  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(0,colon)+"</p>";
 			  //alert("n.substring(colon+2) "+n.substring(colon+2));
 			  html_sec1 +="<p id=\"wod_descrip\">"+n.substring(colon+2)+"</p>";
 			} else {
@@ -487,6 +611,58 @@ function loadWODData(data, level_performed)
 	$('#wod_div').addClass("long_description");}
 	$('#wod_div').html(html_sec1);
 }
+
+function loadStrengthData(data)
+{
+	var html_sec1 = "";
+	var sec1_classID = "cftwod_sec1_data";   
+	var movement = "";
+	var descrip = "";
+	var specialInstructions = "";
+	var descripLength = 0;
+	
+	movement = data[0].movement;
+	descrip = data[0].descrip;
+	specialInstructions = data[0].special_instructions;
+	
+	html_sec1 +="<p>Strength: "+movement+"</p>";
+	html_sec1 +="<p>Description: "+descrip+"</p>";
+	html_sec1 +="<p>Special Instructions: "+specialInstructions+"</p>";
+	
+	
+	//Update html content
+	if(descrip.length > 150 || specialInstructions.length > 150){//alert(">150"); 
+		$('#strength_div').addClass("long_description");}
+	$('#strength_div').html(html_sec1);
+}
+
+/*
+* Called from the  new_wod_form in the input div
+* Creates a new <p> which holds the new rows of input
+* Increments rowNum by 1 each time the button is pressed,
+* and uses rowNum to id the paragraph and input text fields
+*
+*/
+var rowNum = 0;
+function addRow(frm) {
+	rowNum++;
+	console.log("Strength RowNum ADDED ROW: "+rowNum);
+	var row = '<p id="str_rowNum'+rowNum+'"> Set '+(rowNum+1)+' Weight: <input type="text" name="strength_weight_'+rowNum+'" class="strength_weight" id="strength_weight_'+rowNum+'" /> lbs Reps Completed: <input type="text" name="strength_reps_'+rowNum+'" class="strength_" id="strength_reps_'+rowNum+'" />  <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
+	$('#add_strength_row').append(row);
+}
+
+function removeRow(rnum) {
+	var counter = 0;
+	var rowc  = 0;
+
+	$('#str_rowNum'+rnum).remove();
+	
+	if(rowNum > 0) {
+		rowNum--;
+		console.log("Strength RowNum REMOVED ROW: "+rowNum);
+	}
+}
+
 </script>
 
 </body>

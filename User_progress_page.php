@@ -598,6 +598,34 @@ function changeTextColorOfTables() {
 			loadCFTData(response);
 		  } 
 		});
+	} else if(movement_id == "grl")
+	{
+		//create html here:
+		html += "<div id=\"cft_foundamentals_sec1_div\">";
+		html +=" <table class=\"cft_foundamentals_sec1\">";
+		html +=" <tbody class=\"sec1_body\">"; 	
+        html +=" </tbody>";
+		html +=" </table></div><div id=\"cft_foundamentals_sec2_div\">";
+		html +=" <table class=\"cft_foundamentals_sec2\">";
+		html +=" <tbody class=\"sec2_body\"></tbody></table></div>";
+		html +=" <div id=\"cft_foundamentals_sec3_div\">";
+		html +=" <table class=\"cft_foundamentals_sec3\">";
+		html +=" <tbody class=\"sec3_body\">";
+		html +=" </tbody></table></div>";
+    
+		$('#data_container').html(html);
+		
+		$.ajax({ 
+		  type:"POST",                                     
+		  url: "php_json_test.php", //the script to call to get data          
+		  data: { dataString: movement_id }, //you can insert url argumnets here to pass to api.php
+		  dataType: "json",                //data format      
+		  success: function(response) //on recieve of reply
+		  {
+			  //alert(movement_id);
+			loadCFTData(response);
+		  } 
+		});
 	}
   } 
   

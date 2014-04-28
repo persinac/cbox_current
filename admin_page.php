@@ -460,7 +460,36 @@ $( "#wod_type_selector" ).change(function() {
 		if($( this ).text() == "RFT"){
 		str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
 		} else if($( this ).text() == "AMRAP") {
-			str = "Time: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
+			str = "Time: <select size=\"1\" name=\"amrap_0\" class=\"num_of_rounds\" id=\"amrap_0\">";
+			//for loop to produce 00-24
+			for(var i = 0; i < 24; i++) {
+				if(i < 10) {
+					str += "<option value=\"0"+i+"\">0"+i+"</option>";
+				} else {
+					str += "<option value=\""+i+"\">"+i+"</option>";
+				}	
+			}
+			str +="</select>";
+			str += " : <select size=\"1\" name=\"amrap_1\" class=\"num_of_rounds\" id=\"amrap_1\">";
+			//for loop to produce 00-59
+			for(var i = 0; i < 60; i++) {
+				if(i < 10) {
+					str += "<option value=\"0"+i+"\">0"+i+"</option>";
+				} else {
+					str += "<option value=\""+i+"\">"+i+"</option>";
+				}	
+			}
+			str +="</select>";
+			str += " : <select size=\"1\" name=\"amrap_2\" class=\"num_of_rounds\" id=\"amrap_2\">";
+			//for loop to produce 00-59
+			for(var i = 0; i < 60; i++) {
+				if(i < 10) {
+					str += "<option value=\"0"+i+"\">0"+i+"</option>";
+				} else {
+					str += "<option value=\""+i+"\">"+i+"</option>";
+				}	
+			}
+			str +="</select>";
 		} else if($( this ).text() == "TABATA") {
 			str = "Number of Intervals: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
 		} else if($( this ).text() == "GIRLS") {
@@ -937,11 +966,24 @@ function submitWOD() {
 			sendRequest = false;
 		}
     });
+	var amrap_time = "";
+	$.each(data_four, function(i, field){
+		var name = field.name;
+		if(name.indexOf("amrap_0") > -1 ) {
+			alert("DATA: " +field.name + ":" + field.value + " ");
+			amrap_time += field.value;
+		} else if(name.indexOf("amrap_1") > -1 || name.indexOf("amrap_2") > -1 ) {
+			alert("DATA: " +field.name + ":" + field.value + " ");
+			amrap_time += ":"+field.value;
+		}
+  	});
+	alert("AMRAP_TIME: "+amrap_time);
+	data_four.push({ name: "amrap_time_update", value: amrap_time });
 	
 	$.each(data_four, function(i, field){
-    	alert("DATA: " +field.name + ":" + field.value + " ");
+		alert("DATA: " +field.name + ":" + field.value + " ");
   	});
-
+	
 	//sendRequest = false;
 	if(sendRequest == true) {
         $.ajax({

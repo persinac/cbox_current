@@ -38,75 +38,48 @@ if(!(isset($_SESSION['MM_Username'])))
 	header("Location: Error401UnauthorizedAccess.php");
 }
 
-$colname_getUserWODs = "-1";
+$colname_getUserStrength = "-1";
 if (isset($_SESSION['MM_UserID'])) {
-  $colname_getUserWODs = $_SESSION['MM_UserID'];
+  $colname_getUserStrength = $_SESSION['MM_UserID'];
 }
 
 mysql_select_db($database_cboxConn, $cboxConn);
 $today = $_POST['datastring'];
-$level = $_POST['lvl_perf'];
-
 
 ###
 # grab box id first
 ###
 $query_getUserBoxID = "select box_id
 FROM athletes 
-WHERE user_id = '{$colname_getUserWODs}%'";
+WHERE user_id = '{$colname_getUserStrength}%'";
 $getUserBoxID = mysql_query($query_getUserBoxID, $cboxConn) or die(mysql_error());
 #$rows = mysql_fetch_assoc($getUserBenchmarks);
-$totalRows_getUserWODs = mysql_num_rows($getUserBoxID);
+$totalRows_getUserStrength = mysql_num_rows($getUserBoxID);
 $row = mysql_fetch_array($getUserBoxID);
 #row[0] = the box name
 $t_box_id = $row[0];
 
-//echo 'Box ID: '. $t_box_id . ' ';
-if($level == "rx") {
-$query_getWOD = "select CASE WHEN (name_of_wod = '') THEN '-' ELSE name_of_wod END AS name_of_wod, 
-type_of_wod, 
-rx_descrip, 
-date_of_wod,
-rounds,
-time 
-from wods 
-WHERE SUBSTRING(wods.wod_id, 1, 1) = '{$t_box_id}' 
-AND date_of_wod = '{$today}'";
-} else if ($level == "intermediate") {
-$query_getWOD = "select CASE WHEN (name_of_wod = '') THEN '-' ELSE name_of_wod END AS name_of_wod, 
-type_of_wod, 
-inter_descrip, 
-date_of_wod,
-rounds,
-time 
-from wods 
-WHERE SUBSTRING(wods.wod_id, 1, 1) = '{$t_box_id}' 
-AND date_of_wod = '{$today}'";
-} else {
-$query_getWOD = "select CASE WHEN (name_of_wod = '') THEN '-' ELSE name_of_wod END AS name_of_wod, 
-type_of_wod, 
-nov_descrip, 
-date_of_wod,
-rounds,
-time 
-from wods 
-WHERE SUBSTRING(wods.wod_id, 1, 1) = '{$t_box_id}' 
-AND date_of_wod = '{$today}'";
-}
-//echo 'query: ' . $query_getWOD . ' ';
-$getWOD = mysql_query($query_getWOD, $cboxConn) or die(mysql_error());
-$totalRows_getWOD = mysql_num_rows($getWOD);
+//echo "Box ID: ". $t_box_id . "\n";
+$query_getStrength = "select movement, descrip, special_instructions
+from strength 
+WHERE SUBSTRING(strength.str_id, 1, 1) = '{$t_box_id}' 
+AND date_of_strength = '{$today}'";
+
+//echo "query: " . $query_getStrength . "\n";
+$getStrength = mysql_query($query_getStrength, $cboxConn) or die(mysql_error());
+$totalRows_getStrength = mysql_num_rows($getStrength);
 //echo 'Total Rows: ' . $totalRows_getWOD . ' ';
 // ####echo $totalRows_getAdminWODs;
 $results = array();
 
-for($i = 0; $i < $totalRows_getWOD; $i++)
+for($i = 0; $i < $totalRows_getStrength; $i++)
 {
 	//echo 'Results['.$i.']: ' . $results[$i] . ' ';
-	$results[] = mysql_fetch_assoc($getWOD);
+	$results[] = mysql_fetch_assoc($getStrength);
 }
 
 echo json_encode($results);	
 mysql_close($cboxConn);
+
 
 ?>

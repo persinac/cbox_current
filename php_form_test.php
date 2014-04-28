@@ -2,7 +2,7 @@
 <?php
 session_start();
 
-$_SESSION['MM_Username'] = "kellintc";
+#$_SESSION['MM_Username'] = "kellintc";
 if(!(isset($_SESSION['MM_Username'])))
 {
 	header("Location: Error401UnauthorizedAccess.php");
@@ -34,42 +34,56 @@ $t_buy_in = $_POST['buy_in'];
 $t_cash_out = $_POST['cash_out'];
 $t_penalty = $_POST['penalty'];
 $t_special = $_POST['special'];
+$t_amrap_time = "";
+$t_rft_rounds = "";
+
 
 $t_string_builder = "";
 $rx_wod = "";
 $inter_wod = "";
 $nov_wod = "";
 
-if(!(empty($t_wod_specifics))) {
-	if(strlen($t_special) >0) {
+if(!(empty($t_typeOfWOD))) {
+	if(strlen($t_special) > 0) {
+	echo "SPECIAL";
 			$rx_wod .= "Special instructions: " . $t_special . " ";
-			$inter_wod .= "Special instructions: " . $t_special . " ";
+			$inter_wod .= "Special instructions; " . $t_special . " ";
 			$nov_wod .= "Special instructions: " . $t_special . " ";
 	}
-	if(strlen($t_penalty) >0) {
+	if(strlen($t_penalty) > 0) {
+	echo "PENALTY";
 			$rx_wod .= "Penalty: " . $t_penalty . " ";
 			$inter_wod .= "Penalty: " . $t_penalty . " ";
 			$nov_wod .= "Penalty: " . $t_penalty . " ";
 	}
-	if(strlen($t_buy_in) >0) {
+	if(strlen($t_buy_in) > 0) {
+	echo "BUY IN";
 			$rx_wod .= "Buy in: " . $t_buy_in . " then ";
 			$inter_wod .= "Buy in: " . $t_buy_in . " then ";
 			$nov_wod .= "Buy in: " . $t_buy_in . " then ";
 	}
 	if($t_typeOfWOD == "RFT") {
-		$rx_wod .= $t_wod_specifics . " rounds for time of: ";
-		$inter_wod .= $t_wod_specifics . " rounds for time of: ";
-		$nov_wod .= $t_wod_specifics . " rounds for time of: ";
+	echo "SRFT";
+		$rx_wod .= $t_wod_specifics . " rounds for time of:; ";
+		$inter_wod .= $t_wod_specifics . " rounds for time of:; ";
+		$nov_wod .= $t_wod_specifics . " rounds for time of:; ";
+		$t_rft_rounds = $_POST['num_of_rounds'];
+		$t_amrap_time = '-';
 	}
 	elseif($t_typeOfWOD == "AMRAP") {
-		$rx_wod .= $t_wod_specifics . " minutes of: ";
-		$inter_wod .= $t_wod_specifics . " minutes of: ";
-		$nov_wod .= $t_wod_specifics . " minutes of: ";
+	echo "AMRAP";
+		$t_amrap_time = $_POST['amrap_time_update'];
+		$rx_wod .= $t_amrap_time . " minutes of:; ";
+		$inter_wod .= $t_amrap_time . " minutes of:; ";
+		$nov_wod .= $t_amrap_time . " minutes of:; ";
+		
+		$t_rft_rounds = '-';
 	}
 	elseif($t_typeOfWOD == "TABATA") {
-		$rx_wod .= $t_wod_specifics . " :20 on :10 off of: ";
-		$inter_wod .= $t_wod_specifics . " :20 on :10 off of: ";
-		$nov_wod .= $t_wod_specifics . " :20 on :10 off of: ";
+	echo "TABATA";
+		$rx_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
+		$inter_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
+		$nov_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
 	}
 }
 #echo "RX: ".$rx_wod . ", INTER: " . $inter_wod . ", NOV: " . $nov_wod;
@@ -125,6 +139,7 @@ if(strlen($t_cash_out) >0) {
 	$inter_wod .= "Cash out: " . $t_cash_out . "";
 	$nov_wod .= "Cash out: " . $t_cash_out . "";
 }
+echo $t_num_of_rounds . ", AMRAP: " . $t_amrap_time . ", POST: " .$_POST['amrap_time_update']."\n";
 #######
 #
 # MySql insert
@@ -144,7 +159,7 @@ $row = mysql_fetch_array($getAdminWODs);
 
 $t_wodID = $row[0] . str_replace("-", "", $t_date);
 
-$query_insert_wod = "insert into wods values ('{$t_wodID}', '{$t_name_of_wod}', '{$t_typeOfWOD}', '{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}')";
+$query_insert_wod = "insert into wods values ('{$t_wodID}', '{$t_name_of_wod}', '{$t_typeOfWOD}', '{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}')";
 #echo $query_insert_wod;
 $retval = mysql_query( $query_insert_wod, $cboxConn );
 if(! $retval )
