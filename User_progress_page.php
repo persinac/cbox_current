@@ -94,7 +94,7 @@ $totalRows_getUserBenchmarks = mysql_num_rows($getUserCFBenchmarks);
   <ul id="navbar_main_ul"> 
 	<li id="home" >
 	<?php echo "<a href='$link' >"; ?>HOME</a></li> 
-	<li id="compare"><a href="#" >COMPARE</a></li> 
+	<li id="compare"><a href="user_compare_page.php" >COMPARE</a></li> 
 	<li id="wod"><a href="/user_wod_page.php" >WOD</a></li> 
 	<li id="progress" class="active"><a href="#" >PROGRESS</a></li> 
 	<li id="account" ><a href="#" >ACCOUNT</a></li> 

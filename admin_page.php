@@ -98,7 +98,7 @@ if (isset($_SESSION['MM_UserID'])) {
     <div id="navbar_main">
         <ul id="navbar_main_ul"> 
             <li id="home" ><a href="Admin_home_page.php" >HOME</a></li> 
-            <li id="compare"><a href="#" >COMPARE</a></li> 
+            <li id="compare"><a href="user_compare_page.php" >COMPARE</a></li> 
             <li id="wod" ><a href="user_wod_page.php" >WOD</a></li> 
             <li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li>
             <li id="admin" class="active"><a href="#" >Admin</a></li>

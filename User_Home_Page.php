@@ -33,6 +33,7 @@
 		<td colspan="2">
 			<img src="images/home_page/images/Home-Page_CFAPP_04.gif" width="826" height="1" alt=""></td>
 		<td rowspan="2">
+			<a href="user_compare_page.php">
 			<img src="images/home_page/images/home_page_compare.jpg" width="397" height="283" alt=""></td>
 	</tr>
 	<tr>

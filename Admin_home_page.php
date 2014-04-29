@@ -41,6 +41,7 @@
         <a href="user_wod_page.php">
 			<img src="images/home_page/admin_images/home_page_wod.gif" width="306" height="282" alt=""></a></td>
 		<td rowspan="2">
+		<a href="user_compare_page.php">
 			<img src="images/home_page/admin_images/home_page_compare.jpg" width="306" height="283" alt=""></td>
 		<td>
         <a href="admin_page.php">

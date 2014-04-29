@@ -31,7 +31,7 @@ function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDe
   return $theValue;
 } 
 } #end function
-$_SESSION['MM_Username'] = "kellintc";
+//$_SESSION['MM_Username'] = "kellintc";
 if(!(isset($_SESSION['MM_Username'])))
 {
 	header("Location: Error401UnauthorizedAccess.php");
@@ -53,7 +53,17 @@ mysql_select_db($database_cboxConn, $cboxConn);
 ###
 # Defualt view is Crossfit->Foundamental benchmarks
 ###
-$box_id = "1";#$_POST['dataString'];
+
+$query_getBoxID = "select box_id
+ from athletes
+WHERE user_id = '{$colname_getUserWODs}'";
+
+$getBoxID = mysql_query($query_getBoxID, $cboxConn) or die(mysql_error());
+$totalRows_getAdminWODs = mysql_num_rows($getBoxID);
+####echo $totalRows_getAdminWODs;
+$row = mysql_fetch_array($getBoxID);
+
+$box_id = $row[0];#$_POST['dataString'];
 $query_getAdminWODs = "select wod_id
 , CASE WHEN (name_of_wod = '') THEN '-'
 	ELSE name_of_wod
