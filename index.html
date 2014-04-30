@@ -105,7 +105,7 @@
             <div class="carousel-caption">
               <h1>Ready to take the next step?</h1>
               <p>Click the button to sign up!</p>
-              <p><a class="btn btn-lg btn-primary" href="#" role="button">Sign Up Today!</a></p>
+              <p><a class="btn btn-lg btn-primary" href="#" role="button" id="signup">Sign Up Today!</a></p>
             </div>
           </div>
         </div>
@@ -220,5 +220,11 @@
     <script src="dist/js/bootstrap.min.js"></script>
     <script src="assets/js/docs.min.js"></script>
 	<script src="holderJS/holder.js"></script>
+<script>
+$('#signup').click(function(event) {
+	console.log("register_user redirect");
+	window.location.replace("http://cboxbeta.com/register_redirect.html");
+});
+</script>
   </body>
 </html>

@@ -38,7 +38,7 @@ if (isset($_SESSION['MM_UserID'])) {
 }
 $link = "index.html";
 if ($_SESSION['MM_Admin'] == "0") {$link = "User_Home_Page.php";} //Default Blank 
-else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMMENT 
+else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMMENT 
 	
 ?>
 
@@ -61,9 +61,10 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
 
 <div id="navbar_main">
   <ul id="navbar_main_ul"> 
-    <li id="home" ><?php echo "<a href='$link' >"; ?>HOME</a></li> 
-	<li id="compare" class="active"><a href="#" >COMPARE</a></li> 
-	<li id="wod" ><a href="user_wod_page.php" >WOD</a></li> 
+	<li id="home" >
+	<?php echo "<a href='$link' >"; ?>HOME</a></li> 
+	<li id="compare" class="active"><a href="user_compare_page.php" >COMPARE</a></li> 
+	<li id="wod"><a href="user_wod_page.php" >WOD</a></li> 
 	<li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li> 
 	<li id="account" ><a href="#" >ACCOUNT</a></li> 
   </ul> 
@@ -114,7 +115,7 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
         
         <div id="wod_list">
 			<h4><p id="display_workout"></p></h4>
-        	<table width="538" rules="cols" id="tbl_wod_list">
+        	<table width="524" rules="cols" id="tbl_wod_list">
             	<tr id="wod_list_headers">
                 	
                 </tr>
@@ -207,28 +208,28 @@ $( "#compare_selector" ).change(function() {
 			console.log("RFT");
 			
 			second_str+="<h4><p id=\"display_workout\"></p></h4>";
-        	second_str+="<table width=\"538\" rules=\"cols\" id=\"tbl_wod_list\">";
+        	second_str+="<table width=\"530\" rules=\"cols\" id=\"tbl_wod_list\">";
             second_str+="<tr id=\"wod_list_headers\">";  	
             second_str+="</tr>";
             second_str+="<tbody class=\"tbl_body_wod_list\" id=\"tbl_body_wod_list\">";
             second_str+="</tbody></table>";
 			$('#wod_list').html(second_str);
 			second_str = "<th width=\"90\" height=\"25\">Name</th>";
-            second_str +="<th width=\"220\">Time</th>";
+            second_str +="<th width=\"200\">Time</th>";
             second_str +="<th width=\"34\">Place</th>";
 			$('#wod_list_headers').append(second_str);
 		} else if($(this).text() == 'AMRAP') {
 			console.log("AMRAP");
 			
 			second_str+="<h4><p id=\"display_workout\"> WORKOUT HERE </p></h4>";
-        	second_str+="<table width=\"538\" rules=\"cols\" id=\"tbl_wod_list\">";
+        	second_str+="<table width=\"530\" rules=\"cols\" id=\"tbl_wod_list\">";
             second_str+="<tr id=\"wod_list_headers\">";  	
             second_str+="</tr>";
             second_str+="<tbody class=\"tbl_body_wod_list\" id=\"tbl_body_wod_list\">";
             second_str+="</tbody></table>";
 			$('#wod_list').html(second_str);
 			second_str = "<th width=\"90\" height=\"25\">Name</th>";
-            second_str +="<th width=\"220\">Total Reps</th>";
+            second_str +="<th width=\"200\">Total Reps</th>";
             second_str +="<th width=\"34\">Place</th>";
 			$('#wod_list_headers').append(second_str);
 		}
