@@ -21,6 +21,7 @@ $t_state= mysql_real_escape_string($_POST['state']);
 $t_zipCode= mysql_real_escape_string($_POST['zip_code']);
 $t_country= mysql_real_escape_string($_POST['country']);
 $t_region= mysql_real_escape_string($_POST['region']);
+$t_gender = mysql_real_escape_string($_POST['gender']);
 
 $t_username = mysql_real_escape_string($_POST['username']);
 $t_password = mysql_real_escape_string($_POST['password']);
@@ -39,7 +40,7 @@ $row = mysql_fetch_array($selectMax);
 $result= $row[0]+1;
 $t_user_id=$result;
 
-$query_registerNewUser = "insert into athletes values ('{$t_user_id}', '{$t_firstname}', '{$t_lastname}', '{$t_email}', '{$t_boxID}', '{$t_streetAddress}', '{$t_city}', '{$t_state}', '{$t_country}', '{$t_zipCode}', '{$t_region}', '{$t_admin}')";
+$query_registerNewUser = "insert into athletes values ('{$t_user_id}', '{$t_firstname}', '{$t_lastname}', '{$t_email}', '{$t_boxID}', '{$t_streetAddress}', '{$t_city}', '{$t_state}', '{$t_country}', '{$t_zipCode}', '{$t_region}', '{$t_admin}', '{$t_gender}')";
 
 $retval = mysql_query($query_registerNewUser, $cboxConn );
 if(! $retval )

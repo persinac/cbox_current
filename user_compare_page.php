@@ -62,10 +62,10 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
 <div id="navbar_main">
   <ul id="navbar_main_ul"> 
     <li id="home" ><?php echo "<a href='$link' >"; ?>HOME</a></li> 
-    <li id="compare" class="active"><a href="#" >COMPARE</a></li> 
-    <li id="wod"><a href="user_wod_page.php" >WOD</a></li> 
-    <li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li> 
-    <li id="account" ><a href="#" >ACCOUNT</a></li> 
+	<li id="compare" class="active"><a href="#" >COMPARE</a></li> 
+	<li id="wod" ><a href="user_wod_page.php" >WOD</a></li> 
+	<li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li> 
+	<li id="account" ><a href="#" >ACCOUNT</a></li> 
   </ul> 
 </div>
 
@@ -97,6 +97,18 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
 				</div>
 				<p></p>
 				<input onclick="compare(this.form);" type="button" id="compare_but" value="Compare" />
+            </form>
+            <h4>See today's results: </h4>
+            <form id="todays_wod_form">
+                Male <input type="radio" name="gender_to_compare" class="radio_butts" value="box">
+                Female <input type="radio" name="gender_to_compare" class="radio_butts" value="reg">
+                All <input type="radio" name="gender_to_compare" class="radio_butts" value="cou"> <br><br>
+                <select id="today_compare_selector" name="compare_selector" class="selector">
+				  <option value="RX">RX</option>
+				  <option value="INTER">Intermediate</option>
+				  <option value="NOV">Novice</option>
+				</select><br>
+				<input onclick="today_compare(this.form);" type="button" id="compare_but" value="Compare" />
             </form>
         </div> <!-- END WHAT_TO_COMPARE -->
         
@@ -288,10 +300,18 @@ function loadCompareData(data_wods) {
 		name = data_wods[i].name;
 		dow = data_wods[i].date_of_wod;
 		level = data_wods[i].level_perf;
-		time = data_wods[i].time_comp;
-		if(level == "RX") { 
+		if(data_wods[i].type_of_wod == "RFT"){
+			 
+			time = data_wods[i].time_comp;
+			console.log("type of wod = RFT, time: " + time);
+		} else {
+			time = data_wods[i].rounds_compl;
+			console.log("type of wod = AMRAP, time: " + time);
+		}
+		
+		if(level == "RX" || level == "rx") { 
 			descrip = data_wods[i].rx_descrip;
-		} else if (level == "INTER") {
+		} else if (level == "INTER" || level == "inter") {
 			descrip = data_wods[i].inter_descrip;
 		} else {
 			descrip = data_wods[i].nov_descrip;

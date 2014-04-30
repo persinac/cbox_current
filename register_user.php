@@ -27,6 +27,10 @@
         <br></br>
         <input type="text" name="last_name"class="form-control" placeholder="Last Name" required>
         <br></br>
+        Male <input type="radio" name="gender" class="radio_butts" value="M">
+                Female <input type="radio" name="gender" class="radio_butts" value="F">
+          <br></br> 
+          <br></br>     
         <input type="email" name="email"class="form-control" placeholder="Email" required>
         <br></br>
         <input type="text" name="box_id"class="form-control" placeholder="box id" required>
@@ -41,7 +45,25 @@
         <br></br>
         <input type="text" name="country" class="form-control" placeholder="Country" required>
         <br></br>
-        <input type="text" name="region" class="form-control" placeholder="Region" required>
+        <select id="region_selector" name="region" class="selector">
+        <option value="Africa">Africa</option>
+        <option value="Asia">Asia</option>
+        <option value="Australia">Australia</option>
+        <option value="Canada East">Canada East</option>
+        <option value="Canada West">Canada West</option>
+        <option value="Central East">Central East</option>
+        <option value="Europe">Europe</option>
+        <option value="Latin America">Latin America</option>
+        <option value="Mid-Atlantic">Mid-Atlantic</option>
+        <option value="Northern California">Northern California</option>
+        <option value="North Central">North Central</option>
+        <option value="North East">North East</option>
+        <option value="North West">North West</option>
+        <option value="South Central">South Central</option>
+        <option value="South East">South East</option>
+        <option value="South West">South West</option>
+        <option value="Southern California">Southern California</option>
+        </select>
         <br></br>
         <br><h3>Login Info</h3></br>
         <input type="text" name="username" id="username" class="form-control" placeholder="Desired Username" required>
@@ -113,23 +135,35 @@ function submit_new_user()
 
 function registerUser(data)
 {
+	var sendRequest = true;
 	//alert("Let's see...");
 	$.each(data, function(i, field){
-    	//alert("DATA: " +field.name + ":" + field.value + " ");
+    	console.log("DATA: " +field.name + ":" + field.value + " ");
 		if(field.value == "") {
 			sendRequest = false;	
 		}
   	});
+	//sendRequest = false;
+	if(sendRequest == true) {
 	$.ajax({
             type: "POST",
             url: "queryRegisterUser.php",
             data: data,
             success: function(data) {
                  alert(data);
+				 clearForm();
             }
         });	
+	}
 }
 
+function clearForm() {
+	$('#register input').each(function(index, element) {
+        console.log(index + " : " + $(this).text());
+		$(this).val('');
+    });
+		
+}
 </script>
 
 </body>

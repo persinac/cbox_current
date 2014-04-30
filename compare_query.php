@@ -56,6 +56,7 @@ $t_area = $_POST['area_to_compare'];
 $t_level = $_POST['level_selector'];
 $t_wod_type = $_POST['wod_type_selector'];
 $t_wod_descrip = "";
+$t_order_by = "";
 
 if($compare_id == "WOD") {
 	if(strlen($t_area) > 0) {
@@ -114,6 +115,11 @@ if($compare_id == "WOD") {
 	}
 	if(strlen($t_wod_type) > 0) {
 		$t_wod_type = $_POST['wod_type_selector'];
+		if($t_wod_type == "RFT") {
+			$t_order_by = " aw.time_comp";
+		} else {
+			$t_order_by = " aw.rounds_compl DESC";
+		}
 	}
 	
 	$query_getUserWODs = "SELECT CONCAT(a.first_name, ' ',a.last_name) AS name
@@ -121,11 +127,13 @@ if($compare_id == "WOD") {
 	, {$t_wod_descrip}
 	, aw.level_perf
 	, aw.time_comp
+	, aw.rounds_compl
+	, w.type_of_wod
 	FROM wods w 
 	JOIN athlete_wod aw ON aw.wod_id = w.wod_id
 	JOIN athletes a ON a.user_id = aw.user_id
 	WHERE {$t_area} AND {$t_date} AND aw.level_perf = '{$t_level}'
-	ORDER BY aw.time_comp";
+	ORDER BY {$t_order_by}";
 	
 }
 

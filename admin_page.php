@@ -357,7 +357,7 @@ $( this ).focusout(function (event) {
 		}
 	} else if( id.indexOf("reps_") >= 0 ) {
 		value = $("#" + id).val();
-		alert("ID: "+id+", value: "+ value);
+		//alert("ID: "+id+", value: "+ value);
 		if(!repsReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
@@ -970,18 +970,18 @@ function submitWOD() {
 	$.each(data_four, function(i, field){
 		var name = field.name;
 		if(name.indexOf("amrap_0") > -1 ) {
-			alert("DATA: " +field.name + ":" + field.value + " ");
+			//alert("DATA: " +field.name + ":" + field.value + " ");
 			amrap_time += field.value;
 		} else if(name.indexOf("amrap_1") > -1 || name.indexOf("amrap_2") > -1 ) {
-			alert("DATA: " +field.name + ":" + field.value + " ");
+			//alert("DATA: " +field.name + ":" + field.value + " ");
 			amrap_time += ":"+field.value;
 		}
   	});
-	alert("AMRAP_TIME: "+amrap_time);
+	//alert("AMRAP_TIME: "+amrap_time);
 	data_four.push({ name: "amrap_time_update", value: amrap_time });
 	
 	$.each(data_four, function(i, field){
-		alert("DATA: " +field.name + ":" + field.value + " ");
+		//alert("DATA: " +field.name + ":" + field.value + " ");
   	});
 	
 	//sendRequest = false;
