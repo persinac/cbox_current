@@ -77,51 +77,22 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
     
     <div id="my_data_container">
         <div id="what_to_compare">
-            <h4>Compare by: </h4>
+        	<h4>Results</h4>
+            <select id="initial_selector" name="initial_selector" class="selector">
+            	<option value="today">Today's Results</option>
+				  <option value="search">Search</option>
+				  <option value="compare">Compare</option>
+				</select><br>
+            <!--<h4>Search by: </h4>-->
             <form id="what_to_compare_form">
-                Box <input type="radio" name="area_to_compare" class="radio_butts" value="box">
-                Region <input type="radio" name="area_to_compare" class="radio_butts" value="reg">
-                Country <input type="radio" name="area_to_compare" class="radio_butts" value="cou"> <br><br>
-                <select id="compare_selector" name="compare_selector" class="selector">
-				  <option value="WOD">WODS</option>
-				  <option value="AMRAP">Core Lifts</option>
-				  <option value="TABATA">Olympic</option>
-				  <option value="GIRLS">Powerlifting</option>
-				  <option value="HERO">Girls</option>
-				  <option value="HERO">Heroes</option>
-				  <option value="HERO">Open</option>
-				  <option value="HERO">Regionals</option>
-				  <option value="HERO">Games</option>
-				</select><br>
-                <!--Date: <input type="text" name="date" class="datepicker" id="datepicker"/> -->
-				<div id="div_compare_by">
-				</div>
-				<p></p>
-				<input onclick="compare(this.form);" type="button" id="compare_but" value="Compare" />
+                <div id="div_compare_by">
+                </div>
+                <p></p>
             </form>
-            <h4>See today's results: </h4>
-            <form id="todays_wod_form">
-                Male <input type="radio" name="gender_to_compare" class="radio_butts" value="box">
-                Female <input type="radio" name="gender_to_compare" class="radio_butts" value="reg">
-                All <input type="radio" name="gender_to_compare" class="radio_butts" value="cou"> <br><br>
-                <select id="today_compare_selector" name="compare_selector" class="selector">
-				  <option value="RX">RX</option>
-				  <option value="INTER">Intermediate</option>
-				  <option value="NOV">Novice</option>
-				</select><br>
-				<input onclick="today_compare(this.form);" type="button" id="compare_but" value="Compare" />
-            </form>
+            
         </div> <!-- END WHAT_TO_COMPARE -->
         
         <div id="wod_list">
-			<h4><p id="display_workout"></p></h4>
-        	<table width="524" rules="cols" id="tbl_wod_list">
-            	<tr id="wod_list_headers">
-                	
-                </tr>
-                <tbody class="tbl_body_wod_list" id="tbl_body_wod_list">
-                </tbody>
-        	</table>
         </div> <!-- END WOD_LIST -->
         
     </div> <!-- END DATA_CONTAINER -->
@@ -167,22 +138,96 @@ $(function() {
     $("#datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
   });
   
-$( "#compare_selector" ).change(function() {
+  $( "#initial_selector" ).change(function() {
     var str = "";
 	var second_str = "";
-	console.log("CHANGED");
-    $( "#compare_selector option:selected" ).each(function() 
+	//console.log("INITIAL CHANGED");
+    $( "#initial_selector option:selected" ).each(function() 
 	{
 		$('#div_compare_by').empty();
-		if($(this).text() == 'WODS') {
-			console.log("WODS");
-			str += 'Date: <input type="text" name="date" class="datepicker" id="datepicker"/>';
-			str +="<p></p>";
+		if($(this).text() == "Today's Results") {
+			console.log("TODAY");
+            str += 'Male <input type="radio" name="gender_to_compare" class="radio_butts" value="box">';
+            str += 'Female <input type="radio" name="gender_to_compare" class="radio_butts" value="reg">';
+            str += 'All <input type="radio" name="gender_to_compare" class="radio_butts" value="cou"> <br><br>';
+            str += '<select id="today_compare_selector" name="compare_selector" class="selector">';
+			str += '<option value="RX">RX</option>';
+			str += '<option value="INTER">Intermediate</option>';
+			str += '<option value="NOV">Novice</option>';
+			str += '</select><br>';
+			str += '<input onclick="today_compare(this.form);" type="button" id="compare_but" value="Compare" />';
+			//$('#div_compare_by').append(str);
+		} else if($(this).text() == "Search") {
+			console.log("Search");
+                /*<!--Box <input type="radio" name="area_to_compare" class="radio_butts" value="box">
+                Region <input type="radio" name="area_to_compare" class="radio_butts" value="reg">
+                Country <input type="radio" name="area_to_compare" class="radio_butts" value="cou"> <br><br>-->*/
+            str += '<select id="compare_selector" name="compare_selector" class="selector">';
+			str += '<option value="WOD">WODS</option>';
+			str += '<option value="AMRAP">Core Lifts</option>';
+			str += '<option value="TABATA">Olympic</option>';
+			str += '<option value="GIRLS">Powerlifting</option>';
+			str += '<option value="HERO">Girls</option>';
+			str += '<option value="HERO">Heroes</option>';
+			str += '<option value="HERO">Open</option>';
+			str += '<option value="HERO">Regionals</option>';
+			str += '<option value="HERO">Games</option>';
+			str += '</select>';
+			str += '<p id="comparisons_to_add">';
+			
 			str += "Level Performed: <select id=\"level_selector\" name=\"level_selector\">";
 			str +="<option value=\"RX\">RX</option>";
 			str += "<option value=\"INTER\">Intermediate</option>";
 			str +="<option value=\"NOV\">Novice</option>";
 			str +="<option value=\"CUS\">Custom</option>";
+			str +="</select><br>";
+			str += "Type of WOD: <select id=\"wod_type_selector\" name=\"wod_type_selector\">";
+			str +="<option value=\"RFT\">RFT</option>";
+			str += "<option value=\"AMRAP\">AMRAP</option>";
+			str +="<option value=\"TABATA\">TABATA</option>";
+			str += "<option value=\"GIRLS\">GIRLS</option>"
+			str +="<option value=\"HERO\">HEROES</option>";
+			str +="</select><br>";
+			str += '</p>';
+			str += '<input onclick="compare(this.form);" type="button" id="compare_but" value="Compare" />';
+			
+		}
+		$('#div_compare_by').append(str);
+    });
+  }).trigger( "change" );
+  
+$( "#div_compare_by" ).on("change", "#compare_selector", function() {
+    var str = "";
+	var second_str = "";
+	console.log("CHANGED");
+    $( "#compare_selector option:selected" ).each(function() 
+	{
+		$('#comparisons_to_add').empty();
+		if($(this).text() == 'WODS') {
+			console.log("WODS");
+			str += "Month: <select size=\"1\" name=\"months\" class=\"date_compare\" id=\"months\">";
+			str += "<option value=\"01\">January</option>";
+			str += "<option value=\"02\">February</option>";
+			str += "<option value=\"03\">March</option>";
+			str += "<option value=\"04\">April</option>";
+			str += "<option value=\"05\">May</option>";
+			str += "<option value=\"06\">June</option>";
+			str += "<option value=\"07\">July</option>";
+			str += "<option value=\"08\">August</option>";
+			str += "<option value=\"09\">September</option>";
+			str += "<option value=\"10\">October</option>";
+			str += "<option value=\"11\">November</option>";
+			str += "<option value=\"12\">December</option>";
+			str +="</select>";
+			str += "Year: <select size=\"1\" name=\"year\" class=\"date_compare\" id=\"years\">";
+			//for loop to produce 00-59
+			for(var i = 0; i < 20; i++) {
+				if(i < 10) {
+					str += "<option value=\"0"+i+"\">200"+i+"</option>";
+				} else {
+					str += "<option value=\""+i+"\">20"+i+"</option>";
+				}	
+			}
 			str +="</select>";
 			str +="<p></p>";
 			str += "Type of WOD: <select id=\"wod_type_selector\" name=\"wod_type_selector\">";
@@ -193,12 +238,18 @@ $( "#compare_selector" ).change(function() {
 			str +="<option value=\"HERO\">HEROES</option>";
 			str +="</select>";
 			str +="<p></p>";
+			/*str += "Level Performed: <select id=\"level_selector\" name=\"level_selector\">";
+			str +="<option value=\"RX\">RX</option>";
+			str += "<option value=\"INTER\">Intermediate</option>";
+			str +="<option value=\"NOV\">Novice</option>";
+			str +="<option value=\"CUS\">Custom</option>";
+			str +="</select>";*/
+			str +="<p></p>";
 		}
-		$('#div_compare_by').append(str);
+		$('#comparisons_to_add').append(str);
     });
   }).trigger( "change" );
-
-  $( "#wod_type_selector" ).change(function() {
+$( "#div_compare_by" ).on("change", "#wod_type_selector", function() {
 	var second_str = "";
 	console.log("WTS CHANGED");
     $( "#wod_type_selector option:selected" ).each(function() 
