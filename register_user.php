@@ -150,11 +150,21 @@ function registerUser(data)
             url: "queryRegisterUser.php",
             data: data,
             success: function(data) {
-                 alert(data);
-				 clearForm();
-            }
+            	console.log("Return val: " + data);
+				 overlay(data); 
+			},
+			error: function(data) {
+				console.log("Error?" + data);
+			}
         });	
 	}
+}
+
+function overlay(data) {
+	if(data == "1") {
+		alert("Registration Successful");
+		clearForm();
+	} else { alert("Contact System Administrator");}
 }
 
 function clearForm() {

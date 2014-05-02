@@ -31,7 +31,7 @@ function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDe
   return $theValue;
 } 
 } #end function
-
+//echo "user: ".$_SESSION['MM_Username'];
 if(!(isset($_SESSION['MM_Username'])))
 {
 	header("Location: Error401UnauthorizedAccess.php");
@@ -50,30 +50,36 @@ mysql_select_db($database_cboxConn, $cboxConn);
 $compare_id = $_POST['compare_selector'];
 
 $t_table = "";
-$t_date = "";
-$t_temp_date = $_POST['date'];
-$t_area = $_POST['area_to_compare'];
-$t_level = $_POST['level_selector'];
-$t_wod_type = $_POST['wod_type_selector'];
+$t_temp_month = $_POST['months'];;
+$t_temp_year = $_POST['year'];
+$t_month = "";
+$t_year = "";
+$t_area = "";
+$t_temp_wod_type = $_POST['wod_type_selector'];
+$t_wod_type = "";
 $t_wod_descrip = "";
 $t_order_by = "";
 
+
+$query_getBoxID = "select box_id
+from athletes
+WHERE user_id = '{$colname_getUserID}'";
+
+$getBoxID = mysql_query($query_getBoxID, $cboxConn) or die(mysql_error());
+$totalRows_getAdminWODs = mysql_num_rows($getBoxID);
+
+$row = mysql_fetch_row($getBoxID);
+
+$box_id = $row[0];
+
+//$t_area = " a.box_id = '{$box_id}'";
+
 if($compare_id == "WOD") {
-	if(strlen($t_area) > 0) {
+	$t_table = "wods";
+	/*if(strlen($t_area) > 0) {
 		
 		if($t_area == "box") {
-			$query_getBoxID = "select box_id
-			 from athletes
-			WHERE user_id = '{$colname_getUserID}'";
 			
-			$getBoxID = mysql_query($query_getBoxID, $cboxConn) or die(mysql_error());
-			$totalRows_getAdminWODs = mysql_num_rows($getBoxID);
-			
-			$row = mysql_fetch_row($getBoxID);
-			
-			$box_id = $row[0];
-		
-			$t_area = " a.box_id = '{$box_id}'";
 
 		} elseif($t_area == "reg") {
 			$query_getRegion = "select region
@@ -99,44 +105,37 @@ if($compare_id == "WOD") {
 			$t_area = " a.country = '{$country}'";
 		}
 		
+	}*/
+	
+	if($t_temp_month == "ALL") {
+		$t_months = " SUBSTRING(wod_id, 6, 2) > '00'";
+	} else {
+		$t_months = " SUBSTRING(wod_id, 6, 2) = '{$t_temp_month}'";
+	}
+	if($t_temp_year == "ALL") {
+		$t_year = " SUBSTRING(wod_id, 2, 4) > '1900'";
+	} else {
+		$t_year = " SUBSTRING(wod_id, 2, 4) = '{$t_temp_year}'";
+	}
+	if($t_temp_wod_type == "ALL") {
+		$t_wod_type = " type_of_wod LIKE '%'";
+	
+	} else {
+		$t_wod_type = " type_of_wod = '{$t_temp_wod_type}'";
 	}
 	
-	if(strlen($t_temp_date) > 0) {
-		$t_date = " w.date_of_wod = '{$t_temp_date}'";
-	}
-	if(strlen($t_level) > 0) {
-		if($t_level == "RX") {
-			$t_wod_descrip = " w.rx_descrip";
-		} else if($t_level == "INTER") {
-			$t_wod_descrip = " w.inter_descrip";
-		} else {
-			$t_wod_descrip = " w.nov_descrip";
-		}
-	}
-	if(strlen($t_wod_type) > 0) {
-		$t_wod_type = $_POST['wod_type_selector'];
-		if($t_wod_type == "RFT") {
-			$t_order_by = " aw.time_comp";
-		} else {
-			$t_order_by = " aw.rounds_compl DESC";
-		}
-	}
-	
-	$query_getUserWODs = "SELECT CONCAT(a.first_name, ' ',a.last_name) AS name
-	, w.date_of_wod
-	, {$t_wod_descrip}
-	, aw.level_perf
-	, aw.time_comp
-	, aw.rounds_compl
-	, w.type_of_wod
-	FROM wods w 
-	JOIN athlete_wod aw ON aw.wod_id = w.wod_id
-	JOIN athletes a ON a.user_id = aw.user_id
-	WHERE {$t_area} AND {$t_date} AND aw.level_perf = '{$t_level}'
-	ORDER BY {$t_order_by}";
+	$query_getUserWODs = "SELECT wod_id
+	, date_of_wod
+	, type_of_wod
+	, rx_descrip
+	, time
+	, rounds
+	FROM {$t_table}
+	WHERE {$t_months} AND {$t_year} AND {$t_wod_type} AND SUBSTRING(wod_id, 1, 1) = '{$box_id}'
+	ORDER BY date_of_wod";
 	
 }
-
+//echo "query: ".$query_getUserWODs;
 $getUserWODs = mysql_query($query_getUserWODs, $cboxConn) or die(mysql_error());
 #$rows = mysql_fetch_assoc($getUserBenchmarks);
 $totalRows_getUserWODs = mysql_num_rows($getUserWODs);

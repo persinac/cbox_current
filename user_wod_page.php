@@ -217,7 +217,7 @@ mysql_select_db($database_cboxConn, $cboxConn);
 		<p>
 			<button class="btn btn-primary" data-toggle="modal" name="wod_" id="wod_" type="button">Add WOD</button>
 			</p><p>
-			<a data-toggle="modal" href="#add_custom_modal" class="btn btn-default" name="wod_custom" id="wod_custom">Add Scaled WOD</a>
+			<a data-toggle="modal" href="#" class="btn btn-default" name="wod_custom" id="wod_custom">Add Scaled WOD</a>
 			</p><p>
 			<button class="btn btn-primary" data-toggle="modal" name="strength" id="strength" type="button">Add Strength</button>
 			</p><p>
