@@ -41,6 +41,7 @@ $t_temp_wod_id = $_POST['date'];
 $t_wod_id = "";
 $t_gender = ""; 
 $t_level_perf = ""; 
+$t_type_of_wod = "";
 
 mysql_select_db($database_cboxConn, $cboxConn);
 
@@ -59,17 +60,35 @@ $row = mysql_fetch_array($getBoxID);
 
 $box_id = $row[0];#$_POST['dataString'];
 $t_wod_id = $box_id . "" . $t_temp_wod_id;
+
+$query_getWODType = "select type_of_wod
+ from wods
+WHERE wod_id = {$t_wod_id}";
+
+$getWODType = mysql_query($query_getWODType, $cboxConn) or die(mysql_error());
+$totalRows_getWODType = mysql_num_rows($getWODType);
+####echo $totalRows_getAdminWODs;
+$row_wod = mysql_fetch_array($getWODType);
+
+$t_type_of_wod = $row_wod[0];
+$order_by = "";
+
+if($t_type_of_wod == "AMRAP") {
+	$order_by = "DESC";
+}
+
 $query_getLeaderBoardContent = "select w.rx_descrip, CONCAT(a.first_name, ' ', a.last_name) AS name, 
 CASE WHEN (w.type_of_wod = 'RFT') THEN aw.time_comp
  WHEN (w.type_of_wod = 'AMRAP') THEN aw.rounds_compl
-END AS score
+END AS score,
+a.user_id AS user_id
 from wods w
 JOIN athlete_wod aw ON aw.wod_id = w.wod_id
 JOIN athletes a ON a.user_id = aw.user_id
 where w.wod_id = {$t_wod_id}
 AND a.box_id = {$box_id} 
 AND a.gender = 'M'
-ORDER BY score";
+ORDER BY score {$order_by}";
 $getLeaderBoardContent = mysql_query($query_getLeaderBoardContent, $cboxConn) or die(mysql_error());
 $totalRows_getLeaderBoardContent = mysql_num_rows($getLeaderBoardContent);
 //echo $totalRows_getAdminWODs;

@@ -476,22 +476,29 @@ function loadLeaderBoardData(data_leaders) {
 		console.log("data[i].dateofwod: " +data_leaders[i].rx_descrip);
 		console.log("data[i].type_of_wod: " + data_leaders[i].name);
 		console.log("data[i].rx_description: " + data_leaders[i].score);
+		//console.log("userid data[i]: " + data_leaders[i].user_id);
+		//console.log("user id php: " + <?php echo $_SESSION['MM_UserID']; ?>);
 		
 		descrip = data_leaders[i].rx_descrip;
 		name = data_leaders[i].name;
 		score = data_leaders[i].score;
 		
-		html_sec1 += "<tr class="+sec1_classID+">";
-		//html_sec1 += "<td>"+dow+"</td>";
+		if(score.substring(0, 3) == "00:") {
+			console.log(score.substring(3));
+			score = score.substring(3);
+		}
+			
+		html_sec1 += "<tr class="+sec1_classID+" id=\"leader_"+i+"\">";
 		html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\">"+name+"</div></td>";
 		html_sec1 +="<td class=\"tdDivScore\">"+score+"</td>";
 		html_sec1 += "</tr>";
 		console.log("pre_undefined");
-		/*if(typeof (data_wods[i+1].type_of_wod) == 'undefined') {
-			i++;
-			console.log("undefined");
-		}*/
+
 		console.log("post_undefined");
+		if(data_leaders[i].user_id == "<?php echo $_SESSION['MM_UserID']; ?>") {
+			console.log("user id = " + data_leaders[i].user_id);
+			$('#leader_'+i+'').addClass('user_score');
+		}
 	}
 	//Update html content
 	$('.tbl_body_leaderboard').empty();
