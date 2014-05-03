@@ -97,7 +97,15 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
         </div> <!-- END WOD_LIST -->
         <div id="leaderboard">
 			<h2 style="color: #FFF">Leaderboard</h2>
-			<div leaderboard_data>
+			<div id="leaderboard_data">
+				<table width="350" rules="cols" id="tbl_leaderboard">
+					<tr  id="leaderboard_headers">
+						<th width="175" height="25">Athlete</th>
+						<th width="175">Score</th>
+					</tr>
+					<tbody class="tbl_body_leaderboard" id="tbl_body_leaderboard">
+					</tbody>
+				</table>
 			</div>
 		</div>
     </div> <!-- END DATA_CONTAINER -->
@@ -321,7 +329,7 @@ $( "#div_compare_by" ).on("change", "#wod_type_selector", function() {
 		//then grab all the athletes that completed that wod
 		//and put the data into a table in the right side
 		var result = date.replace(/-/g, "");
-		console.log("Result: "+result);
+		//console.log("Result: "+result);
 		getLeaderBoardData(result);
 		return false;
   });
@@ -345,9 +353,27 @@ function getCurrentDate()
 }
 
 function getLeaderBoardData(data) {
+	console.log("get leader board data: " + data);
+	
+	//pass this data to php file
+	$.ajax(
+	{ 
+	  type:"POST",                                     
+	  url:"getLeaderboardContent.php",         
+	  data: {"date" : data}, //insert argumnets here to pass to getAdminWODs
+	  dataType: "json",                //data format      
+	  success: function(response) //on recieve of reply
+	  {
+		  console.log("response_wods: " + response);
+		  loadLeaderBoardData(response);
+	  },
+  	  error: function(error){
+    		console.log('error loading wods!' + error);
+  		}
+	});
 	
 }
-
+/******************************************************/
 function search() {
 	console.log("SEARCHING");
 	var compare_data = $("#what_to_compare_form").serializeArray();
@@ -433,7 +459,45 @@ function loadCompareData(data_wods) {
 	$('.tbl_body_wod_list').html(html_sec1);
 	header_wod = "";
 }
-  
+ 
+function loadLeaderBoardData(data_leaders) {
+	var t_data = data_leaders;
+	
+	var html_sec1 = "";
+	var sec1_classID = "leaderboard_data"; 
+	var date_link_id = "leader_";
+	var score = "";
+	var name = "";
+	var descrip = "";
+	/*console.log("loadPastWODS PRE-FOR LOOP");
+	console.log("DATA: " + data_wods);
+	console.log("t_DATA: " + t_data);*/
+	for(var i = 0; i < data_leaders.length; i++) {
+		console.log("data[i].dateofwod: " +data_leaders[i].rx_descrip);
+		console.log("data[i].type_of_wod: " + data_leaders[i].name);
+		console.log("data[i].rx_description: " + data_leaders[i].score);
+		
+		descrip = data_leaders[i].rx_descrip;
+		name = data_leaders[i].name;
+		score = data_leaders[i].score;
+		
+		html_sec1 += "<tr class="+sec1_classID+">";
+		//html_sec1 += "<td>"+dow+"</td>";
+		html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\">"+name+"</div></td>";
+		html_sec1 +="<td class=\"tdDivScore\">"+score+"</td>";
+		html_sec1 += "</tr>";
+		console.log("pre_undefined");
+		/*if(typeof (data_wods[i+1].type_of_wod) == 'undefined') {
+			i++;
+			console.log("undefined");
+		}*/
+		console.log("post_undefined");
+	}
+	//Update html content
+	$('.tbl_body_leaderboard').empty();
+	$('.tbl_body_leaderboard').html(html_sec1);
+}
+ 
 </script>
 
 </body>

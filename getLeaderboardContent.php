@@ -31,23 +31,17 @@ function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDe
   return $theValue;
 } 
 } #end function
-//$_SESSION['MM_Username'] = "kellintc";
-if(!(isset($_SESSION['MM_Username'])))
-{
-	header("Location: Error401UnauthorizedAccess.php");
+
+$colname_getUserBoxID = "-1";
+if (isset($_SESSION['MM_UserID'])) {
+  $colname_getUserBoxID = $_SESSION['MM_UserID'];
 }
 
-$colname_getUserWODs = "-1";
-if (isset($_SESSION['MM_UserID'])) {
-  $colname_getUserWODs = $_SESSION['MM_UserID'];
-}
-########
-#REMOVE ME
-########
-#if (!(isset($_SESSION['MM_UserID']))) {
-#  $colname_getUserWODs = 1;
-#  $_SESSION['MM_Username']= "persinac";
-#}
+$t_temp_wod_id = $_POST['date'];
+$t_wod_id = "";
+$t_gender = ""; 
+$t_level_perf = ""; 
+
 mysql_select_db($database_cboxConn, $cboxConn);
 
 ###
@@ -56,31 +50,34 @@ mysql_select_db($database_cboxConn, $cboxConn);
 
 $query_getBoxID = "select box_id
  from athletes
-WHERE user_id = '{$colname_getUserWODs}'";
+WHERE user_id = '{$colname_getUserBoxID}'";
 
 $getBoxID = mysql_query($query_getBoxID, $cboxConn) or die(mysql_error());
-$totalRows_getAdminWODs = mysql_num_rows($getBoxID);
+$totalRows_getBoxID = mysql_num_rows($getBoxID);
 ####echo $totalRows_getAdminWODs;
 $row = mysql_fetch_array($getBoxID);
 
 $box_id = $row[0];#$_POST['dataString'];
-$query_getAdminWODs = "select wod_id
-, CASE WHEN (name_of_wod = '') THEN '-'
-	ELSE name_of_wod
-	END AS name_of_wod
-, type_of_wod
-, rx_descrip
-, date_of_wod
- from wods
-WHERE SUBSTRING(wods.wod_id, 1, 1) = '{$box_id}'";
-$getAdminWODs = mysql_query($query_getAdminWODs, $cboxConn) or die(mysql_error());
-$totalRows_getAdminWODs = mysql_num_rows($getAdminWODs);
+$t_wod_id = $box_id . "" . $t_temp_wod_id;
+$query_getLeaderBoardContent = "select w.rx_descrip, CONCAT(a.first_name, ' ', a.last_name) AS name, 
+CASE WHEN (w.type_of_wod = 'RFT') THEN aw.time_comp
+ WHEN (w.type_of_wod = 'AMRAP') THEN aw.rounds_compl
+END AS score
+from wods w
+JOIN athlete_wod aw ON aw.wod_id = w.wod_id
+JOIN athletes a ON a.user_id = aw.user_id
+where w.wod_id = {$t_wod_id}
+AND a.box_id = {$box_id} 
+AND a.gender = 'M'
+ORDER BY score";
+$getLeaderBoardContent = mysql_query($query_getLeaderBoardContent, $cboxConn) or die(mysql_error());
+$totalRows_getLeaderBoardContent = mysql_num_rows($getLeaderBoardContent);
 //echo $totalRows_getAdminWODs;
 $results = array();
 
-for($i = 0; $i < $totalRows_getAdminWODs; $i++)
+for($i = 0; $i < $totalRows_getLeaderBoardContent; $i++)
 {
-	$results[] = mysql_fetch_assoc($getAdminWODs);
+	$results[] = mysql_fetch_assoc($getLeaderBoardContent);
 }
 echo json_encode($results);	
 ?>
