@@ -138,7 +138,17 @@ $("#navbar_main_ul li").click(function() {
 		var id = jQuery(this).attr("id");
 		if(id=="logout" || id=="LOGOUT") {
 			alert("LOGGING OUT");
-			window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+			console.log("logging out...");
+		
+			$.ajax(
+			{ 
+				url: "cbox_logout.php", //the script to call to get data  
+				success: function(response) //on recieve of reply
+				{
+					console.log("logged out...");
+					window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+				} 
+			});
 		}
 	});	
 
@@ -489,22 +499,37 @@ function loadLeaderBoardData(data_leaders) {
 		}
 			
 		html_sec1 += "<tr class="+sec1_classID+" id=\"leader_"+i+"\">";
-		html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\">"+name+"</div></td>";
-		html_sec1 +="<td class=\"tdDivScore\">"+score+"</td>";
+		
+		if(data_leaders[i].user_id == "<?php echo $_SESSION['MM_UserID']; ?>") {
+			console.log("user id = " + data_leaders[i].user_id);
+			html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\" style=\"background-color:yellow\">"+name+"</div></td>";
+			html_sec1 +="<td class=\"tdDivScore\" style=\"background-color:yellow\">"+score+"</td>";
+		} else {
+			html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\">"+name+"</div></td>";
+			html_sec1 +="<td class=\"tdDivScore\">"+score+"</td>";
+		}
 		html_sec1 += "</tr>";
 		console.log("pre_undefined");
 
 		console.log("post_undefined");
-		if(data_leaders[i].user_id == "<?php echo $_SESSION['MM_UserID']; ?>") {
-			console.log("user id = " + data_leaders[i].user_id);
-			$('#leader_'+i+'').addClass('user_score');
-		}
+		
 	}
 	//Update html content
 	$('.tbl_body_leaderboard').empty();
 	$('.tbl_body_leaderboard').html(html_sec1);
 }
  
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('send', 'pageview');
+
 </script>
 
 </body>
