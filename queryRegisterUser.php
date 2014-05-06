@@ -54,7 +54,7 @@ else
 	if(! $retval )
 	{
 	 	die('Could not enter data: ' . mysql_error());
-	} else { echo 'Registration Successful!'; }
+	} else { echo '1'; }
 }
 mysql_close($cboxConn);
 #echo "</body>

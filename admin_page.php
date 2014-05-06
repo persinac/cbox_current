@@ -87,9 +87,6 @@ if (isset($_SESSION['MM_UserID'])) {
  	<link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
     <link href="dist/css/admin_page.css" rel="stylesheet">
     <link href="dist/css/jquery.datepick.css" rel="stylesheet">
-<!--
-
--->
 </head>
 
 <body>
@@ -160,10 +157,10 @@ if (isset($_SESSION['MM_UserID'])) {
         <div id="new_wod_row" class="new_wod_row">
             Movement: <input type="text" name="movement[]" class="movement" id="movement_0"/> 
             Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_0" placeholder="Guys/Girls"/> 
-            Reps: <input type="text" name="reps[]" class="reps" id="reps_0"/>
+			Reps/Distance: <input type="text" name="reps[]" class="reps" id="reps_0" placeholder="use calories or meters where needed"/>
             <p></p>
         </div> <!-- END OF new_wod -->
-        <input onclick="addRow(this.form);" type="button" value="Add row" />
+        <input onclick="addRow(this.form);" type="button" value="Add row" id="addRowBut"/>
         <input onclick="submitWOD(this.form);" type="button" value="Submit WOD" />
      </form>
      </div> <!-- END OF new_wod_container -->
@@ -181,7 +178,7 @@ if (isset($_SESSION['MM_UserID'])) {
 				<div id="inter_new_wod_row">
                     Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_0"/> 
                     Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_0" placeholder="Guys/Girls"/> 
-                    Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_0"/>
+                    Reps/Distance: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_0"/>
                     <p></p>
                     
                 </div> <!-- END OF new_wod -->
@@ -192,7 +189,7 @@ if (isset($_SESSION['MM_UserID'])) {
                 <h4>Novice</h4>
                     Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_0"/> 
                     Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_0" placeholder="Guys/Girls"/> 
-                    Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_0"/>
+                    Reps/Distance: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_0"/>
                     <p></p>
                     
                 </div> <!-- END OF new_wod -->
@@ -283,7 +280,18 @@ $("#navbar_main_ul li").click(function() {
 		var id = jQuery(this).attr("id");
 		if(id=="logout" || id=="LOGOUT") {
 			alert("LOGGING OUT");
-			window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+			
+			console.log("logging out...");
+		
+			$.ajax(
+			{ 
+				url: "cbox_logout.php", //the script to call to get data  
+				success: function(response) //on recieve of reply
+				{
+					console.log("logged out...");
+					window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+				} 
+			});
 		}
 	});	
 
@@ -333,7 +341,7 @@ $( this ).focusout(function (event) {
 	var value = "";
 	var mvmReg = /^[a-zA-Z\s]*$/;
 	var weightReg = /^[0-9\/]*$/;
-	var repsReg = /^[0-9]*$/;
+	var repsReg = /^[a-zA-Z0-9\s]*$/;
 	/* RX Form */
 	if ( id.indexOf("movement_") >= 0 )
 	{
@@ -357,7 +365,7 @@ $( this ).focusout(function (event) {
 		}
 	} else if( id.indexOf("reps_") >= 0 ) {
 		value = $("#" + id).val();
-		//alert("ID: "+id+", value: "+ value);
+		console.log("reps ID: "+id+", value: "+ value);
 		if(!repsReg.test(value))
 		{
 			$("#"+id).addClass("big_input_wod_error");
@@ -458,8 +466,10 @@ $( "#wod_type_selector" ).change(function() {
 	{
 		$('#specific_to_wod').empty();
 		if($( this ).text() == "RFT"){
+			$('#addRowBut').removeAttr('disabled');
 		str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
 		} else if($( this ).text() == "AMRAP") {
+			$('#addRowBut').removeAttr('disabled');
 			str = "Time: <select size=\"1\" name=\"amrap_0\" class=\"num_of_rounds\" id=\"amrap_0\">";
 			//for loop to produce 00-24
 			for(var i = 0; i < 24; i++) {
@@ -491,27 +501,36 @@ $( "#wod_type_selector" ).change(function() {
 			}
 			str +="</select>";
 		} else if($( this ).text() == "TABATA") {
+			$('#addRowBut').removeAttr('disabled');
 			str = "Number of Intervals: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
 		} else if($( this ).text() == "GIRLS") {
+			$('#addRowBut').attr('disabled','disabled');
 			str = "Girls: <select id=\"girl_selector\" name=\"girl_selector\">";
-			str +="<option value=\"Angie\">Angie</option>";
-			str += "<option value=\"Angie\">Barbara</option>";
-			str +="<option value=\"Angie\">Chelsea</option>";
-			str +="<option value=\"Angie\">Cindy</option>";
-			str +="<option value=\"Angie\">Diane</option>";
-			str +="<option value=\"Angie\">Elizabeth</option>";
-			str +="<option value=\"Angie\">Fran</option>";
-			str +="<option value=\"Angie\">Grace</option>";
-			str +="<option value=\"Angie\">Helen</option>";
-			str +="<option value=\"Angie\">Isabel</option>";
-			str +="<option value=\"Angie\">Jackie</option>";
-			str +="<option value=\"Angie\">Karen</option>";
-			str +="<option value=\"Angie\">Linda</option>";
-			str +="<option value=\"Angie\">Mary</option>";
-			str +="<option value=\"Angie\">Nancy</option>";
+			str +="<option value=\"grl_01\">Angie</option>";
+			str += "<option value=\"grl_02\">Barbara</option>";
+			str +="<option value=\"grl_03\">Chelsea</option>";
+			str +="<option value=\"grl_04\">Cindy</option>";
+			str +="<option value=\"grl_05\">Diane</option>";
+			str +="<option value=\"grl_06\">Elizabeth</option>";
+			str +="<option value=\"grl_07\">Fran</option>";
+			str +="<option value=\"grl_08\">Grace</option>";
+			str +="<option value=\"grl_09\">Helen</option>";
+			str +="<option value=\"grl_10\">Isabel</option>";
+			str +="<option value=\"grl_11\">Jackie</option>";
+			str +="<option value=\"grl_12\">Karen</option>";
+			str +="<option value=\"grl_13\">Linda</option>";
+			str +="<option value=\"grl_14\">Mary</option>";
+			str +="<option value=\"grl_15\">Nancy</option>";
+			str +="<option value=\"grl_16\">Annie</option>";
+			str +="<option value=\"grl_17\">Eva</option>";
+			str +="<option value=\"grl_18\">Kelly</option>";
+			str +="<option value=\"grl_19\">Lynne</option>";
+			str +="<option value=\"grl_20\">Nicole</option>";
+			str +="<option value=\"grl_21\">Amanda</option>";
 			str +="</select>";
 	
 		}else if($( this ).text() == "HEROES") {
+			$('#addRowBut').removeAttr('disabled');
 			str = "";
 		}
 		//Update html content
@@ -538,6 +557,10 @@ $( "#str_instruction_selector" ).change(function() {
     });
   }).trigger( "change" );
 
+
+$( "#div_compare_by" ).on("change", "#girl_selector", function() {
+	
+});
 
   
 /********************************* GETTER METHODS *********************************/
@@ -792,6 +815,7 @@ function removeRow(rnum) {
 	movement =  $('#movement_'+rnum+'').val();
 	weight =  $('#weight_'+rnum+'').val();
 	reps =  $('#reps_'+rnum+'').val();
+	//metric = $('#rep_type_selector_'+rowNum+'').val();
 	$('#rowNum'+rnum).remove();
 	$('#inter_rowNum'+rnum).remove();
 	$('#nov_rowNum'+rnum).remove();
@@ -827,6 +851,7 @@ function removeRow(rnum) {
 				document.getElementById("movement_"+t_id+"").id = "movement_"+(counter-1);
 				document.getElementById("weight_"+t_id+"").id = "weight_"+(counter-1);
 				document.getElementById("reps_"+t_id+"").id = "reps_"+(counter-1);
+				//document.getElementById("rep_type_selector_"+t_id+"").id = "rep_type_selector_"+(counter-1);
 				hasChanged = true;
 			}
 			rowc++;
@@ -957,7 +982,7 @@ function submitWOD() {
 	
 	$('.reps').each(function(i, item) {
         var reps =  $('#reps_'+i+'').val();
-		var characterReg = /^[0-9]*$/;
+		var characterReg = /^[a-zA-Z0-9\s]*$/;
 		if(!characterReg.test(reps)) {
 			sendRequest = false;
 			$('#reps_'+i+'').addClass("big_input_wod_error ");
@@ -981,7 +1006,7 @@ function submitWOD() {
 	data_four.push({ name: "amrap_time_update", value: amrap_time });
 	
 	$.each(data_four, function(i, field){
-		//alert("DATA: " +field.name + ":" + field.value + " ");
+		console.log("DATA: " +field.name + ":" + field.value + " ");
   	});
 	
 	//sendRequest = false;
@@ -1064,6 +1089,17 @@ function submitStrength() {
 }
 
 
+
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('send', 'pageview');
 
 </script>
 

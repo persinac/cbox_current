@@ -150,11 +150,21 @@ function registerUser(data)
             url: "queryRegisterUser.php",
             data: data,
             success: function(data) {
-                 alert(data);
-				 clearForm();
-            }
+            	console.log("Return val: " + data);
+				 overlay(data); 
+			},
+			error: function(data) {
+				console.log("Error?" + data);
+			}
         });	
 	}
+}
+
+function overlay(data) {
+	if(data == "1") {
+		alert("Registration Successful");
+		clearForm();
+	} else { alert("Contact System Administrator");}
 }
 
 function clearForm() {
@@ -164,6 +174,17 @@ function clearForm() {
     });
 		
 }
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('send', 'pageview');
+
 </script>
 
 </body>

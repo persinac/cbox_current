@@ -98,6 +98,7 @@ $totalRows_getUserBenchmarks = mysql_num_rows($getUserCFBenchmarks);
 	<li id="wod"><a href="/user_wod_page.php" >WOD</a></li> 
 	<li id="progress" class="active"><a href="#" >PROGRESS</a></li> 
 	<li id="account" ><a href="#" >ACCOUNT</a></li> 
+	<li id="logout" ><a href="#" >LOGOUT</a></li>
   </ul> 
 </div>
 
@@ -217,7 +218,32 @@ $totalRows_getUserBenchmarks = mysql_num_rows($getUserCFBenchmarks);
 <img src="images/progress_page/PROGRESS_PAGE_CFAPP_template.jpg" width="1224" height="792" alt=""/>
 </div>
 <div id="data_container">
-	
+	<div id="cft_foundamentals_sec1_div">
+		<table class="cft_foundamentals_sec1">
+            <tbody class="sec1_body">
+            	<tr class="sec1_data">
+                    <!-- <td class="mvment">Back Squat</td>
+                    <td class="weight">385</td>
+                    <td class="mvment">Back Squat</td>
+                    <td class="weight">385</td>
+                    <td class="mvment">Overhead Squat</td>
+                    <td class="weight">385</td>-->
+                </tr>	
+            </tbody>
+		</table>
+     </div>
+     <div id="cft_foundamentals_sec2_div">
+		<table class="cft_foundamentals_sec2">
+            <tbody class="sec2_body">
+            </tbody>
+        </table>
+     </div>
+	 <div id=\"cft_foundamentals_sec3_div">
+		<table class="cft_foundamentals_sec3">
+            <tbody class="sec3_body">
+            </tbody>
+        </table>
+     </div>
 
 </div> <!-- END data_container -->
 </div> <!-- END div_container -->
@@ -250,6 +276,25 @@ $(document).ready(function() {
 		}
 	});	
 });
+
+$("#navbar_main_ul li").click(function() {
+		//event.preventDefault();
+		var id = jQuery(this).attr("id");
+		if(id=="logout" || id=="LOGOUT") {
+			alert("LOGGING OUT");
+			console.log("logging out...");
+		
+			$.ajax(
+			{ 
+				url: "cbox_logout.php", //the script to call to get data  
+				success: function(response) //on recieve of reply
+				{
+					console.log("logged out...");
+					window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+				} 
+			});
+		}
+	});
 
 $(function() {
 	$("#bs_datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
@@ -622,8 +667,8 @@ function changeTextColorOfTables() {
 		  dataType: "json",                //data format      
 		  success: function(response) //on recieve of reply
 		  {
-			  //alert(movement_id);
-			loadCFTData(response);
+				console.log(response);
+				loadGRLData(response);
 		  } 
 		});
 	}
@@ -789,6 +834,66 @@ function changeTextColorOfTables() {
   }
   
   
+  function loadGRLData(data)
+  {
+	  console.log("GRL DATA ENTRY");
+		var html_sec1 = "";
+		var html_sec2 = "";
+		var html_sec3 = "";
+		var sec1_classID = "sec1_data"; 
+		var sec2_classID = "sec2_data";
+		var sec3_classID = "sec3_data";
+		var w = "w_";             //get id
+		var vname;           //get name
+		var time = "--:--";
+		for(var i = 0; i < data.length; i++) {
+			vname = nameOfGirl(data[i].mvmnt_id);
+			console.log("name: " + vname + ", score: " + data[i].time);
+			if(data[i].weight == 0) {
+				data[i].weight = "--:--";
+			}
+			if(i <= 6) {
+				if(data[i].wod_type == 'r') {
+					html_sec1 += "<tr class="+sec1_classID+"><td>"+
+						vname+"</td><td>"+data[i].time+"</td></tr>";
+				}
+				else {
+					html_sec1 += "<tr class="+sec1_classID+"><td>"+
+						vname+"</td><td>"+data[i].reps+"</td></tr>";
+				}
+			} else if (i > 6 && i <= 13) {
+				if(data[i].wod_type == 'r') {
+					html_sec2 += "<tr class="+sec1_classID+"><td>"+
+						vname+"</td><td>"+data[i].time+"</td></tr>";
+				}
+				else {
+					html_sec2 += "<tr class="+sec1_classID+"><td>"+
+						vname+"</td><td>"+data[i].reps+"</td></tr>";
+				}
+			}
+			else {
+				if(data[i].wod_type == 'r') {
+					html_sec3 += "<tr class="+sec1_classID+"><td>"+
+						vname+"</td><td>"+data[i].time+"</td></tr>";
+				}
+				else {
+					html_sec3 += "<tr class="+sec1_classID+"><td>"+
+						vname+"</td><td>"+data[i].reps+"</td></tr>";
+				}
+			}
+		}
+		//Update html content
+		$('.sec1_body').empty();
+		$('.sec1_body').html(html_sec1);
+		$('.sec2_body').empty();
+		$('.sec2_body').html(html_sec2);
+		$('.sec3_body').empty();
+		$('.sec3_body').html(html_sec3);
+		
+		changeTextColorOfTables();
+  }
+  
+  
   function setSideBar(id)
   {
 	  var html = "";
@@ -899,9 +1004,88 @@ function idOfMovement(movement_name)
   return value; 
 }
 
+function nameOfGirl(movement_id)
+{ 
+ 	var value = "Unknown Movement"; 
+	if (movement_id == "grl_01") { 
+	  value = "Angie"; 
+	} 
+	else if (movement_id == "grl_02") { 
+	  value = "Barbara"; 
+	} 
+	else if (movement_id == "grl_03") { 
+	  value = "Chelsea"; 
+	}
+	else if (movement_id == "grl_04") { 
+	  value = "Cindy"; 
+	}
+	else if (movement_id == "grl_05") { 
+	  value = "Diane"; 
+	}
+	else if (movement_id == "grl_06") { 
+	  value = "Elizabeth"; 
+	}
+	else if (movement_id == "grl_07") { 
+	  value = "Fran"; 
+	}
+	else if (movement_id == "grl_08") { 
+	  value = "Grace"; 
+	}
+	else if (movement_id == "grl_09") { 
+	  value = "Helen"; 
+	} 
+	else if (movement_id == "grl_10") { 
+	  value = "Isabel"; 
+	}
+	else if (movement_id == "grl_11") { 
+	  value = "Jackie"; 
+	}
+	else if (movement_id == "grl_12") { 
+	  value = "Karen"; 
+	}
+	else if (movement_id == "grl_13") { 
+	  value = "Linda"; 
+	}
+	else if (movement_id == "grl_14") { 
+	  value = "Mary"; 
+	}
+	else if (movement_id == "grl_15") { 
+	  value = "Nancy"; 
+	}
+	else if (movement_id == "grl_16") { 
+	  value = "Annie"; 
+	}
+	else if (movement_id == "grl_17") { 
+	  value = "Eva"; 
+	}
+	else if (movement_id == "grl_18") { 
+	  value = "Kelly"; 
+	}
+	else if (movement_id == "grl_19") { 
+	  value = "Lynne"; 
+	}
+	else if (movement_id == "grl_20") { 
+	  value = "Nicole"; 
+	}
+	else if (movement_id == "grl_21") { 
+	  value = "Amanda"; 
+	}
+  return value; 
+}
 
   </script>
     
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('send', 'pageview');
+
+</script>
+	
 </body>
 </html>
 <?php
