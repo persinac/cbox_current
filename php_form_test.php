@@ -26,6 +26,8 @@ $t_movement = "";
 $t_weight = "";
 $t_reps = "";
 $t_typeOfWOD = $_POST['wod_type_selector'];
+$t_girl_wod = $_POST['girl_selector'];
+$t_girl_id = $_POST['girl_id'];
 $t_wod_specifics = $_POST['num_of_rounds'];
 $t_date = $_POST['date'];
 $t_wodID = "";
@@ -42,6 +44,10 @@ $t_string_builder = "";
 $rx_wod = "";
 $inter_wod = "";
 $nov_wod = "";
+
+if($t_typeOfWOD == "GIRLS") {
+	$t_typeOfWOD = $t_girl_wod;	
+}
 
 if(!(empty($t_typeOfWOD))) {
 	if(strlen($t_special) > 0) {
@@ -159,7 +165,7 @@ $row = mysql_fetch_array($getAdminWODs);
 
 $t_wodID = $row[0] . str_replace("-", "", $t_date);
 
-$query_insert_wod = "insert into wods values ('{$t_wodID}', '{$t_name_of_wod}', '{$t_typeOfWOD}', '{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}')";
+$query_insert_wod = "insert into wods values ('{$t_wodID}', '{$t_girl_id}', '{$t_typeOfWOD}', '{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}')";
 #echo $query_insert_wod;
 $retval = mysql_query( $query_insert_wod, $cboxConn );
 if(! $retval )

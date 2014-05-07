@@ -158,9 +158,9 @@ if (isset($_SESSION['MM_UserID'])) {
             Movement: <input type="text" name="movement[]" class="movement" id="movement_0"/> 
             Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_0" placeholder="Guys/Girls"/> 
 			Reps/Distance: <input type="text" name="reps[]" class="reps" id="reps_0" placeholder="use calories or meters where needed"/>
-            <p></p>
+            <p class="new_wod_p"></p>
         </div> <!-- END OF new_wod -->
-        <input onclick="addRow(this.form);" type="button" value="Add row" id="addRowBut"/>
+        <input onclick="addRow('','','');" type="button" value="Add row" id="addRowBut"/>
         <input onclick="submitWOD(this.form);" type="button" value="Submit WOD" />
      </form>
      </div> <!-- END OF new_wod_container -->
@@ -263,6 +263,9 @@ var rowNum = 0;
 
 var previousVal = "";
 var currentVal = "";
+
+var number_of_rounds = 0;
+var girl_amrap_time = "";
 
 /*
 * Once the document is  loaded, grab the WoD information
@@ -558,8 +561,48 @@ $( "#str_instruction_selector" ).change(function() {
   }).trigger( "change" );
 
 
-$( "#div_compare_by" ).on("change", "#girl_selector", function() {
-	
+$( "#specific_to_wod" ).on("change", "#girl_selector", function() {
+	console.log($(this).val());
+	var girl_data = new Array();
+	var movement = "";
+	var weight = "";
+	var reps = "";
+	var temp = "";
+	var index = 0;
+	var prev_index = 0;
+	$('#movement_0').val('');
+	$('#weight_0').val('');
+	$('#reps_0').val('');
+	$('.new_wod_p').empty();
+	rowNum = 0;
+	//function to get the instructions and movements/weight/reps
+	//return an array with aforementioned values
+	girl_data = theGirls($(this).val());
+	$('#special').val(girl_data[0]);
+	for(var i = 1; i < girl_data.length; i++) {
+		console.log(girl_data[i]);	
+		//add row function
+		index = girl_data[i].indexOf(",");
+		movement = girl_data[i].substring(0, index);
+		temp = girl_data[i].substring(index + 1);
+		
+		//console.log("movement: " + movement + ", index: "+index+", temp: " + temp);
+		
+		index = temp.indexOf(",");
+		weight = temp.substring(0, index);
+		temp = temp.substring(index + 1);
+		//console.log("weight: " + weight + ", index: "+index+", temp: " + temp);
+		reps = temp;
+		console.log("movement: " + movement + "  weight: "+weight+"  reps: "+reps+"  temp: " + temp);
+		if(i == 1) {
+			$('#movement_0').val(movement);
+			$('#weight_0').val(weight);
+			$('#reps_0').val(reps);
+		} else {
+			addRow(movement, weight, reps);
+		}
+		
+	}
 });
 
   
@@ -791,11 +834,25 @@ function loadPastPWODS(data)
 * and uses rowNum to id the paragraph and input text fields
 *
 */
-function addRow(frm) {
+function addRow() {
 	rowNum++;
 	console.log("RowNum ADDED ROW: "+rowNum);
 	var row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'"> Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'"> <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
 	$('#new_wod_row').append(row);
+}
+
+/*
+* Called from the  new_wod_form in the input div
+* Creates a new <p> which holds the new rows of input
+* Increments rowNum by 1 each time the button is pressed,
+* and uses rowNum to id the paragraph and input text fields
+*
+*/
+function addRow(movement, weight, reps) {
+	rowNum++;
+	console.log("RowNum ADDED ROW: "+rowNum);
+	var row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'" value="'+movement+'"> Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'" value="'+weight+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'" value="'+reps+'"> <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
+	$('.new_wod_p').append(row);
 }
 
 /*
@@ -955,7 +1012,7 @@ function submitWOD() {
 	}
 	
 	var datastring = $("#new_wod_form").serializeArray();
-	
+	var id_of_girl = "";
 
 	var data_four = datastring.concat(data_three);
 	alert("data_four: " + data_four.toString());
@@ -1003,10 +1060,26 @@ function submitWOD() {
 		}
   	});
 	//alert("AMRAP_TIME: "+amrap_time);
-	data_four.push({ name: "amrap_time_update", value: amrap_time });
-	
 	$.each(data_four, function(i, field){
 		console.log("DATA: " +field.name + ":" + field.value + " ");
+		if(field.value == "grl_04" || field.value == "grl_14" || field.value == "grl_19" || field.value == "grl_20" ) {
+			id_of_girl = field.value;
+			field.value = "AMRAP";	
+			amrap_time = girl_amrap_time;
+			data_four.push({ name: "girl_id", value: id_of_girl });
+		} else if (field.value.indexOf("grl_") > -1) {
+			id_of_girl = field.value;
+			field.value = "RFT";
+			data_four.push({ name: "num_of_rounds", value: number_of_rounds });
+			data_four.push({ name: "girl_id", value: id_of_girl });
+		}
+  	});
+	
+	data_four.push({ name: "amrap_time_update", value: amrap_time });
+	
+	
+	$.each(data_four, function(i, field){
+		console.log("DATA ROUND TWO: " +field.name + ":" + field.value + " ");
   	});
 	
 	//sendRequest = false;
@@ -1017,7 +1090,10 @@ function submitWOD() {
             data: data_four,
             success: function(data) {
                  alert('Data send:' + data);
-            }
+            },
+			error: function(data) {
+					alert('Error:' + data);
+			}
         });
 	}
 }
@@ -1088,6 +1164,130 @@ function submitStrength() {
 	}
 }
 
+/****************************** Girls and heroes array builder **********************************************/
+function theGirls(girl_id)
+{
+	var girl_array = new Array();
+	
+	//angie
+	if(girl_id == "grl_01") {
+		number_of_rounds = 1;
+		girl_array.push("For Time. Complete all reps of each exercise before moving to the next");
+		girl_array.push("pull ups, , 100");
+		girl_array.push("push ups, , 100");
+		girl_array.push("sit ups, , 100");
+		girl_array.push("squats, , 100");
+	} else if(girl_id == "grl_02") {
+		number_of_rounds = 5;
+		girl_array.push("5 rounds For Time. 3 minute rest in between each set");
+		girl_array.push("pull ups, , 20");
+		girl_array.push("push ups, , 30");
+		girl_array.push("sit ups, , 40");
+		girl_array.push("squats, , 50");
+	} else if(girl_id == "grl_03") {
+		number_of_rounds = 30;
+		girl_array.push("Every minute on the minute for 30 minutes");
+		girl_array.push("pull ups, , 5");
+		girl_array.push("push ups, , 10");
+		girl_array.push("squats, , 15");
+	} else if(girl_id == "grl_04") {
+		girl_amrap_time = "20:00";
+		girl_array.push("20 minute AMRAP");
+		girl_array.push("pull ups, , 5");
+		girl_array.push("push ups, , 10");
+		girl_array.push("squats, , 15");
+	} else if(girl_id == "grl_05") {
+		number_of_rounds = 1;
+		girl_array.push("21-15-9 reps for time of ");
+		girl_array.push("deadlift, 225, ");
+		girl_array.push("handstand push ups, , ");
+	} else if(girl_id == "grl_06") {
+		number_of_rounds = 1;
+		girl_array.push("21-15-9 reps for time of ");
+		girl_array.push("Power clean, 135, ");
+		girl_array.push("ring dips, , ");
+	} else if(girl_id == "grl_07") {
+		number_of_rounds = 1;
+		girl_array.push("21-15-9 reps for time of ");
+		girl_array.push("thrusters, 95, ");
+		girl_array.push("pull ups, , ");		
+	} else if(girl_id == "grl_08") {
+		number_of_rounds = 1;
+		girl_array.push("30 reps for time of ");
+		girl_array.push("Clean and Jerks, 135, ");
+	} else if(girl_id == "grl_09") {
+		number_of_rounds = 3;
+		girl_array.push("3 rounds for time of ");
+		girl_array.push("Run, , 400m");
+		girl_array.push("Kettlebell swings, 50, 21");
+		girl_array.push("Pull ups, , 12");
+	} else if(girl_id == "grl_10") {
+		number_of_rounds = 1;
+		girl_array.push("30 reps for time of ");
+		girl_array.push("Snatch, 135, ");		
+	} else if(girl_id == "grl_11") {
+		number_of_rounds = 1;
+		girl_array.push("For time ");
+		girl_array.push("Row, , 1000m");
+		girl_array.push("Thrusters, 45, 50");
+		girl_array.push("pull ups, , 30");
+	} else if(girl_id == "grl_12") {
+		number_of_rounds = 1;
+		girl_array.push("For time ");
+		girl_array.push("Wall balls, 20/14, 150");
+	} else if(girl_id == "grl_13") {
+		number_of_rounds = 1;
+		girl_array.push("10-9-8-7-6-5-4-3-2-1 of ");
+		girl_array.push("Deadlift, , ");
+		girl_array.push("Bench, , ");
+		girl_array.push("Clean, , ");
+	} else if(girl_id == "grl_14") {
+		girl_amrap_time = "20:00";
+		girl_array.push("20 minute AMRAP");
+		girl_array.push("handstand push ups, , 5");
+		girl_array.push("pistols, , 10");
+		girl_array.push("pull ups, , 15");
+	} else if(girl_id == "grl_15") {
+		number_of_rounds = 5;
+		girl_array.push("5 rounds for time ");
+		girl_array.push("Run, , 400m");
+		girl_array.push("overhead squat, 95, 15");
+	}else if(girl_id == "grl_16") {
+		number_of_rounds = 1;
+		girl_array.push("50-40-30-20-10 of ");
+		girl_array.push("Double unders, , ");
+		girl_array.push("Sit ups, , ");
+	} else if(girl_id == "grl_17") {
+		number_of_rounds = 5;
+		girl_array.push("5 rounds for time ");
+		girl_array.push("Run, , 800m");
+		girl_array.push("Kettlebell swings, 70, 30");
+		girl_array.push("Pull ups, , 30");
+	} else if(girl_id == "grl_18") {
+		number_of_rounds = 5;
+		girl_array.push("5 rounds for time ");
+		girl_array.push("Run, , 400m");
+		girl_array.push("Box jumps, , 24in");
+		girl_array.push("Wall balls, 20/14, 30");
+	} else if(girl_id == "grl_19") {
+		girl_amrap_time = "90:00";
+		girl_array.push("5 rounds of max effort ");
+		girl_array.push("Bench press, , ");
+		girl_array.push("Pull ups, , ");
+	} else if(girl_id == "grl_20") {
+		girl_amrap_time = "20:00";
+		girl_array.push("Your score is total pull ups, 20 minute AMRAP ");
+		girl_array.push("Run, , 400m");
+		girl_array.push("Pull ups, , ");
+	} else if(girl_id == "grl_21") {
+		number_of_rounds = 1;
+		girl_array.push("9-7-5 reps For time ");
+		girl_array.push("Muscle ups, , ");
+		girl_array.push("Snatches, 135/95, ");
+	}
+	
+	return girl_array;
+}
 
 
 </script>

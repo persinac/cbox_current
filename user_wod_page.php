@@ -289,12 +289,14 @@ $(function(){
 		var modalWidth = "";
 		//alert(wod_description + " " + wod_name + " "+wod_type+" "+level_perf+" " );
 		if(wod_type == "rft" || wod_type == "RFT") {
+			type_of_wod = "RFT";
 			modalHeight = ($(this).height() / 2 ) + 'in !important';
 			modalWidth = ($(this).width() / 2 ) + 'in !important';
 			$('#rft_modal').css('margin-top', modalHeight);
 			$('#rft_modal').css('margin-left', modalWidth);
 			$('#rft_modal').modal('show');
 		} else if (wod_type == "amrap" || wod_type == "AMRAP") {
+			type_of_wod = "AMRAP";
 			modalHeight = ($(this).height() / 2 ) + 'in !important';
 			modalWidth = ($(this).width() / 2 ) + 'in !important';
 			$('#amrap_modal').css('margin-top', modalHeight);
@@ -369,7 +371,8 @@ $(function() {
 					"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
 					"pwod_id" : pwod_id, //same as wod_id
 					"strength_id" : strID, //same as wod_id
-					"actualTime" : actualTime
+					"actualTime" : actualTime,
+					"wod_type" : "RFT"
 					}, 
 				success: function(msg)
 				{
@@ -410,7 +413,8 @@ $(function() {
 					"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
 					"pwod_id" : pwod_id, //same as wod_id
 					"strength_id" : strID, //same as wod_id
-					"actualTime" : amrap_time
+					"actualTime" : amrap_time,
+					"wod_type" : "AMRAP"
 					}, 
 				success: function(msg)
 				{
