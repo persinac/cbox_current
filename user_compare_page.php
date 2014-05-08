@@ -128,6 +128,7 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
 $(document).ready(function() {
 	//event.preventDefault();
 	//console.log("READY!!!");
+	getCurrentDate();
 });
 
 var header_wod = "";
@@ -170,16 +171,16 @@ $(function() {
 		$('#div_compare_by').empty();
 		if($(this).text() == "Today's Results") {
 			console.log("TODAY");
-            str += 'Male <input type="radio" name="gender_to_compare" class="radio_butts" value="box">';
-            str += 'Female <input type="radio" name="gender_to_compare" class="radio_butts" value="reg">';
-            str += 'All <input type="radio" name="gender_to_compare" class="radio_butts" value="cou"> <br><br>';
+            str += 'Male <input type="radio" name="gender_to_compare" class="radio_butts" value="m">';
+            str += 'Female <input type="radio" name="gender_to_compare" class="radio_butts" value="f">';
+            str += 'All <input type="radio" name="gender_to_compare" class="radio_butts" value="a"> <br><br>';
             str += '<select id="today_compare_selector" name="compare_selector" class="selector">';
 			str += "<option value=\"ALL\"> - </option>";
 			str += '<option value="RX">RX</option>';
 			str += '<option value="INTER">Intermediate</option>';
 			str += '<option value="NOV">Novice</option>';
 			str += '</select><br>';
-			str += '<input onclick="today_compare(this.form);" type="button" id="compare_but" value="Compare" />';
+			str += '<input onclick="today_compare(this.form);" type="button" id="compare_but" value="today" />';
 			//$('#div_compare_by').append(str);
 		} else if($(this).text() == "Search") {
 			console.log("Search");
@@ -216,7 +217,7 @@ $(function() {
 			str +="<option value=\"HERO\">HEROES</option>";
 			str +="</select><br>";
 			str += '</p>';
-			str += '<input onclick="search(this.form);" type="button" id="search_but" value="Today" />';
+			str += '<input onclick="search(this.form);" type="button" id="search_but" value="search" />';
 			
 		}
 		$('#div_compare_by').append(str);
@@ -402,6 +403,33 @@ function search() {
 	  {
 		  console.log("response_wods: " + response);
 		  loadCompareData(response);
+	  },
+  	  error: function(error){
+    		console.log('error loading wods!' + error);
+  		}
+	});
+}
+
+function today_compare() {
+	console.log("COMPARE TODAY");
+	var compare_data = $("#what_to_compare_form").serializeArray();
+	$('#display_workout').empty();
+	$.each(compare_data, function(i, field){
+    	console.log("FORM DATA: " +field.name + ":" + field.value + " ");
+  	});
+	
+	compare_data.push({ name: "date", value: today });
+	
+	$.ajax(
+	{ 
+	  type:"POST",                                     
+	  url:"today_compare_query.php",         
+	  data: compare_data, //insert argumnets here to pass to getAdminWODs
+	  dataType: "text",                //data format      
+	  success: function(response) //on recieve of reply
+	  {
+		  console.log("response today compare: " + response);
+		  //loadCompareData(response);
 	  },
   	  error: function(error){
     		console.log('error loading wods!' + error);
