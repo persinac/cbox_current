@@ -371,8 +371,8 @@ function getLeaderBoardData(data) {
 	{ 
 	  type:"POST",                                     
 	  url:"getLeaderboardContent.php",         
-	  data: {"date" : data}, //insert argumnets here to pass to getAdminWODs
-	  dataType: "json",                //data format      
+	  data: {"date" : data}, //insert arguments here to $_POST
+	  dataType: "json",  //data format      
 	  success: function(response) //on recieve of reply
 	  {
 		console.log("get leaderboard content: " + response);
