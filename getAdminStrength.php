@@ -54,6 +54,7 @@ mysql_select_db($database_cboxConn, $cboxConn);
 # Defualt view is Crossfit->Foundamental benchmarks
 ###
 $box_id = $_POST['dataString'];
+$length_of_box_id = strlen($box_id);
 $query_getAdminStr = "select str_id
 , CASE WHEN (movement = '') THEN '-'
 	ELSE movement
@@ -63,7 +64,7 @@ $query_getAdminStr = "select str_id
 	END AS descrip
 , CAST(date_of_strength AS DATE) AS date_of_str
  from strength
-WHERE SUBSTRING(strength.str_id, 1, 1) = '{$box_id}'";
+WHERE SUBSTRING(str_id, 1, {$length_of_box_id}) = '{$box_id}'";
 $getAdminStr = mysql_query($query_getAdminStr, $cboxConn) or die(mysql_error());
 $totalRows_getAdminStr = mysql_num_rows($getAdminStr);
 //echo $totalRows_getAdminWODs;

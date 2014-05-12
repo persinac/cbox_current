@@ -94,19 +94,10 @@ $getUserWODs = mysql_query($query_getUserWODs, $cboxConn) or die(mysql_error());
 $totalRows_getUserWODs = mysql_num_rows($getUserWODs);
 $results = array();
 
-
-
 for($i = 0; $i < $totalRows_getUserWODs; $i++)
 {
-#	$rows = mysql_fetch_row($getUserCFBenchmarks);
-#	$mvmntID = $rows[0];
-#	$weight = $rows[1];
-	
-#	echo '<p>Movement: ' . $mvmntID . ' ';
-#	echo ' Weight: ' . $weight . '</p>';
 	
 	$results[] = mysql_fetch_assoc($getUserWODs);
 }
 echo json_encode($results);	
-#echo $movement_id;
 ?>

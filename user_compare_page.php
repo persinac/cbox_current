@@ -375,11 +375,11 @@ function getLeaderBoardData(data) {
 	  dataType: "json",                //data format      
 	  success: function(response) //on recieve of reply
 	  {
-		  console.log("response_wods: " + response);
-		  loadLeaderBoardData(response);
+		console.log("get leaderboard content: " + response);
+		loadLeaderBoardData(response);
 	  },
   	  error: function(error){
-    		console.log('error loading wods!' + error);
+    		console.log('error receiving leaderboard content!' + error);
   		}
 	});
 	
@@ -511,6 +511,7 @@ function loadLeaderBoardData(data_leaders) {
 	console.log("DATA: " + data_wods);
 	console.log("t_DATA: " + t_data);*/
 	for(var i = 0; i < data_leaders.length; i++) {
+		if(typeof data_leaders[i].rx_descrip != undefined) {
 		console.log("data[i].dateofwod: " +data_leaders[i].rx_descrip);
 		console.log("data[i].type_of_wod: " + data_leaders[i].name);
 		console.log("data[i].rx_description: " + data_leaders[i].score);
@@ -540,6 +541,7 @@ function loadLeaderBoardData(data_leaders) {
 		console.log("pre_undefined");
 
 		console.log("post_undefined");
+		}
 		
 	}
 	//Update html content

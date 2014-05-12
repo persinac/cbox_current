@@ -54,23 +54,20 @@ mysql_select_db($database_cboxConn, $cboxConn);
 # Defualt view is Crossfit->Foundamental benchmarks
 ###
 $box_id = $_POST['dataString'];
-if(strlen($box_id) == 1)
-{
-	$query_getAdminPWOD = "select pwod_id
-	, CASE WHEN (type_of_pwod = '') THEN '-'
-		ELSE type_of_pwod
-		END AS type_of_pwod
-	, CASE WHEN (descrip = '') THEN '-'
-		ELSE descrip
-		END AS descrip
-	, CAST(date_of_pwod AS DATE) AS date_of_pwod
-	 from post_wod
-	WHERE SUBSTRING(post_wod.pwod_id, 1, 1) = '{$box_id}'";
-} 
-elseif(strlen($box_id) == 2){ echo "DOUBLE";
-}
-elseif(strlen($box_id) == 3){ echo "TRIPLE";
-}
+$length_of_box_id = strlen($box_id);
+//echo "box id: " . $box_id . ", length: " . $length_of_box_id;
+$query_getAdminPWOD = "select pwod_id
+, CASE WHEN (type_of_pwod = '') THEN '-'
+	ELSE type_of_pwod
+	END AS type_of_pwod
+, CASE WHEN (descrip = '') THEN '-'
+	ELSE descrip
+	END AS descrip
+, CAST(date_of_pwod AS DATE) AS date_of_pwod
+ from post_wod
+WHERE SUBSTRING(pwod_id, 1, {$length_of_box_id}) = '{$box_id}'";
+ 
+
 $getAdminPWOD = mysql_query($query_getAdminPWOD, $cboxConn) or die(mysql_error());
 $totalRows_getAdminPWOD = mysql_num_rows($getAdminPWOD);
 //echo $totalRows_getAdminWODs;

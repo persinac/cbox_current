@@ -60,6 +60,7 @@ $totalRows_getUserWODs = mysql_num_rows($getUserBoxID);
 $row = mysql_fetch_array($getUserBoxID);
 #row[0] = the box name
 $t_box_id = $row[0];
+$length_of_box_id = strlen($t_box_id);
 
 //echo 'Box ID: '. $t_box_id . ' ';
 if($level == "rx") {
@@ -70,7 +71,7 @@ date_of_wod,
 rounds,
 time 
 from wods 
-WHERE SUBSTRING(wods.wod_id, 1, 1) = '{$t_box_id}' 
+WHERE SUBSTRING(wods.wod_id, 1, {$length_of_box_id}) = '{$t_box_id}' 
 AND date_of_wod = '{$today}'";
 } else if ($level == "intermediate") {
 $query_getWOD = "select CASE WHEN (name_of_wod = '') THEN '-' ELSE name_of_wod END AS name_of_wod, 

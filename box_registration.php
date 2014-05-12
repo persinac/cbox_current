@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -56,7 +56,8 @@
 			<input type="text" id="country" name="country" />
 		</div>
 		<div>
-			<input type="submit" value="Register" id="submit" /> 
+			<input type="submit" value="Register" id="submit" />
+			<button type="submit" value="Register" id="submit">Register</button>
 		</div>
 	</form>
 </div>
@@ -80,9 +81,11 @@ $(function() {
 			url: "queryBoxRegistration.php",
 			data: datastring,
 			datatype: "text",
-			success: function(data){
+			success: function(data)
+			{
 				console.log("Return val: " + data);
-				 overlay(data); 
+				 //overlay(data); 
+				 window.setTimeout(function(){ overlay(data)}, 500);
 			},
 			error: function(data) {
 				console.log("Error?" + data);
@@ -95,15 +98,18 @@ $(function() {
 function overlay(data) {
 	if(data == "1") {
 		alert("Registration Successful");
-		clearForm();
-	} else { alert("Contact System Administrator");}
+		clearRegistrationForm();
+	} else { 
+		alert("Contact System Administrator");
+	}
 }
 
-function clearForm() {
+function clearRegistrationForm() {
 	$('#boxregform input').each(function(index, element) {
         console.log(index + " : " + $(this).text());
 		$(this).val('');
     });
+}
 
 </script>
 

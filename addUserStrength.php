@@ -37,7 +37,7 @@ $totalRows_getAdminWODs = mysql_num_rows($getBoxID);
 ####echo $totalRows_getAdminWODs;
 $row = mysql_fetch_array($getBoxID);
 
-$t_wodID = $row[0] . str_replace("-", "", $t_wod_id);
+$t_wodID = $row[0] . "_".str_replace("-", "", $t_wod_id);
 
 /*
 echo "HI ". $t_user_id;

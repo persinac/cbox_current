@@ -53,7 +53,7 @@ $totalRows_getAdminWODs = mysql_num_rows($getAdminWODs);
 ####echo $totalRows_getAdminWODs;
 $row = mysql_fetch_array($getAdminWODs);
 
-$t_strengthID = $row[0] . str_replace("-", "", $t_date);
+$t_strengthID = $row[0] . "_" . str_replace("-", "", $t_date);
 echo "Strength ID: " . $t_strengthID."\n";
 
 $query_insert_strength = "insert into strength values ('{$t_strengthID}', '{$t_date}', '{$t_movement}', '{$t_string_builder}', '{$t_str_special}')";

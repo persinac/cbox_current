@@ -626,10 +626,10 @@ function getPastWODS(box_id)
 	  type:"POST",                                     
 	  url:"getAdminWODs.php",         
 	  data: { "dataString" : boxID }, //insert argumnets here to pass to getAdminWODs
-	  dataType: "json",                //data format      
+	  dataType: "json",  //data format      
 	  success: function(response_wods) //on recieve of reply
 	  {
-		  //alert("response_wods: " + response_wods);
+		  console.log("response_wods: " + response_wods);
 		loadPastWODS(response_wods);
 	  },
   	  error: function(){
@@ -664,6 +664,7 @@ function getPastStrength(box_id)
 	  dataType: "json",                //data format      
 	  success: function(response) //on recieve of reply
 	  {
+	   console.log("strength: " + response);
 		loadPastStr(response);
 	  },
   	  error: function(){
@@ -698,11 +699,11 @@ function getPastPostWODS(box_id)
 	  dataType: "json",                //data format      
 	  success: function(response_wods) //on recieve of reply
 	  {
-		  //alert("response_wods: " + response_wods);
+		  console.log("post wod: " + response_wods);
 		loadPastPWODS(response_wods);
 	  },
   	  error: function(){
-    		alert('error loading wods!');
+    		alert('error loading post wods!');
   		}
 	});
 }
@@ -1148,7 +1149,7 @@ function submitStrength() {
 	}
 	
 	$.each(strength_data, function(i, field){
-    	//alert("DATA: " +field.name + ":" + field.value + " ");
+    	console.log("DATA: " +field.name + ":" + field.value + " ");
   	});
 
 	//sendRequest = false;

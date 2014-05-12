@@ -58,11 +58,12 @@ $totalRows_getUserStrength = mysql_num_rows($getUserBoxID);
 $row = mysql_fetch_array($getUserBoxID);
 #row[0] = the box name
 $t_box_id = $row[0];
+$length_of_box_id = strlen($t_box_id);
 
 //echo "Box ID: ". $t_box_id . "\n";
 $query_getStrength = "select movement, descrip, special_instructions
 from strength 
-WHERE SUBSTRING(strength.str_id, 1, 1) = '{$t_box_id}' 
+WHERE SUBSTRING(wods.wod_id, 1, {$length_of_box_id}) = '{$t_box_id}' 
 AND date_of_strength = '{$today}'";
 
 //echo "query: " . $query_getStrength . "\n";

@@ -59,7 +59,7 @@ $totalRows_getBoxID = mysql_num_rows($getBoxID);
 $row = mysql_fetch_array($getBoxID);
 
 $box_id = $row[0];#$_POST['dataString'];
-$t_wod_id = $box_id . "" . str_replace("-","",$t_temp_wod_id);
+$t_wod_id = $box_id . "_" . str_replace("-","",$t_temp_wod_id);
 
 $query_getWODType = "select type_of_wod
  from wods

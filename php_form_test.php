@@ -163,7 +163,8 @@ $totalRows_getAdminWODs = mysql_num_rows($getAdminWODs);
 ####echo $totalRows_getAdminWODs;
 $row = mysql_fetch_array($getAdminWODs);
 
-$t_wodID = $row[0] . str_replace("-", "", $t_date);
+//$t_box_id = $row[0];
+$t_wodID = $row[0] . "_" . str_replace("-", "", $t_date);
 
 $query_insert_wod = "insert into wods values ('{$t_wodID}', '{$t_girl_id}', '{$t_typeOfWOD}', '{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}')";
 #echo $query_insert_wod;

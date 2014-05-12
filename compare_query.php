@@ -71,7 +71,7 @@ $totalRows_getAdminWODs = mysql_num_rows($getBoxID);
 $row = mysql_fetch_row($getBoxID);
 
 $box_id = $row[0];
-
+$length_of_box_id = strlen($box_id);
 //$t_area = " a.box_id = '{$box_id}'";
 
 if($compare_id == "WOD") {
@@ -131,7 +131,7 @@ if($compare_id == "WOD") {
 	, time
 	, rounds
 	FROM {$t_table}
-	WHERE {$t_months} AND {$t_year} AND {$t_wod_type} AND SUBSTRING(wod_id, 1, 1) = '{$box_id}'
+	WHERE {$t_months} AND {$t_year} AND {$t_wod_type} AND SUBSTRING(wods.wod_id, 1, {$length_of_box_id}) = '{$box_id}'
 	ORDER BY date_of_wod";
 	
 }

@@ -63,7 +63,11 @@ $totalRows_getAdminWODs = mysql_num_rows($getBoxID);
 ####echo $totalRows_getAdminWODs;
 $row = mysql_fetch_array($getBoxID);
 
-$box_id = $row[0];#$_POST['dataString'];
+$box_id = $row[0];
+
+//echo "Box id: " . $box_id . "length of box_id: " . strlen($box_id);
+
+$length_of_box_id = strlen($box_id);
 $query_getAdminWODs = "select wod_id
 , CASE WHEN (name_of_wod = '') THEN '-'
 	ELSE name_of_wod
@@ -72,7 +76,7 @@ $query_getAdminWODs = "select wod_id
 , rx_descrip
 , date_of_wod
  from wods
-WHERE SUBSTRING(wods.wod_id, 1, 1) = '{$box_id}'";
+WHERE SUBSTRING(wods.wod_id, 1, {$length_of_box_id}) = '{$box_id}'";
 $getAdminWODs = mysql_query($query_getAdminWODs, $cboxConn) or die(mysql_error());
 $totalRows_getAdminWODs = mysql_num_rows($getAdminWODs);
 //echo $totalRows_getAdminWODs;

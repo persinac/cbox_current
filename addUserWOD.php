@@ -52,7 +52,7 @@ $totalRows_getAdminWODs = mysql_num_rows($getBoxID);
 ####echo $totalRows_getAdminWODs;
 $row = mysql_fetch_array($getBoxID);
 
-$t_wodID = $row[0] . str_replace("-", "", $t_wod_id);
+$t_wodID = $row[0] . "_" . str_replace("-", "", $t_wod_id);
 
 $query_getGirlID = "select name_of_wod
  from wods
@@ -65,18 +65,31 @@ $row = mysql_fetch_array($getGirlID);
 
 $t_girlID = $row[0];
 
-echo "HI ". $t_user_id;
-echo " HI ".$t_wodID;
-echo " HI ".$t_wod_descrip;
-echo " HI ".$t_level_perf;
-echo " HI ".$t_rounds_compl;
-echo " HI ".$t_time;
-echo " HI ".$t_pwod_id;
-echo " HI ".$t_strength_id;
-echo " HI ".$t_actual_time;
+/*
+echo " ". $t_user_id;
+echo ", ".$t_wodID;
+echo ", ".$t_wod_descrip;
+echo ", ".$t_level_perf;
+echo ", ".$t_rounds_compl;
+echo ", ".$t_time;
+echo ", ".$t_pwod_id;
+echo ", ".$t_strength_id;
+echo ", ".$t_actual_time;
 echo " GirlID: " . $t_girlID;
 echo " WOD Type: " . $t_wod_type;
+*/
 
+if($t_wod_type == "RFT") {
+	$query_get_rounds = "select rounds from wods where wod_id = '{$t_wodID}'";
+	$getRounds = mysql_query($query_get_rounds, $cboxConn) or die(mysql_error());
+	$row = mysql_fetch_array($getRounds);
+	$t_rounds_compl = $row[0];
+} else if ($t_wod_type == "AMRAP") {
+	$query_get_time = "select rounds from time where wod_id = '{$t_wodID}'";
+	$getTime = mysql_query($query_get_time, $cboxConn) or die(mysql_error());
+	$row = mysql_fetch_array($getTime);
+	$t_time = $row[0];
+}
 
 $query_insert_wod = "insert into athlete_wod values ('{$t_user_id}', '{$t_wodID}', '{$t_wod_descrip}', '{$t_level_perf}', '{$t_rounds_compl}', '{$t_time}', '{$t_pwod_id}', '{$t_strength_id}', '{$t_actual_time}')";
 echo $query_insert_wod;

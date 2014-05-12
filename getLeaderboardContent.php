@@ -59,11 +59,13 @@ $totalRows_getBoxID = mysql_num_rows($getBoxID);
 $row = mysql_fetch_array($getBoxID);
 
 $box_id = $row[0];#$_POST['dataString'];
-$t_wod_id = $box_id . "" . $t_temp_wod_id;
+$length_of_box_id = strlen($box_id);
+$t_wod_id = $box_id . "_" . $t_temp_wod_id;
+//echo "wod id = " . $t_wod_id;
 
 $query_getWODType = "select type_of_wod
  from wods
-WHERE wod_id = {$t_wod_id}";
+WHERE wod_id = '{$t_wod_id}'";
 
 $getWODType = mysql_query($query_getWODType, $cboxConn) or die(mysql_error());
 $totalRows_getWODType = mysql_num_rows($getWODType);
@@ -85,9 +87,9 @@ a.user_id AS user_id
 from wods w
 JOIN athlete_wod aw ON aw.wod_id = w.wod_id
 JOIN athletes a ON a.user_id = aw.user_id
-where w.wod_id = {$t_wod_id}
+where w.wod_id = '{$t_wod_id}'
 AND a.box_id = {$box_id} 
-AND a.gender = 'M'
+-- AND a.gender = 'M'
 ORDER BY score {$order_by}";
 $getLeaderBoardContent = mysql_query($query_getLeaderBoardContent, $cboxConn) or die(mysql_error());
 $totalRows_getLeaderBoardContent = mysql_num_rows($getLeaderBoardContent);

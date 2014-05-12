@@ -149,8 +149,7 @@ mysql_select_db($database_cboxConn, $cboxConn);
         <div class="modal-body">
         	<!-- Grab number of rows and place that many into here -->  
             <form method="POST" id="add_rft_wod_form" class="add_wod">
-                <div id="add_wod_row">
-                <h4>WOD</h4>
+                <div id="rft_time_row">
                     Time: <input type="text" name="rft_time" class="rft_time" id="rft_time" placeholder="00:00:00"/> 
                     <p></p>   
                 </div> <!-- END OF new_wod -->
@@ -287,14 +286,16 @@ $(function(){
 	$("button#wod_").click(function() {
 		var modalHeight = "";
 		var modalWidth = "";
-		//alert(wod_description + " " + wod_name + " "+wod_type+" "+level_perf+" " );
+		//console.log(wod_description + " " + wod_name + " "+wod_type+" "+level_perf+" " );
 		if(wod_type == "rft" || wod_type == "RFT") {
 			type_of_wod = "RFT";
+			//generate time dropdown function
 			modalHeight = ($(this).height() / 2 ) + 'in !important';
 			modalWidth = ($(this).width() / 2 ) + 'in !important';
 			$('#rft_modal').css('margin-top', modalHeight);
 			$('#rft_modal').css('margin-left', modalWidth);
 			$('#rft_modal').modal('show');
+			generateRFTModalDropDown();
 		} else if (wod_type == "amrap" || wod_type == "AMRAP") {
 			type_of_wod = "AMRAP";
 			modalHeight = ($(this).height() / 2 ) + 'in !important';
@@ -329,8 +330,6 @@ $(function() {
 
 $(function() {
 	$("button#lvl_inter").click(function() {
-    	//alert("CLICKEDDDDD!!!!!");
-		//add wod
 		getWOD("intermediate")
     });
 });
@@ -347,15 +346,21 @@ $(function() {
 		var datastring = $('#add_rft_wod_form').serializeArray();
 		var pwod_id = "";
 		var strID = "";
-		var actualTime = "00:15:09";
+		var actualTime = "";
 		var time_comp = "";
 		var rounds_compl = 1;
 		
+		var name = "";
 		//alert("datastring: " + datastring.value);
 		$.each(datastring, function(i, field)
 		{
-			alert("DATA: " + field.name + " : " + field.value);
-			actualTime = field.value;
+			name = field.name;
+			console.log("DATA: " + name + " : " + field.value);
+			//console.log(name.indexOf("rft_time_"));
+			if(name.indexOf("rft_time_") > -1) {
+				actualTime += field.value + ":";
+				console.log("actual time:" + actualTime);
+			}
 		});
 		var send = true;
 		//alert("actualtime: " + actualTime);
@@ -376,7 +381,8 @@ $(function() {
 					}, 
 				success: function(msg)
 				{
-					alert(msg);
+					console.log(msg);
+					alert("Entered WoD successfully!");
 					//loadWODData(msg, level_performed);
 				}
 			});
@@ -396,7 +402,7 @@ $(function() {
 		//alert("datastring: " + datastring.value);
 		$.each(datastring, function(i, field)
 		{
-			alert("DATA: " + field.name + " : " + field.value);
+			console.log("DATA: " + field.name + " : " + field.value);
 			rounds_compl = field.value;
 		});
 		//alert("rounds_compl: " + rounds_compl);
@@ -686,6 +692,44 @@ function removeRow(rnum) {
 		rowNum--;
 		console.log("Strength RowNum REMOVED ROW: "+rowNum);
 	}
+}
+
+function generateRFTModalDropDown() {
+	console.log("generating dropdown options...");
+	var str = "";
+	str = "Time: <select size=\"1\" name=\"rft_time_0\" class=\"rft_compl_time\" id=\"rft_time_0\">";
+	//for loop to produce 00-24
+	for(var i = 0; i < 24; i++) {
+		if(i < 10) {
+			str += "<option value=\"0"+i+"\">0"+i+"</option>";
+		} else {
+			str += "<option value=\""+i+"\">"+i+"</option>";
+		}	
+	}
+	str +="</select>";
+	str += " : <select size=\"1\" name=\"rft_time_1\" class=\"rft_compl_time\" id=\"rft_time_1\">";
+	//for loop to produce 00-59
+	for(var i = 0; i < 60; i++) {
+		if(i < 10) {
+			str += "<option value=\"0"+i+"\">0"+i+"</option>";
+		} else {
+			str += "<option value=\""+i+"\">"+i+"</option>";
+		}	
+	}
+	str +="</select>";
+	str += " : <select size=\"1\" name=\"rft_time_2\" class=\"rft_compl_time\" id=\"rft_time_2\">";
+	//for loop to produce 00-59
+	for(var i = 0; i < 60; i++) {
+		if(i < 10) {
+			str += "<option value=\"0"+i+"\">0"+i+"</option>";
+		} else {
+			str += "<option value=\""+i+"\">"+i+"</option>";
+		}	
+	}
+	str +="</select>";
+	console.log("emptying row and adding options");
+	$('#rft_time_row').empty();
+	$('#rft_time_row').html(str);
 }
 
 </script>
