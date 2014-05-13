@@ -85,7 +85,7 @@ if($t_wod_type == "RFT") {
 	$row = mysql_fetch_array($getRounds);
 	$t_rounds_compl = $row[0];
 } else if ($t_wod_type == "AMRAP") {
-	$query_get_time = "select rounds from time where wod_id = '{$t_wodID}'";
+	$query_get_time = "select time from wods where wod_id = '{$t_wodID}'";
 	$getTime = mysql_query($query_get_time, $cboxConn) or die(mysql_error());
 	$row = mysql_fetch_array($getTime);
 	$t_time = $row[0];

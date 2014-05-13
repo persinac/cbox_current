@@ -133,7 +133,6 @@ $(document).ready(function() {
 
 var header_wod = "";
 
-
 $("#navbar_main_ul li").click(function() {
 		//event.preventDefault();
 		var id = jQuery(this).attr("id");
@@ -171,9 +170,9 @@ $(function() {
 		$('#div_compare_by').empty();
 		if($(this).text() == "Today's Results") {
 			console.log("TODAY");
-            str += 'Male <input type="radio" name="gender_to_compare" class="radio_butts" value="m">';
-            str += 'Female <input type="radio" name="gender_to_compare" class="radio_butts" value="f">';
-            str += 'All <input type="radio" name="gender_to_compare" class="radio_butts" value="a"> <br><br>';
+            str += 'Male <input type="radio" name="gender_to_compare" class="radio_butts" value="M">';
+            str += 'Female <input type="radio" name="gender_to_compare" class="radio_butts" value="F">';
+            str += 'All <input type="radio" name="gender_to_compare" class="radio_butts" value="A"> <br><br>';
             str += '<select id="today_compare_selector" name="compare_selector" class="selector">';
 			str += "<option value=\"ALL\"> - </option>";
 			str += '<option value="RX">RX</option>';
@@ -365,15 +364,36 @@ function getCurrentDate()
 
 function getLeaderBoardData(data) {
 	console.log("get leader board data: " + data);
-	
+	var comma_index = data.indexOf(",");
+	var temp_str = "";
+	var date = "";
+	var gender = "";
+	var level = "";
+	if(comma_index > -1) {
+		//console.log("I have more than just a date");
+		date = data.substring(0, comma_index);
+		temp_str = data.substring(comma_index+1);
+		//console.log("temp_string: " + temp_str);
+		comma_index = temp_str.indexOf(",");
+		gender = temp_str.substring(0, comma_index);
+		temp_str = temp_str.substring(comma_index);
+		//console.log("temp_string: " + temp_str);
+		level = temp_str.substring(comma_index);
+		
+	} else {
+		date = data;
+	}
+	console.log("date: " + date + " gender: "+gender+" level: "+level);
 	//pass this data to php file
 	$.ajax(
 	{ 
 	  type:"POST",                                     
 	  url:"getLeaderboardContent.php",         
-	  data: {"date" : data}, //insert arguments here to $_POST
+	  data: {"date" : date, 
+			"gender" : gender,
+			"level" : level}, //insert arguments here to $_POST
 	  dataType: "json",  //data format      
-	  success: function(response) //on recieve of reply
+	  success: function(response) //on receive of reply
 	  {
 		console.log("get leaderboard content: " + response);
 		loadLeaderBoardData(response);
@@ -423,16 +443,16 @@ function today_compare() {
 	$.ajax(
 	{ 
 	  type:"POST",                                     
-	  url:"today_compare_query.php",         
+	  url:"compare_getWOD.php",         
 	  data: compare_data, //insert argumnets here to pass to getAdminWODs
-	  dataType: "text",                //data format      
+	  dataType: "json",                //data format      
 	  success: function(response) //on recieve of reply
 	  {
 		  console.log("response today compare: " + response);
-		  //loadCompareData(response);
+		  loadTodayWOD(response);
 	  },
   	  error: function(error){
-    		console.log('error loading wods!' + error);
+    		console.log('error loading todays wod!' + error);
   		}
 	});
 }
@@ -507,46 +527,82 @@ function loadLeaderBoardData(data_leaders) {
 	var score = "";
 	var name = "";
 	var descrip = "";
-	/*console.log("loadPastWODS PRE-FOR LOOP");
-	console.log("DATA: " + data_wods);
-	console.log("t_DATA: " + t_data);*/
+	console.log("loadLeaderboardData PRE-FOR LOOP");
+	
 	for(var i = 0; i < data_leaders.length; i++) {
-		if(typeof data_leaders[i].rx_descrip != undefined) {
-		console.log("data[i].dateofwod: " +data_leaders[i].rx_descrip);
-		console.log("data[i].type_of_wod: " + data_leaders[i].name);
-		console.log("data[i].rx_description: " + data_leaders[i].score);
-		//console.log("userid data[i]: " + data_leaders[i].user_id);
-		//console.log("user id php: " + <?php echo $_SESSION['MM_UserID']; ?>);
 		
-		descrip = data_leaders[i].rx_descrip;
-		name = data_leaders[i].name;
-		score = data_leaders[i].score;
-		
-		if(score.substring(0, 3) == "00:") {
-			console.log(score.substring(3));
-			score = score.substring(3);
-		}
+		if(typeof data_leaders[i].descrip != undefined) {
+			/*console.log("DATA: " + data_leaders);
+			console.log("data[i].descrip: " +data_leaders[i].descrip);
+			console.log("data[i].name: " + data_leaders[i].name);
+			console.log("data[i].score: " + data_leaders[i].score);
+			console.log("data[i].score: " + data_leaders[i].level_perf);*/
+			//console.log("userid data[i]: " + data_leaders[i].user_id);
+			//console.log("user id php: " + <?php echo $_SESSION['MM_UserID']; ?>);
 			
-		html_sec1 += "<tr class="+sec1_classID+" id=\"leader_"+i+"\">";
-		
-		if(data_leaders[i].user_id == "<?php echo $_SESSION['MM_UserID']; ?>") {
-			console.log("user id = " + data_leaders[i].user_id);
-			html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\" style=\"background-color:yellow\">"+name+"</div></td>";
-			html_sec1 +="<td class=\"tdDivScore\" style=\"background-color:yellow\">"+score+"</td>";
+			descrip = data_leaders[i].rx_descrip;
+			name = data_leaders[i].name;
+			score = data_leaders[i].score;
+			
+			if(score.substring(0, 3) == "00:") {
+				console.log(score.substring(3));
+				score = score.substring(3);
+			}
+				
+			html_sec1 += "<tr class="+sec1_classID+" id=\"leader_"+i+"\">";
+			
+			if(data_leaders[i].user_id == "<?php echo $_SESSION['MM_UserID']; ?>") {
+				console.log("user id = " + data_leaders[i].user_id);
+				html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\" style=\"background-color:yellow\">"+name+"</div></td>";
+				html_sec1 +="<td class=\"tdDivScore\" style=\"background-color:yellow\">"+score+"</td>";
+			} else {
+				html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\">"+name+"</div></td>";
+				html_sec1 +="<td class=\"tdDivScore\">"+score+"</td>";
+			}
+			html_sec1 += "</tr>";
 		} else {
-			html_sec1 += "<td><div class=\"tdDivNameOfAthlete\" id=\"tdDivBox\">"+name+"</div></td>";
-			html_sec1 +="<td class=\"tdDivScore\">"+score+"</td>";
-		}
-		html_sec1 += "</tr>";
-		console.log("pre_undefined");
-
-		console.log("post_undefined");
+			console.log("No data for leaderboard");
 		}
 		
 	}
 	//Update html content
 	$('.tbl_body_leaderboard').empty();
 	$('.tbl_body_leaderboard').html(html_sec1);
+}
+/*
+ * Today's wod results
+ */
+function loadTodayWOD(data_wods) {
+	var html_sec1 = "";
+	var sec1_classID = "wod_sec1_data"; 
+	var name;
+	var descrip = "";
+	var score = "";
+
+	console.log("data[0].descrip: " +data_wods[0].descrip);
+	console.log("data[0].descrip: " +data_wods[0].descrip)
+	descrip = data_wods[0].descrip;
+
+	html_sec1 += descrip;
+		
+	//Update html content
+	$('#wod_list').empty();
+	$('#wod_list').html(html_sec1);
+	var result = today.replace(/-/g, "");
+	var gender_type = $('input[name=gender_to_compare]:checked').val()
+	var e = document.getElementById("today_compare_selector");
+	var level = e.options[e.selectedIndex].value;
+	console.log("Gender: " + gender_type);
+	console.log("Level selector: " + level);
+	if(typeof gender_type !== "undefined" && gender_type != "A") {
+		result += ","+gender_type;
+	}
+	else {
+		result += ", ";
+	}
+	result += ","+level;
+	console.log("Result: " + result);
+	getLeaderBoardData(result);
 }
  
 </script>

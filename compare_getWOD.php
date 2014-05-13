@@ -38,10 +38,10 @@ if (isset($_SESSION['MM_UserID'])) {
 }
 
 $t_temp_wod_id = $_POST['date'];
-$t_wod_id = "";
-$t_gender = $_POST['gender'];
-$t_level_perf = $_POST['level']; 
+$t_wod_id = ""; 
+$t_level_perf = $_POST['compare_selector'];
 $t_type_of_wod = "";
+$t_gender = $_POST['gender_to_compare'];
 
 mysql_select_db($database_cboxConn, $cboxConn);
 
@@ -59,9 +59,7 @@ $totalRows_getBoxID = mysql_num_rows($getBoxID);
 $row = mysql_fetch_array($getBoxID);
 
 $box_id = $row[0];
-$length_of_box_id = strlen($box_id);
-$t_wod_id = $box_id . "_" . $t_temp_wod_id;
-//echo "wod id = " . $t_wod_id;
+$t_wod_id = $box_id . "_" . str_replace("-","",$t_temp_wod_id);
 
 $query_getWODType = "select type_of_wod
  from wods
@@ -75,21 +73,13 @@ $row_wod = mysql_fetch_array($getWODType);
 $t_type_of_wod = $row_wod[0];
 $order_by = "";
 
-if($t_type_of_wod == "AMRAP") {
-	$order_by = "DESC";
-}
-
-//echo "Gender: ".$t_gender;
-
 $t_gender_condition = "";
 if(strlen($t_gender) < 1) {
 	$t_gender_condition = "";
 } else if ($t_gender == 'A') {
 	$t_gender_condition = "";
-} else if ($t_gender == ' ') {
-	$t_gender_condition = "";
 } else {
-	$t_gender_condition = " AND a.gender = '{$t_gender}' ";	
+	$t_gender_condition = "AND a.gender = '{$t_gender}'";	
 }
 
 if($t_type_of_wod == "AMRAP") {
@@ -98,47 +88,37 @@ if($t_type_of_wod == "AMRAP") {
 
 $t_descrip = "";
 $t_level_condition = "";
-if(strlen($t_level_perf) < 1) {
+if($t_level_perf == "ALL") {
 	$t_descrip = "w.rx_descrip";
 	$t_level_condition = "";
-} else if($t_level_perf == "ALL") {
-	$t_descrip = "w.rx_descrip";
-	$t_level_condition = " AND aw.level_perf = 'RX' ";
 } else if ($t_level_perf == "RX") {
 	$t_descrip = "w.rx_descrip";
-	$t_level_condition = " AND aw.level_perf = 'RX' ";
+	$t_level_condition = "";
 } else if ($t_level_perf == "INTER") {
 	$t_descrip = "w.inter_descrip";
-	$t_level_condition = " AND aw.level_perf = 'INTER' ";
+	$t_level_condition = "";
 } else if ($t_level_perf == "NOV") {
 	$t_descrip = "w.nov_descrip";
-	$t_level_condition = " AND aw.level_perf = 'NOV' ";
+	$t_level_condition = "";
 }
 //echo "Variables: description: " . $t_descrip . ", wodID: " . $t_wod_id . ", boxID: " . $box_id .", gender: " . $t_gender . ", order by: " . $order_by;
-$query_getLeaderBoardContent = "select w.rx_descrip AS descrip, CONCAT(a.first_name, ' ', a.last_name) AS name, 
-CASE WHEN (w.type_of_wod = 'RFT') THEN aw.time_comp
- WHEN (w.type_of_wod = 'AMRAP') THEN aw.rounds_compl
-END AS score,
-a.user_id AS user_id,
-aw.level_perf AS level_perf
-from wods w
+$query_getWOD = "select {$t_descrip} AS descrip from wods w
 JOIN athlete_wod aw ON aw.wod_id = w.wod_id
 JOIN athletes a ON a.user_id = aw.user_id
 where w.wod_id = '{$t_wod_id}'
-AND a.box_id = {$box_id} 
-{$t_gender_condition}
-{$t_level_condition}
-ORDER BY score {$order_by}";
+AND a.box_id = {$box_id}  
+{$t_level_condition}";
 
-//echo "Main query: ".$query_getLeaderBoardContent;
-$getLeaderBoardContent = mysql_query($query_getLeaderBoardContent, $cboxConn) or die(mysql_error());
-$totalRows_getLeaderBoardContent = mysql_num_rows($getLeaderBoardContent);
+//echo "Main query: ".$query_getLeaderBoardContent . " ";
+
+$getWOD = mysql_query($query_getWOD, $cboxConn) or die(mysql_error());
+$totalRows_getLeaderBoardContent = mysql_num_rows($getWOD);
 //echo $totalRows_getAdminWODs;
 $results = array();
 
 for($i = 0; $i < $totalRows_getLeaderBoardContent; $i++)
 {
-	$results[] = mysql_fetch_assoc($getLeaderBoardContent);
+	$results[] = mysql_fetch_assoc($getWOD);
 }
-echo json_encode($results);	
+echo json_encode($results);
 ?>
