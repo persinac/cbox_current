@@ -45,6 +45,11 @@ $rx_wod = "";
 $inter_wod = "";
 $nov_wod = "";
 
+$mystring = $t_wod_specifics;
+$findme   = '-';
+$pos = strpos($mystring, $findme);
+
+
 if($t_typeOfWOD == "GIRLS") {
 	$t_typeOfWOD = $t_girl_wod;	
 }
@@ -92,54 +97,117 @@ if(!(empty($t_typeOfWOD))) {
 		$nov_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
 	}
 }
-#echo "RX: ".$rx_wod . ", INTER: " . $inter_wod . ", NOV: " . $nov_wod;
-foreach( $_POST['movement'] as $cnt => $mvmnt ) 
-{
-	$t_movement = $_POST['movement'][$cnt];
-	$t_weight = $_POST['weight'][$cnt];
-	$t_reps = $_POST['reps'][$cnt];
-	
-	if(strlen($t_weight) > 0) 
+/*
+ * Build the string based on what the user has typed into wod_specifics
+ * Currently searching for a -, for rep schemes such as 21-15-9
+ * The string need to be built differently to be displayed correctly
+ * 
+ * If false, build string same as before, if true, build differently
+ */
+if ($pos === false) {
+	echo " NO DASHES ";
+    foreach( $_POST['movement'] as $cnt => $mvmnt ) 
 	{
-		$rx_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
-	} 
-	else 
+		$t_movement = $_POST['movement'][$cnt];
+		$t_weight = $_POST['weight'][$cnt];
+		$t_reps = $_POST['reps'][$cnt];
+		
+		if(strlen($t_weight) > 0) 
+		{
+			$rx_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+		} 
+		else 
+		{
+			$rx_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+		}
+	}
+
+	foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
 	{
-		$rx_wod .= $t_reps . " reps of " . $t_movement . " @ bodweight, " ;
+		$t_movement = $_POST['inter_movement'][$cnt];
+		$t_weight = $_POST['inter_weight'][$cnt];
+		$t_reps = $_POST['inter_reps'][$cnt];
+		
+		if(strlen($t_weight) > 0) 
+		{
+			$inter_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+		} 
+		else 
+		{
+			$inter_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+		}
+	}
+
+	foreach( $_POST['nov_movement'] as $cnt => $mvmnt ) 
+	{
+		$t_movement = $_POST['nov_movement'][$cnt];
+		$t_weight = $_POST['nov_weight'][$cnt];
+		$t_reps = $_POST['nov_reps'][$cnt];
+		
+		if(strlen($t_weight) > 0) 
+		{
+			$nov_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+		} 
+		else 
+		{
+			$nov_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+		}
+	}
+} else {
+	/*
+	 * If rep scheme is provided, do not display the reps
+	 * 
+	 */
+	 echo " DASHES ";
+	foreach( $_POST['movement'] as $cnt => $mvmnt ) 
+	{
+		$t_movement = $_POST['movement'][$cnt];
+		$t_weight = $_POST['weight'][$cnt];
+		//$t_reps = $_POST['reps'][$cnt];
+		
+		if(strlen($t_weight) > 0) 
+		{
+			$rx_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+		} 
+		else 
+		{
+			$rx_wod .= $t_movement . ", " ;
+		}
+	}
+
+	foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
+	{
+		$t_movement = $_POST['inter_movement'][$cnt];
+		$t_weight = $_POST['inter_weight'][$cnt];
+		$t_reps = $_POST['inter_reps'][$cnt];
+		
+		if(strlen($t_weight) > 0) 
+		{
+			$inter_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+		} 
+		else 
+		{
+			$inter_wod .= $t_movement . ", " ;
+		}
+	}
+
+	foreach( $_POST['nov_movement'] as $cnt => $mvmnt ) 
+	{
+		$t_movement = $_POST['nov_movement'][$cnt];
+		$t_weight = $_POST['nov_weight'][$cnt];
+		$t_reps = $_POST['nov_reps'][$cnt];
+		
+		if(strlen($t_weight) > 0) 
+		{
+			$nov_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+		} 
+		else 
+		{
+			$nov_wod .= $t_movement . ", " ;
+		}
 	}
 }
 
-foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
-{
-	$t_movement = $_POST['inter_movement'][$cnt];
-	$t_weight = $_POST['inter_weight'][$cnt];
-	$t_reps = $_POST['inter_reps'][$cnt];
-	
-	if(strlen($t_weight) > 0) 
-	{
-		$inter_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
-	} 
-	else 
-	{
-		$inter_wod .= $t_reps . " reps of " . $t_movement . " @ bodweight, " ;
-	}
-}
-
-foreach( $_POST['nov_movement'] as $cnt => $mvmnt ) 
-{
-	$t_movement = $_POST['nov_movement'][$cnt];
-	$t_weight = $_POST['nov_weight'][$cnt];
-	$t_reps = $_POST['nov_reps'][$cnt];
-	
-	if(strlen($t_weight) > 0) 
-	{
-		$nov_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
-	} 
-	else 
-	{
-		$nov_wod .= $t_reps . " reps of " . $t_movement . " @ bodweight, " ;
-	}
-}
 if(strlen($t_cash_out) >0) {
 	$rx_wod .= "Cash out: " . $t_cash_out . "";
 	$inter_wod .= "Cash out: " . $t_cash_out . "";

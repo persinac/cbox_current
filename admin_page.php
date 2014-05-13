@@ -80,13 +80,17 @@ if (isset($_SESSION['MM_UserID'])) {
 <title>Administrator</title>
 
 <!-- Bootstrap core CSS -->
-     <!--<link href="dist/css/jquery.datepick.css" rel="stylesheet">-->
+<link href="dist/css/admin_page.css" rel="stylesheet">
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
-    <!--<link href="dist/css/admin_page.css" rel="stylesheet">
-    -->
  	<link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link href="dist/css/admin_page.css" rel="stylesheet">
     <link href="dist/css/jquery.datepick.css" rel="stylesheet">
+	
+	<!-- Calendar stuff -->
+	<link href='dist/fullcalendar/fullcalendar.css' rel='stylesheet' />
+	<link href='dist/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+	<link href="dist/css/bryce_main.css" rel="stylesheet">
+	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+
 </head>
 
 <body>
@@ -201,7 +205,7 @@ if (isset($_SESSION['MM_UserID'])) {
           <a href="#" class="btn" data-dismiss="modal">Close</a>
         </div>
     </div>
-<p><a data-toggle="modal" href="#example_modal" class="btn btn-primary btn-small">Set Scaled Movements</a></p>
+	<p><a data-toggle="modal" href="#example_modal" class="btn btn-primary btn-small">Set Scaled Movements</a></p>
    
     
     <hr class="featurette-divider">
@@ -224,31 +228,41 @@ if (isset($_SESSION['MM_UserID'])) {
             </p>
             <input onclick="submitStrength(this.form);" type="button" value="Submit Strength" />
             </form>
-        </div> <!-- END OF new_wod_container -->
-    </div><!-- END OF past_post_wods -->
-    
-    <hr class="featurette-divider">
+    </div> <!-- END OF new_wod_container -->
+		<hr class="featurette-divider">
     <div id="new_post_wod">
     	<p>NEW POST WOD FORM HERE</p>
     </div><!-- END OF past_post_wods -->
+	
+	<div id="calendar"></div>
+	<div id="eventContent" title="Event Details">
+		<div id="eventInfo"></div>
+	</div>
+	<div id="dialog-modal" title="Basic modal dialog">
+		<div id="workoutcontent"></div>
+	  <p></p>
+	</div>
+	
+</div><!-- END OF DIV CONTAINER -->
 
-</div> <!-- END OF DIV_CONTAINER -->
-
-<!-- JavaScript
+<!-- JavaScript 
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 
+<!-- These must be in THIS ORDER! DO NOT FUCK WITH -->
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="dist/js/bootstrap.min.js"></script>
+
+<!-- Required for full calendar -->
+<script src='dist/lib/moment.min.js'></script>
+<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+<script src='dist/fullcalendar/fullcalendar.min.js'></script>
+
+<!-- Required for date picker -->
 <script src="dist/js/jquery.plugin.min.js"></script>
-<script src="dist/js/jquery.datepick.min.js"></script>
+<script src="dist/js/jquery.datepick.min.js"></script> 
 
-
-<!--
-
-<script src="//code.jquery.com/jquery-1.9.1.js"></script>
-<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
--->
 <script id="source" language="javascript" type="text/javascript">
 
 var movementArray = new Array();
@@ -276,27 +290,28 @@ $(document).ready(function() {
 	getPastWODS(<?php echo $_SESSION['MM_BoxID'] ?>);
 	getPastStrength(<?php echo $_SESSION['MM_BoxID'] ?>);
 	getPastPostWODS(<?php echo $_SESSION['MM_BoxID'] ?>);
+	renderCalendar();
 });
 
 $("#navbar_main_ul li").click(function() {
-		//event.preventDefault();
-		var id = jQuery(this).attr("id");
-		if(id=="logout" || id=="LOGOUT") {
-			alert("LOGGING OUT");
-			
-			console.log("logging out...");
+	//event.preventDefault();
+	var id = jQuery(this).attr("id");
+	if(id=="logout" || id=="LOGOUT") {
+		alert("LOGGING OUT");
 		
-			$.ajax(
-			{ 
-				url: "cbox_logout.php", //the script to call to get data  
-				success: function(response) //on recieve of reply
-				{
-					console.log("logged out...");
-					window.location.replace("http://cboxbeta.com/login_bootstrap.php");
-				} 
-			});
-		}
-	});	
+		console.log("logging out...");
+	
+		$.ajax(
+		{ 
+			url: "cbox_logout.php", //the script to call to get data  
+			success: function(response) //on recieve of reply
+			{
+				console.log("logged out...");
+				window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+			} 
+		});
+	}
+});	
 
 /*
 * Set up the datepicker object
@@ -304,9 +319,13 @@ $("#navbar_main_ul li").click(function() {
 */
 $(function() {
 	//event.preventDefault();
-    $("#datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
-	$("#str_datepicker").datepick({dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true});
-  });
+    $("#datepicker").datepick(
+		{dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true
+	});
+	$("#str_datepicker").datepick(
+		{dateFormat: 'yyyy-mm-dd', alignment: 'bottom', changeMonth: false, autoSize: true
+	});
+ });
   
 /*
 * Catches when the user presses submit on the 
@@ -470,7 +489,7 @@ $( "#wod_type_selector" ).change(function() {
 		$('#specific_to_wod').empty();
 		if($( this ).text() == "RFT"){
 			$('#addRowBut').removeAttr('disabled');
-		str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
+			str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\" placeholder=\"5, 21-15-9, etc\"/>";
 		} else if($( this ).text() == "AMRAP") {
 			$('#addRowBut').removeAttr('disabled');
 			str = "Time: <select size=\"1\" name=\"amrap_0\" class=\"num_of_rounds\" id=\"amrap_0\">";
@@ -629,8 +648,8 @@ function getPastWODS(box_id)
 	  dataType: "json",  //data format      
 	  success: function(response_wods) //on recieve of reply
 	  {
-		  console.log("response_wods: " + response_wods);
-		loadPastWODS(response_wods);
+		  console.log("WODS : " + response_wods);
+		  loadPastWODS(response_wods);
 	  },
   	  error: function(){
     		alert('error loading wods!');
@@ -736,7 +755,7 @@ function loadPastWODS(data_wods)
 		dow = data_wods[i].date_of_wod;
 		wodname = data_wods[i].name_of_wod;
 		type_of_wod = data_wods[i].type_of_wod;
-		descrip = data_wods[i].rx_descrip;
+		descrip = data_wods[i].description;
 		
 		html_sec1 += "<tr class="+sec1_classID+">";
 		html_sec1 += "<td>"+wod_id+"</td>";
@@ -1044,10 +1063,10 @@ function submitWOD() {
 		if(!characterReg.test(reps)) {
 			sendRequest = false;
 			$('#reps_'+i+'').addClass("big_input_wod_error ");
-		} else if (reps.length == 0) {
+		} /*else if (reps.length == 0) {
 			$('#reps_'+i+'').addClass("big_input_wod_error");
 			sendRequest = false;
-		}
+		}*/
     });
 	var amrap_time = "";
 	$.each(data_four, function(i, field){
@@ -1138,7 +1157,7 @@ function submitStrength() {
 	if(!repsReg.test(reps)) {
 		sendRequest = false;
 		$('#strength_reps').addClass("big_input_wod_error");
-	} else if (reps.length == 0) {
+	} else if (reps.length < 0) {
 		$('#strength_reps').addClass("big_input_wod_error");
 		sendRequest = false;
 	}
@@ -1290,6 +1309,103 @@ function theGirls(girl_id)
 	return girl_array;
 }
 
+/*******************************Calendar Related functions *****************************************/
+
+var today = new Date();
+function getCurrentDate()
+{
+	var dd = today.getDate();
+	var mm = today.getMonth()+1; //January is 0!
+	var yyyy = today.getFullYear();
+	
+	if(dd<10) {
+		dd='0'+dd;
+	} 
+	
+	if(mm<10) {
+		mm='0'+mm;
+	} 
+	today = yyyy+'-'+mm+'-'+dd;
+	//alert("today");
+}
+
+function renderCalendar() {
+	getCurrentDate();
+	getWorkouts();
+	$('#calendar').fullCalendar({
+		header: {
+			left: 'prev,next today',
+			center: 'title',
+			right: 'month,agendaWeek,agendaDay'
+		},
+		defaultDate: today,
+		selectable: true,
+		selectHelper: true,
+		select: function(start, end) {
+			var title = prompt('Event Title:');
+			var eventData;
+			if (title) {
+				eventData = {
+					title: title,
+					start: start,
+					end: end
+				};
+				$('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+			}
+			$('#calendar').fullCalendar('unselect');
+		},
+		editable: true,
+		events: 		
+			{
+				type:"POST",                                     
+				url:"getAdminWODs.php",         
+				dataType: "json",                //data format      
+				success: function(response) //on recieve of reply
+				{
+					console.log("calendar workouts: "+response[16].date_of_wod+"   "+response[16].title +"   "+response[16].name_of_wod);
+					//drawWeeklyActivityBreakdown(response);
+				},
+				error: function(){
+					alert('error loading workouts!');
+				},
+				textColor: 'black' // a non-ajax option
+			},
+		eventRender: function (event, element) {
+			console.log("Title: "+ event.title + ", description: " + event.description.substring(1,20));
+			element.attr('href', 'javascript:void(0);');
+			element.attr('onclick', 'openModal("' + event.title + '","' + event.description + '");');
+		}
+	});
+}
+
+function openModal(title, info) {
+    //$("#eventInfo").html(info);
+    $( "#dialog-modal" ).dialog({
+      height: 400,
+      modal: true
+    });
+	$( "#dialog-modal" ).dialog('option', 'title', title);
+	$('#workoutcontent').html(info);
+}
+
+function getWorkouts() {
+	console.log("getting workouts...");
+	$.ajax(
+	{ 
+	  type:"POST",                                     
+	  url:"getAdminWODs.php",         
+	  //data: { "date" : "2014-05-05" }, //insert argumnets here to pass to getAdminWODs
+	  dataType: "text",                //data format      
+	  success: function(response) //on recieve of reply
+	  {
+		console.log("getWorkouts: "+response);
+		//drawWeeklyActivityBreakdown(response);
+	  },
+	  error: function(){
+			alert('error loading workouts!');
+		}
+	});
+}
 
 </script>
 

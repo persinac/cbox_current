@@ -369,7 +369,7 @@ $(function() {
 				type: "POST",
 				url: "addUserWOD.php",
 				data: { 
-					"wod_id": today, //build this based on box id and date - I think I've got this variable in PHP
+					"wod_id": today, //build this based on box id and date - I've got this variable in PHP
 					"wod_descrip" : "", 
 					"level_perf" : level_perf,
 					"rounds_compl": rft_rounds,
