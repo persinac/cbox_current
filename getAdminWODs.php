@@ -101,7 +101,7 @@ WHERE SUBSTRING(wods.wod_id, 1, {$length_of_box_id}) = '{$box_id}'";
 
 if ($result = $mysqli->query($query_getAdminWODs)) {
 	$wods = array();
-	$index = 1;
+	$index = 7;
 	$str = 1;
 	$cond = 1;
 	$count = 1;
@@ -116,7 +116,7 @@ if ($result = $mysqli->query($query_getAdminWODs)) {
 		} else {
 			$str = 1;
 			$cond = 1;
-			$index = 1;
+			$index = 7;
 		}
 		$w = new wod();
 		$w->id = $row["wod_id"];

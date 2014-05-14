@@ -109,6 +109,11 @@ if (isset($_SESSION['MM_UserID'])) {
     </div>
 
     <hr class="featurette-divider">
+	<div id="calendar"></div>
+	<div id="eventContent" title="Event Details">
+		<div id="eventInfo"></div>
+	</div>
+	<!--
     <h1>Past WODs</h1>
     <div id="past_wods">
         <table id="tbl_past_wod" rules="cols">
@@ -116,7 +121,7 @@ if (isset($_SESSION['MM_UserID'])) {
 			</tbody>
         </table>
     </div><!-- END OF past_wods -->
-    
+    <!--
     <hr class="featurette-divider">
     <h1>Past Strength</h1>
     <div id="past_strength">
@@ -125,7 +130,7 @@ if (isset($_SESSION['MM_UserID'])) {
 			</tbody>
         </table>
     </div><!-- END OF past_strength -->
-    
+    <!--
     <hr class="featurette-divider">
     <h1>Past Post WODs</h1>
     <div id="past_post_wods">
@@ -134,7 +139,7 @@ if (isset($_SESSION['MM_UserID'])) {
 			</tbody>
         </table>
     </div><!-- END OF past_post_wods -->
-    
+
     <hr class="featurette-divider">
     <h1>New WOD</h1>
     <div id="new_wod_container">
@@ -234,10 +239,7 @@ if (isset($_SESSION['MM_UserID'])) {
     	<p>NEW POST WOD FORM HERE</p>
     </div><!-- END OF past_post_wods -->
 	
-	<div id="calendar"></div>
-	<div id="eventContent" title="Event Details">
-		<div id="eventInfo"></div>
-	</div>
+	
 	<div id="dialog-modal" title="Basic modal dialog">
 		<div id="workoutcontent"></div>
 	  <p></p>
@@ -684,7 +686,7 @@ function getPastStrength(box_id)
 	  success: function(response) //on recieve of reply
 	  {
 	   console.log("strength: " + response);
-		loadPastStr(response);
+		//loadPastStr(response);
 	  },
   	  error: function(){
     		alert('error loading strength!');
@@ -714,12 +716,11 @@ function getPastPostWODS(box_id)
 	{ 
 	  type:"POST",                                     
 	  url:"getAdminPWODs.php",         
-	  data: { "dataString" : boxID }, //insert argumnets here to pass to getAdminWODs
 	  dataType: "json",                //data format      
 	  success: function(response_wods) //on recieve of reply
 	  {
 		  console.log("post wod: " + response_wods);
-		loadPastPWODS(response_wods);
+		//loadPastPWODS(response_wods);
 	  },
   	  error: function(){
     		alert('error loading post wods!');
@@ -1109,7 +1110,8 @@ function submitWOD() {
             url: "php_form_test.php",
             data: data_four,
             success: function(data) {
-                 alert('Data send:' + data);
+                 console.log('Data send:' + data);
+				 $('#calendar').fullCalendar('refetchEvents');
             },
 			error: function(data) {
 					alert('Error:' + data);
@@ -1178,7 +1180,8 @@ function submitStrength() {
             url: "adminAddStrength.php",
             data: strength_data,
             success: function(data) {
-                 alert('Data send:' + data);
+                 console.log('Data send:' + data);
+				 $('#calendar').fullCalendar('refetchEvents');
             }
         });
 	}
@@ -1331,7 +1334,7 @@ function getCurrentDate()
 
 function renderCalendar() {
 	getCurrentDate();
-	getWorkouts();
+	
 	$('#calendar').fullCalendar({
 		header: {
 			left: 'prev,next today',
@@ -1341,7 +1344,7 @@ function renderCalendar() {
 		defaultDate: today,
 		selectable: true,
 		selectHelper: true,
-		select: function(start, end) {
+		/*select: function(start, end) {
 			var title = prompt('Event Title:');
 			var eventData;
 			if (title) {
@@ -1353,29 +1356,60 @@ function renderCalendar() {
 				$('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
 			}
 			$('#calendar').fullCalendar('unselect');
-		},
-		editable: true,
-		events: 		
+		},*/
+		editable: false,
+		eventSources: 
+		[
 			{
 				type:"POST",                                     
 				url:"getAdminWODs.php",         
 				dataType: "json",                //data format      
 				success: function(response) //on recieve of reply
 				{
-					console.log("calendar workouts: "+response[16].date_of_wod+"   "+response[16].title +"   "+response[16].name_of_wod);
-					//drawWeeklyActivityBreakdown(response);
+					console.log("calendar loaded workouts");
+					
 				},
 				error: function(){
 					alert('error loading workouts!');
 				},
 				textColor: 'black' // a non-ajax option
 			},
+			{
+				type:"POST",                                     
+				url:"getAdminStrength.php",         
+				dataType: "json",                //data format      
+				success: function(response) //on recieve of reply
+				{
+					console.log("calendar strength: " + response);
+				},
+				error: function(){
+					alert('error loading workouts!');
+				},
+				color: 'black',   // a non-ajax option
+				textColor: 'white' // a non-ajax option
+			},
+			{
+				type:"POST",                                     
+				url:"getAdminPWODs.php",         
+				dataType: "json",                //data format      
+				success: function(response_wods) //on recieve of reply
+				{
+					console.log("post wod: " + response_wods);
+				},
+				error: function()
+				{
+					alert('error loading post wods!');
+				}
+			
+			}
+		],
 		eventRender: function (event, element) {
-			console.log("Title: "+ event.title + ", description: " + event.description.substring(1,20));
+			//console.log("Title: "+ event.title + ", description: " + event.description.substring(1,20));
 			element.attr('href', 'javascript:void(0);');
 			element.attr('onclick', 'openModal("' + event.title + '","' + event.description + '");');
 		}
 	});
+	getWorkouts();
 }
 
 function openModal(title, info) {
@@ -1387,9 +1421,21 @@ function openModal(title, info) {
 	$( "#dialog-modal" ).dialog('option', 'title', title);
 	$('#workoutcontent').html(info);
 }
-
+var source = new Array();
 function getWorkouts() {
 	console.log("getting workouts...");
+
+	var myDate= new Date();
+	myDate.setFullYear(2014,4,20);
+	var myEvent = {
+		title:"my new event",
+		allDay: false,
+		start: myDate,
+		end: myDate,
+		id: '1'
+	};
+	console.log("Title, start, myDate:" + myEvent.title + ", " + myEvent.start + ", " + myDate);
+	$('#calendar').fullCalendar( 'renderEvent', myEvent, true );
 	$.ajax(
 	{ 
 	  type:"POST",                                     
@@ -1398,15 +1444,15 @@ function getWorkouts() {
 	  dataType: "text",                //data format      
 	  success: function(response) //on recieve of reply
 	  {
-		console.log("getWorkouts: "+response);
+		//console.log("response: "+response);
 		//drawWeeklyActivityBreakdown(response);
 	  },
 	  error: function(){
 			alert('error loading workouts!');
 		}
 	});
-}
 
+}
 </script>
 
 <script>
