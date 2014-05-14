@@ -211,6 +211,7 @@ if (isset($_SESSION['MM_UserID'])) {
         </div>
     </div>
 	<p><a data-toggle="modal" href="#example_modal" class="btn btn-primary btn-small">Set Scaled Movements</a></p>
+	<p><a onclick="openWODModal()" class="btn btn-primary btn-small">Open WOD Form</a></p>
    
     
     <hr class="featurette-divider">
@@ -239,6 +240,15 @@ if (isset($_SESSION['MM_UserID'])) {
     	<p>NEW POST WOD FORM HERE</p>
     </div><!-- END OF past_post_wods -->
 	
+	<!--------------------------- TEST -------------------------------------->
+	
+	<div id="wod_form_modal" title="Basic modal dialog">
+		<div id="new_wod_container">
+		</div>
+    </div>
+	
+	
+	<!--------------_________________________---------------->
 	
 	<div id="dialog-modal" title="Basic modal dialog">
 		<div id="workoutcontent"></div>
@@ -1410,6 +1420,44 @@ function renderCalendar() {
 		}
 	});
 	getWorkouts();
+}
+
+function openWODModal() {
+    $( "#wod_form_modal" ).dialog({
+      height: 600,
+	  width: 800,
+      modal: true
+    });
+	
+	var html = '<form method="POST" id="new_wod_form" class="new_wod">';
+	html +='<p id="date_type_p">'; 
+	 html +='Date: <input type="text" name="date" class="datepicker" id="datepicker"/> ';
+	
+	html += 'Type of WOD: <select id="wod_type_selector" name="wod_type_selector">';
+	 html += ' <option value="RFT">RFT</option>';
+	 html +=' <option value="AMRAP">AMRAP</option>';
+	 html += ' <option value="TABATA">TABATA</option>';
+	html +=' <option value="GIRLS">GIRLS</option>';
+	html +=	' <option value="HERO">HEROES</option>';
+	html +=	'</select>';
+	html +=	'<div id="specific_to_wod"></div><div><p>';
+	html +='Buy In: <input type="text" name="buy_in" class="extra_wod_stuff" id="buy_in" placeholder="optional"/>';
+	html +=	'Cash Out: <input type="text" name="cash_out" class="extra_wod_stuff" id="cash_out" placeholder="optional"/>';
+	html +=	'Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" placeholder="Everytime you drop the bar..."/>';
+	html +=	'Special: <input type="text" name="special" class="extra_wod_stuff" id="special" placeholder="Every minute on the minute..."/>';
+	html +=	'</p></div></p>';
+	html +=	'<div id="new_wod_row" class="new_wod_row">';
+	html +='Movement: <input type="text" name="movement[]" class="movement" id="movement_0"/> ';
+	html +='Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_0" placeholder="Guys/Girls"/> ';
+	html +='Reps/Distance: <input type="text" name="reps[]" class="reps" id="reps_0" placeholder="use calories or meters where needed"/>';
+	html +=	'<p class="new_wod_p"></p></div> ';
+	html +=	'<input onclick="addRow("","","");" type="button" value="Add row" id="addRowBut"/>';
+	html +='<input onclick="submitWOD(this.form);" type="button" value="Submit WOD" /></form>';
+	
+	console.log(html);
+	
+	$( "#wod_form_modal" ).dialog();
+	$("#new_wod_container").html(html);
 }
 
 function openModal(title, info) {
