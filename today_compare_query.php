@@ -58,12 +58,12 @@ $totalRows_getBoxID = mysql_num_rows($getBoxID);
 ####echo $totalRows_getAdminWODs;
 $row = mysql_fetch_array($getBoxID);
 
-$box_id = $row[0];#$_POST['dataString'];
+$box_id = $row[0];
 $t_wod_id = $box_id . "_" . str_replace("-","",$t_temp_wod_id);
 
 $query_getWODType = "select type_of_wod
  from wods
-WHERE wod_id = {$t_wod_id}";
+WHERE wod_id = '{$t_wod_id}'";
 
 $getWODType = mysql_query($query_getWODType, $cboxConn) or die(mysql_error());
 $totalRows_getWODType = mysql_num_rows($getWODType);
@@ -76,7 +76,7 @@ $order_by = "";
 $t_gender_condition = "";
 if(strlen($t_gender) < 1) {
 	$t_gender_condition = "";
-} else if ($t_gender == 'a') {
+} else if ($t_gender == 'A') {
 	$t_gender_condition = "";
 } else {
 	$t_gender_condition = "AND a.gender = '{$t_gender}'";	
@@ -92,16 +92,16 @@ if($t_level_perf == "ALL") {
 	$t_level_condition = "";
 } else if ($t_level_perf == "RX") {
 	$t_descrip = "w.rx_descrip";
-	$t_level_condition = "AND aw.level_perf = 'rx'";
+	$t_level_condition = "AND aw.level_perf = 'RX'";
 } else if ($t_level_perf == "INTER") {
 	$t_descrip = "w.inter_descrip";
-	$t_level_condition = "AND aw.level_perf = 'inter'";
+	$t_level_condition = "AND aw.level_perf = 'INTER'";
 } else if ($t_level_perf == "NOV") {
 	$t_descrip = "w.nov_descrip";
-	$t_level_condition = "AND aw.level_perf = 'nov'";
+	$t_level_condition = "AND aw.level_perf = 'NOV'";
 }
 echo "Variables: description: " . $t_descrip . ", wodID: " . $t_wod_id . ", boxID: " . $box_id .", gender: " . $t_gender . ", order by: " . $order_by;
-$query_getLeaderBoardContent = "select {$t_descrip}, 
+$query_getLeaderBoardContent = "select {$t_descrip} AS descrip, 
 CONCAT(a.first_name, ' ', a.last_name) AS name, 
 CASE WHEN (w.type_of_wod = 'RFT') THEN aw.time_comp
  WHEN (w.type_of_wod = 'AMRAP') THEN aw.rounds_compl
@@ -110,11 +110,14 @@ a.user_id AS user_id
 from wods w
 JOIN athlete_wod aw ON aw.wod_id = w.wod_id
 JOIN athletes a ON a.user_id = aw.user_id
-where w.wod_id = {$t_wod_id}
+where w.wod_id = '{$t_wod_id}'
 AND a.box_id = {$box_id} 
 {$t_gender_condition} 
 {$t_level_condition}
 ORDER BY score {$order_by}";
+
+echo "Main query: ".$query_getLeaderBoardContent . " ";
+
 $getLeaderBoardContent = mysql_query($query_getLeaderBoardContent, $cboxConn) or die(mysql_error());
 $totalRows_getLeaderBoardContent = mysql_num_rows($getLeaderBoardContent);
 //echo $totalRows_getAdminWODs;
