@@ -103,7 +103,7 @@ if (isset($_SESSION['MM_UserID'])) {
             <li id="compare"><a href="user_compare_page.php" >COMPARE</a></li> 
             <li id="wod" ><a href="user_wod_page.php" >WOD</a></li> 
             <li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li>
-            <li id="admin" class="active"><a href="#" >Admin</a></li>
+            <li id="admin" class="active"><a href="#" >ADMIN</a></li>
             <li id="account" ><a href="#" >ACCOUNT</a></li> 
             <li id="logout" ><a href="#" >LOGOUT</a></li>
         </ul> 
@@ -114,136 +114,16 @@ if (isset($_SESSION['MM_UserID'])) {
 	<div id="eventContent" title="Event Details">
 		<div id="eventInfo"></div>
 	</div>
-	<!--
-    <h1>Past WODs</h1>
-    <div id="past_wods">
-        <table id="tbl_past_wod" rules="cols">
-        	<tbody class="tbl_body_past_wods">
-			</tbody>
-        </table>
-    </div><!-- END OF past_wods -->
-    <!--
-    <hr class="featurette-divider">
-    <h1>Past Strength</h1>
-    <div id="past_strength">
-    	<table id="tbl_past_str" rules="cols">
-        	<tbody class="tbl_body_past_str">
-			</tbody>
-        </table>
-    </div><!-- END OF past_strength -->
-    <!--
-    <hr class="featurette-divider">
-    <h1>Past Post WODs</h1>
-    <div id="past_post_wods">
-    	<table id="tbl_past_pwod" rules="cols">
-        	<tbody class="tbl_body_past_pwod">
-			</tbody>
-        </table>
-    </div><!-- END OF past_post_wods -->
-
-    <hr class="featurette-divider">
-    <h1>New WOD</h1>
-    <div id="new_wod_container">
-    <!--<form method="POST" id="new_wod_form" class="new_wod">
-    <p id="date_type_p">
-    	Date: <input type="text" name="date" class="datepicker" id="datepicker"/> 
-        Type of WOD: <select id="wod_type_selector" name="wod_type_selector">
-          <option value="RFT">RFT</option>
-          <option value="AMRAP">AMRAP</option>
-          <option value="TABATA">TABATA</option>
-          <option value="GIRLS">GIRLS</option>
-          <option value="HERO">HEROES</option>
-		</select>
-        <div id="specific_to_wod"></div>
-        <div>
-        <p>
-        Buy In: <input type="text" name="buy_in" class="extra_wod_stuff" id="buy_in" placeholder="optional"/>
-        Cash Out: <input type="text" name="cash_out" class="extra_wod_stuff" id="cash_out" placeholder="optional"/>
-        Penalty: <input type="text" name="penalty" class="extra_wod_stuff" id="penalty" placeholder="Everytime you drop the bar..."/>
-        Special: <input type="text" name="special" class="extra_wod_stuff" id="special" placeholder="Every minute on the minute..."/>
-        </p>
-        </div>
-	</p>
-        <div id="new_wod_row" class="new_wod_row">
-            Movement: <input type="text" name="movement[]" class="movement" id="movement_0"/> 
-            Weight (leave blank if bodyweight): <input type="text" name="weight[]" class="weight" id="weight_0" placeholder="Guys/Girls"/> 
-			Reps/Distance: <input type="text" name="reps[]" class="reps" id="reps_0" placeholder="use calories or meters where needed"/>
-            <p class="new_wod_p"></p>
-        </div> <!-- END OF new_wod -->
-        <!--<input onclick="addRow('','','');" type="button" value="Add row" id="addRowBut"/>
-        <input onclick="submitWOD(this.form);" type="button" value="Submit WOD" />
-     </form>-->
-     </div> <!-- END OF new_wod_container -->
-    
-   
-	<!--<div id="example_modal" class="modal" style="display:none; ">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">×</a>
-          <h3>Scale for Intermediate and Novice</h3>
-        </div>
-        <div class="modal-body">
-        	<!-- Grab number of rows and place that many into here   
-            <form method="POST" id="inter_new_wod_form" class="new_wod">
-                <h4>Intermediate</h4>
-				<div id="inter_new_wod_row">
-                    Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_0"/> 
-                    Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_0" placeholder="Guys/Girls"/> 
-                    Reps/Distance: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_0"/>
-                    <p></p>
-                   
-                </div> <!-- END OF new_wod
-             </form> 
-             <hr class="featurette-divider"> 
-             <form method="POST" id="nov_new_wod_form" class="new_wod">
-                <div id="novice_new_wod_row">
-                <h4>Novice</h4>
-                    Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_0"/> 
-                    Weight (leave blank if bodyweight): <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_0" placeholder="Guys/Girls"/> 
-                    Reps/Distance: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_0"/>
-                    <p></p>
-                    
-                </div> <!-- END OF new_wod 
-             </form>          
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-success" id="load">Load RX Data</button>
-          <button class="btn btn-success" id="submit">Set Scaled Movements</button>
-          <a href="#" class="btn" data-dismiss="modal">Close</a>
-        </div>
-    </div>
-	<p><a data-toggle="modal" href="#example_modal" class="btn btn-primary btn-small">Set Scaled Movements</a></p>-->
-	<p><a onclick="openWODModal()" class="btn btn-primary btn-small">Open WOD Form</a></p>
-   
-    
-    <hr class="featurette-divider">
-    <div id="new_strength">
-        <form method="POST" id="new_strength_form" class="new_str">
-            <p id="str_type_p">
-                Date: <input type="text" name="date" class="datepicker" id="str_datepicker"/> 
-                Movement: <input type="text" name="strength_mov" class="strength_mov" id="strength_mov_0"/> 
-                Rep Scheme: <input type="text" name="str_reps" class="strength_reps" id="strength_reps" placeholder="5x5, 5-4-3-2-1, etc etc" />
-                Weight Instructions: <select id="str_instruction_selector" name="str_instruction_selector">
-                  <option value="PER">Percentage of 1RM</option>
-                  <option value="AHAP">As Heavy as Possible</option>
-                  <option value="ILES">Increase Load Each set</option>
-                  <option value="LSS">Load Stays Same</option>
-                </select>
-                <div id="strength_instructions"></div>
-                <div id="specific_to_strength">
-                    Special Instructions: <input type="text" name="special_str" class="extra_str_stuff" id="strength_special_instructions" placeholder="..."/>
-                </div>
-            </p>
-            <input onclick="submitStrength(this.form);" type="button" value="Submit Strength" />
-            </form>
-    </div> <!-- END OF new_wod_container -->
-		<hr class="featurette-divider">
-    <div id="new_post_wod">
-    	<p>NEW POST WOD FORM HERE</p>
-    </div><!-- END OF past_post_wods -->
+	
+	<div id="button_container">
+		<p><a onclick="openWODModal()" class="btn btn-primary btn-large" id="new_wod_button" class="buttons_in_but_container">New WOD</a></p>
+		<p><a onclick="openStrengthModal()" class="btn btn-primary btn-large" id="new_strength_button" class="buttons_in_but_container">New Strength</a></p>
+		<p><a onclick="openPostWODModal()" class="btn btn-primary btn-large" id="new_postwod_button" class="buttons_in_but_container">New Post WOD</a></p>
+	</div>
 	
 	<!--------------------------- TEST -------------------------------------->
 	
-	<div id="wod_form_modal" title="New WOD">
+	<div id="wod_form_modal" title="New WOD" style="display:none;">
 		<div id="new_wod_modal_container">
 		<form method="POST" id="new_wod_form" class="new_wod">
 		<p id="date_type_p">
@@ -273,7 +153,7 @@ if (isset($_SESSION['MM_UserID'])) {
 				<p class="new_wod_p"></p>
 			</div> <!-- END OF new_wod -->
 			<input onclick="addRow('','','');" type="button" value="Add row" id="addRowBut"/>
-			<input onclick="submitWOD(this.form);" type="button" value="Submit WOD" />
+			<input onclick="submitWOD(this.form);" type="button" value="Submit WOD" id="submitWodBut"/>
 		 </form>
 		<p><a onclick="openScaledWODModal()" class="btn btn-primary btn-small">Set Scaled Movements</a></p>
 		
@@ -281,7 +161,7 @@ if (isset($_SESSION['MM_UserID'])) {
     </div>
 	
 	
-	<div id="scaled_wod_form_modal" title="Scale the WOD">
+	<div id="scaled_wod_form_modal" title="Scale the WOD" style="display:none;">
 		<div id="scaled_wod_modal_container">
 			<form method="POST" id="inter_new_wod_form" class="new_wod">
                 <h4>Intermediate</h4>
@@ -290,13 +170,12 @@ if (isset($_SESSION['MM_UserID'])) {
                     Weight: <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_0" placeholder="Guys/Girls"/> 
                     Reps/Distance: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_0"/>
                     <p></p>
-                    
                 </div> <!-- END OF new_wod -->
              </form> 
              <hr class="featurette-divider"> 
              <form method="POST" id="nov_new_wod_form" class="new_wod">
+				<h4>Novice</h4>
                 <div id="novice_new_wod_row">
-                <h4>Novice</h4>
                     Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_0"/> 
                     Weight: <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_0" placeholder="Guys/Girls"/> 
                     Reps/Distance: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_0"/>
@@ -307,6 +186,29 @@ if (isset($_SESSION['MM_UserID'])) {
         <button class="btn btn-success" id="submit">Set Scaled Movements</button>
 		</div>
 	</div>
+	
+	<div id="strength_form_modal" title="New WOD" style="display:none;">
+		<div id="new_strength">
+        <form method="POST" id="new_strength_form" class="new_str">
+            <p id="str_type_p">
+                Date: <input type="text" name="date" class="datepicker" id="str_datepicker"/> 
+                Movement: <input type="text" name="strength_mov" class="strength_mov" id="strength_mov_0"/> 
+                Rep Scheme: <input type="text" name="str_reps" class="strength_reps" id="strength_reps" placeholder="5x5, 5-4-3-2-1, etc etc" />
+                Weight Instructions: <select id="str_instruction_selector" name="str_instruction_selector">
+                  <option value="PER">Percentage of 1RM</option>
+                  <option value="AHAP">As Heavy as Possible</option>
+                  <option value="ILES">Increase Load Each set</option>
+                  <option value="LSS">Load Stays Same</option>
+                </select>
+                <div id="strength_instructions"></div>
+                <div id="specific_to_strength">
+                    Special Instructions: <input type="text" name="special_str" class="extra_str_stuff" id="strength_special_instructions" placeholder="..."/>
+                </div>
+            </p>
+            <input onclick="submitStrength(this.form);" type="button" value="Submit Strength" id="submitStrengthButton" />
+            </form>
+    </div> <!-- END OF new_wod_container -->
+    </div>
 	
 	<!--------------_________________________---------------->
 	
@@ -417,6 +319,7 @@ $(function() {
 		$.each(data_three, function(i, field) {
 		//alert("DATA: " +field.name + ":" + field.value + " ");
 		});
+		$('#workoutcontent').empty();
 		openModal("Scaled data","Scaled movements have been set! <p><p><a onclick=\"closeScaledModal()\" class=\"btn btn-primary btn-small\">Ok!</a></p></p>");
 		hasLoadedScaled = true;
 	});
@@ -690,11 +593,11 @@ $( "#specific_to_wod" ).on("change", "#girl_selector", function() {
 		reps = temp;
 		console.log("movement: " + movement + "  weight: "+weight+"  reps: "+reps+"  temp: " + temp);
 		if(i == 1) {
-			$('#movement_0').val(movement);
-			$('#weight_0').val(weight);
-			$('#reps_0').val(reps);
+			$('#movement_0').val(movement.trim());
+			$('#weight_0').val(weight.trim());
+			$('#reps_0').val(reps.trim());
 		} else {
-			addRow(movement, weight, reps);
+			addRow(movement.trim(), weight.trim(), reps.trim());
 		}
 		
 	}
@@ -975,7 +878,7 @@ function submitWOD() {
 				success: function(data) {
 					 console.log('Data send:' + data);
 					 $("#wod_form_modal").dialog("close");
-					 openModal("Success","WOD Entered Successfully");
+					 openModal("Success","WOD Entered Successfully<p><p><a onclick=\"resetFormModals()\" class=\"btn btn-primary btn-small\">Ok!</a></p></p>");
 					 $('#calendar').fullCalendar('refetchEvents');
 					 
 				},
@@ -1049,8 +952,10 @@ function submitStrength() {
             url: "adminAddStrength.php",
             data: strength_data,
             success: function(data) {
-                 console.log('Data send:' + data);
-				 $('#calendar').fullCalendar('refetchEvents');
+                console.log('Data send:' + data);
+				$("#strength_form_modal").dialog("close");
+				openModal("Success","Strength Entered Successfully<p><p><a onclick=\"resetStrengthFormModal()\" class=\"btn btn-primary btn-small\">Ok!</a></p></p>");
+				$('#calendar').fullCalendar('refetchEvents');
             }
         });
 	}
@@ -1273,9 +1178,8 @@ function renderCalendar() {
 			}
 		],
 		eventRender: function (event, element) {
-			//console.log("Title: "+ event.title + ", description: " + event.description.substring(1,20));
 			element.attr('href', 'javascript:void(0);');
-			element.attr('onclick', 'openModal("' + event.title + '","' + event.description + '");');
+			element.attr('onclick', 'openModal("' + event.title + '","' + event.description + '","'+true+'");');
 		}
 	});
 	getWorkouts();
@@ -1287,13 +1191,6 @@ function openWODModal() {
 	  width: 1000,
       modal: true
     });
-	//var html = "hi...";
-	//console.log(html);
-	/*$("#wod_form_modal").position({
-	   my: "center",
-	   at: "center",
-	   of: window
-	});*/
 	
 	
 	$( "#wod_form_modal" ).dialog();
@@ -1316,16 +1213,73 @@ function openScaledWODModal() {
 	
 }
 
-
-
-function openModal(title, info) {
-    //$("#eventInfo").html(info);
-    $( "#dialog-modal" ).dialog({
-      height: 400,
+function openStrengthModal() {
+    $( "#strength_form_modal" ).dialog({
+      height: 600,
+	  width: 1000,
       modal: true
     });
+	
+	
+	$( "#strength_form_modal" ).dialog();
+
+}
+
+function openPostWODModal() {
+    openModal("Post WOD", "This feature is not yet implemented", '', 200);
+}
+
+function openModal(title, info, shouldFormat, height, width) {
+    
+	var opt_height = (typeof height === "undefined") ? 400 : height;
+	var opt_width = (typeof width === "undefined") ? 300 : width;
+	
+    $( "#dialog-modal" ).dialog({
+      height: opt_height,
+	  width: opt_width,
+      modal: true
+    });
+	
+	var optional = (typeof shouldFormat === "undefined") ? false : shouldFormat;
+	console.log("optional: " + optional);
+	
+	if(optional == "true") {
+		console.log("format info into readable form here");
+		var tempStr_one = info;
+		var tempStr_two = "";
+		var formattedDescription ="";
+		console.log(tempStr_one.indexOf(";"));
+		var index = tempStr_one.indexOf(";");
+		/******
+		 * First take care of Time/Rounds, Buy In, Cash Out, Special Instructions
+		 * Then parse the WOD
+		 *******/
+		if(index == -1) {
+			formattedDescription = tempStr_one;
+		} else {
+			while(index > -1) {
+				console.log("index  = "+index);
+				tempStr_two = tempStr_one.substring(0, index);
+				tempStr_one = tempStr_one.substring(index+1);
+				formattedDescription += tempStr_two + "<p></p>";
+				index = tempStr_one.indexOf(";");
+			}
+			index = tempStr_one.indexOf(","); //parse the WOD
+			while(index > -1) {
+				console.log("index  = "+index);
+				tempStr_two = tempStr_one.substring(0, index);
+				tempStr_one = tempStr_one.substring(index+1);
+				formattedDescription += tempStr_two + "<p></p>";
+				index = tempStr_one.indexOf(",");
+			}
+		}
+		console.log("Formatted: "+formattedDescription);
+	} else {
+		formattedDescription = info;
+	}
+	
 	$( "#dialog-modal" ).dialog('option', 'title', title);
-	$('#workoutcontent').html(info);
+	$('#workoutcontent').html(formattedDescription);
 	
 }
 
@@ -1333,6 +1287,54 @@ function closeScaledModal() {
 	$( "#dialog-modal" ).dialog("close");
 	$( "#scaled_wod_form_modal" ).dialog("close");
 }
+
+function resetFormModals() {
+	for(var i = rowNum; i > 0; i--) {
+		removeRow(i);
+	}
+	
+	var element = document.getElementById('wod_type_selector');
+    element.value = "RFT";
+	
+	$('#addRowBut').removeAttr('disabled');
+	str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\" placeholder=\"5, 21-15-9, etc\"/>";
+	$("#specific_to_wod").html(str);
+	
+	$( "#wod_form_modal input" ).each(function(index, element) {
+        console.log(index + " : " + $(this).text() + " : " + $(this).attr("id"));
+		if($(this).attr("id") == "removebutton" || $(this).attr("id") == "addRowBut" || $(this).attr("id") == "submitWodBut") {
+			console.log("button");
+		} else {
+			$(this).val('');
+		}
+    });
+	$( "#scaled_wod_form_modal input" ).each(function(index, element) {
+        console.log(index + " : " + $(this).text() + " : " + $(this).attr("id"));
+		if($(this).attr("id") == "load" || $(this).attr("id") == "submit") {
+			console.log("button");
+		} else {
+			$(this).val('');
+		}
+    });
+	$("#dialog-modal").dialog("close");
+}
+
+
+function resetStrengthFormModal() {
+	var element = document.getElementById('str_instruction_selector');
+    element.value = "PER";
+	
+	$( "#strength_form_modal input" ).each(function(index, element) {
+        console.log(index + " : " + $(this).text() + " : " + $(this).attr("id"));
+		if($(this).attr("id") == "submitStrengthButton") {
+			console.log("button");
+		} else {
+			$(this).val('');
+		}
+    });
+	$("#dialog-modal").dialog("close");
+}
+
 
 var source = new Array();
 function getWorkouts() {
@@ -1348,17 +1350,15 @@ function getWorkouts() {
 		id: '1'
 	};
 	console.log("Title, start, myDate:" + myEvent.title + ", " + myEvent.start + ", " + myDate);
-	$('#calendar').fullCalendar( 'renderEvent', myEvent, true );
+	//$('#calendar').fullCalendar( 'renderEvent', myEvent, true );
 	$.ajax(
 	{ 
 	  type:"POST",                                     
 	  url:"getAdminWODs.php",         
-	  //data: { "date" : "2014-05-05" }, //insert argumnets here to pass to getAdminWODs
 	  dataType: "text",                //data format      
 	  success: function(response) //on recieve of reply
 	  {
 		//console.log("response: "+response);
-		//drawWeeklyActivityBreakdown(response);
 	  },
 	  error: function(){
 			alert('error loading workouts!');

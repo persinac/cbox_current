@@ -130,7 +130,7 @@ $totalRows_getUserBenchmarks = mysql_num_rows($getUserCFBenchmarks);
         	<!-- Grab number of rows and place that many into here -->  
             <form method="POST" id="pr_form" class="pr_">
                 <div id="pr_row">
-                <h4>Foundamentals</h4>
+                <h4>Fundamentals</h4>
                     <h5>Backsquat:</h5> 
                     <p></p>
                     Weight: <input type="text" name="backsquat_weight" class="_weight" id="weight_0"/>
@@ -904,7 +904,7 @@ function changeTextColorOfTables() {
 	  {	
 	  	 //alert("setSideBar() - in IF");
 	  	html += "<li id=\"wod\" ><a href=\"#\">WODS</a></li>";
-		html += "<li id=\"cft\" ><a href=\"#\">FOUNDAMENTALS</a></li>";
+		html += "<li id=\"cft\" ><a href=\"#\">FUNDAMENTALS</a></li>";
 		html += "<li id=\"grl\" ><a href=\"#\">THE GIRLS</a></li>";
 		html += "<li id=\"hro\" ><a href=\"#\">HEROES</a></li>";
 		//alert("HTML: " + html);

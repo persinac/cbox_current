@@ -57,21 +57,21 @@ if($t_typeOfWOD == "GIRLS") {
 if(!(empty($t_typeOfWOD))) {
 	if(strlen($t_special) > 0) {
 	echo "SPECIAL";
-			$rx_wod .= "Special instructions: " . $t_special . " ";
-			$inter_wod .= "Special instructions; " . $t_special . " ";
-			$nov_wod .= "Special instructions: " . $t_special . " ";
+			$rx_wod .= "Special instructions: " . $t_special . "; ";
+			$inter_wod .= "Special instructions; " . $t_special . "; ";
+			$nov_wod .= "Special instructions: " . $t_special . "; ";
 	}
 	if(strlen($t_penalty) > 0) {
 	echo "PENALTY";
-			$rx_wod .= "Penalty: " . $t_penalty . " ";
-			$inter_wod .= "Penalty: " . $t_penalty . " ";
-			$nov_wod .= "Penalty: " . $t_penalty . " ";
+			$rx_wod .= "Penalty: " . $t_penalty . ";";
+			$inter_wod .= "Penalty: " . $t_penalty . "; ";
+			$nov_wod .= "Penalty: " . $t_penalty . "; ";
 	}
 	if(strlen($t_buy_in) > 0) {
 	echo "BUY IN";
-			$rx_wod .= "Buy in: " . $t_buy_in . " then ";
-			$inter_wod .= "Buy in: " . $t_buy_in . " then ";
-			$nov_wod .= "Buy in: " . $t_buy_in . " then ";
+			$rx_wod .= "Buy in: " . $t_buy_in . ";";
+			$inter_wod .= "Buy in: " . $t_buy_in . ";";
+			$nov_wod .= "Buy in: " . $t_buy_in . "; ";
 	}
 	if($t_typeOfWOD == "RFT") {
 	echo "SRFT";
@@ -209,11 +209,11 @@ if ($pos === false) {
 }
 
 if(strlen($t_cash_out) >0) {
-	$rx_wod .= "Cash out: " . $t_cash_out . "";
-	$inter_wod .= "Cash out: " . $t_cash_out . "";
-	$nov_wod .= "Cash out: " . $t_cash_out . "";
+	$rx_wod .= "; Cash out: " . $t_cash_out . "";
+	$inter_wod .= "; Cash out: " . $t_cash_out . "";
+	$nov_wod .= "; Cash out: " . $t_cash_out . "";
 }
-echo $t_num_of_rounds . ", AMRAP: " . $t_amrap_time . ", POST: " .$_POST['amrap_time_update']."\n";
+//echo $t_num_of_rounds . ", AMRAP: " . $t_amrap_time . ", POST: " .$_POST['amrap_time_update']."\n";
 #######
 #
 # MySql insert
