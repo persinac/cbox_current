@@ -109,7 +109,7 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
 			</div>
 		</div>
     </div> <!-- END DATA_CONTAINER -->
-
+	<div id="chart_div"></div>
 </div> <!-- END CONTAINER -->
 
 <!-- JavaScript
@@ -117,6 +117,7 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
 <!-- Placed at the end of the document so the pages load faster -->
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="dist/js/jquery.plugin.min.js"></script>
 <script src="dist/js/jquery.datepick.min.js"></script>
 
@@ -125,6 +126,7 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
 * Once the document is  loaded...
 *
 */
+google.load('visualization', '1.0', {'packages':['corechart']});
 $(document).ready(function() {
 	//event.preventDefault();
 	//console.log("READY!!!");
@@ -132,6 +134,7 @@ $(document).ready(function() {
 });
 
 var header_wod = "";
+var type_of_wod_main = "";
 
 $("#navbar_main_ul li").click(function() {
 		//event.preventDefault();
@@ -397,6 +400,10 @@ function getLeaderBoardData(data) {
 	  {
 		console.log("get leaderboard content: " + response);
 		loadLeaderBoardData(response);
+		console.log(type_of_wod_main);
+		if(type_of_wod_main == "AMRAP") {
+			loadGraphs(type_of_wod_main, response);
+		}
 	  },
   	  error: function(error){
     		console.log('error receiving leaderboard content!' + error);
@@ -481,6 +488,8 @@ function loadCompareData(data_wods) {
 		console.log("data[i].rounds: " + data_wods[i].rounds);
 		
 		tow = data_wods[i].type_of_wod;
+		type_of_wod_main = tow;
+		
 		dow = data_wods[i].date_of_wod;
 		level = data_wods[i].level_perf;
 		descrip = data_wods[i].rx_descrip;
@@ -603,6 +612,73 @@ function loadTodayWOD(data_wods) {
 	result += ","+level;
 	console.log("Result: " + result);
 	getLeaderBoardData(result);
+}
+
+
+/********************************* Load and draw graph functions***********************************************/
+
+function loadGraphs(wod_type, data_array)
+{
+	console.log("load graphs: " + wod_type);
+	var tempArray = new Array();
+	for(var i = 0; i < data_array.length; i++) {
+		
+		if(typeof data_array[i].descrip != undefined) {
+			/*console.log("DATA: " + data_leaders);
+			console.log("data[i].descrip: " +data_leaders[i].descrip);
+			console.log("data[i].name: " + data_leaders[i].name);
+			console.log("data[i].score: " + data_leaders[i].score);
+			console.log("data[i].score: " + data_leaders[i].level_perf);*/
+			//console.log("userid data[i]: " + data_leaders[i].user_id);
+			//console.log("user id php: " + <?php echo $_SESSION['MM_UserID']; ?>);
+			
+			score = data_array[i].score;
+			
+			if(score.substring(0, 3) == "00:") {
+				console.log(score.substring(3));
+				score = score.substring(3);
+			}
+			tempArray.push(score);
+		}
+	}
+	drawComparisonAMRAPChart(tempArray);
+    //drawChart();
+	//drawWeeklyActivityBreakdown();
+}
+// Callback that creates and populates a data table,
+// instantiates the pie chart, passes in the data and
+// draws it.
+function drawComparisonAMRAPChart(scores) {
+	// Create the data table.
+	var data = new google.visualization.DataTable();
+
+	console.log("SCORES: " +scores[0]+" "+scores[1]+
+	" "+scores[2]+" "+scores[3]+" "
+	+scores[4]+" "+scores[5]+" "+scores[6]);
+	
+	data.addColumn('string', 'Competitor');
+	data.addColumn('number', 'scores');
+	data.addRows([
+	  ['Sunday', parseInt(scores[0])],
+	  ['Monday', parseInt(scores[1])],
+	  ['Tuesday', parseInt(scores[2])],
+	  ['Wednesday', parseInt(scores[3])],
+	  ['Thursday', parseInt(scores[4])],
+	  ['Friday', parseInt(scores[5])],
+	  ['Saturday', parseInt(scores[6])]
+	]);
+	var temp_header = "Temporary"
+	// Set chart options
+	var options = {'title':temp_header,
+				   'width':500,
+				   'height':400, 
+				   'chartArea': {'width': '80%', 'height': '80%'},
+				'legend': {'position': 'bottom'}
+			   };
+
+	// Instantiate and draw our chart, passing in some options.
+	var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+	chart.draw(data, options);
 }
  
 </script>

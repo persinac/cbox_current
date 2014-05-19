@@ -31,11 +31,6 @@ function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDe
   return $theValue;
 } 
 } #end function
-//echo "user: ".$_SESSION['MM_Username'];
-if(!(isset($_SESSION['MM_Username'])))
-{
-	header("Location: Error401UnauthorizedAccess.php");
-}
 
 $colname_getUserID = "-1";
 if (isset($_SESSION['MM_UserID'])) {
@@ -108,14 +103,14 @@ if($compare_id == "WOD") {
 	}*/
 	
 	if($t_temp_month == "ALL") {
-		$t_months = " SUBSTRING(wod_id, 6, 2) > '00'";
+		$t_months = " SUBSTRING(wod_id, 7, 2) > '00'";
 	} else {
-		$t_months = " SUBSTRING(wod_id, 6, 2) = '{$t_temp_month}'";
+		$t_months = " SUBSTRING(wod_id, 7, 2) = '{$t_temp_month}'";
 	}
 	if($t_temp_year == "ALL") {
-		$t_year = " SUBSTRING(wod_id, 2, 4) > '1900'";
+		$t_year = " SUBSTRING(wod_id, 3, 4) > '1900'";
 	} else {
-		$t_year = " SUBSTRING(wod_id, 2, 4) = '{$t_temp_year}'";
+		$t_year = " SUBSTRING(wod_id, 3, 4) = '{$t_temp_year}'";
 	}
 	if($t_temp_wod_type == "ALL") {
 		$t_wod_type = " type_of_wod LIKE '%'";

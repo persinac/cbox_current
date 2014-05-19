@@ -76,8 +76,10 @@ $t_type_of_wod = $row_wod[0];
 $order_by = "";
 
 if($t_type_of_wod == "AMRAP") {
-	$order_by = "DESC";
-}
+	$order_by = "ORDER BY CONVERT(score, SIGNED) DESC";
+} else {
+	$order_by = "ORDER BY score";
+}	
 
 //echo "Gender: ".$t_gender;
 
@@ -90,10 +92,6 @@ if(strlen($t_gender) < 1) {
 	$t_gender_condition = "";
 } else {
 	$t_gender_condition = " AND a.gender = '{$t_gender}' ";	
-}
-
-if($t_type_of_wod == "AMRAP") {
-	$order_by = "DESC";
 }
 
 $t_descrip = "";
@@ -128,7 +126,7 @@ where w.wod_id = '{$t_wod_id}'
 AND a.box_id = {$box_id} 
 {$t_gender_condition}
 {$t_level_condition}
-ORDER BY score {$order_by}";
+{$order_by}";
 
 //echo "Main query: ".$query_getLeaderBoardContent;
 $getLeaderBoardContent = mysql_query($query_getLeaderBoardContent, $cboxConn) or die(mysql_error());
