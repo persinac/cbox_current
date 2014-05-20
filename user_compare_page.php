@@ -650,16 +650,70 @@ function drawComparisonAMRAPChart(scores) {
 	// Create the data table.
 	var data = new google.visualization.DataTable();
 	console.log("SCORES: " );
-	data.addColumn('number', 'Task');
-	data.addColumn('number', 'Hours per Day');
-
+	data.addColumn('number', 'Athletes');
+	data.addColumn('number', 'Score');
+	var min = 9999;
+	var max = 0;
+	var range = 0;
+	var incrementThreshold = 0;
+	var incrementBy = 0;
+	var incrementArray = new Array();
 	for(var i = 0; i < scores.length; i++) {
-		console.log(" " +scores[i]);
+		var parsedScore = parseInt(scores[i]);
+		console.log(" " +parsedScore);
 		data.addRows([
-			[i, parseInt(scores[i])],
-			]);
+			[i, parsedScore],
+		]);
+		console.log("Scores[i]: " + parsedScore + " current min: " + min + " current max: " + max);
+		if(parsedScore < min) {
+			min = parsedScore;
+		}
+		if(parsedScore > max) {
+			max = parsedScore;
+		}
+		incrementThreshold = i;
 	}
 	
+	range = max - min;
+	incrementBy = (range*1.10) / incrementThreshold;
+	console.log("Min: " + min + ", Max: " + max + ", Range: "+range + ", increment thresh:"
+				+incrementThreshold+", incrementby: "+ parseInt(incrementBy));
+	
+	var tempFrequency = 0;
+	var tempMinIncrement = min;
+	var tempMaxIncrement = min + parseInt(incrementBy);
+	console.log("Variables before for loop: " +
+					" tempMinIncrement: " + tempMinIncrement +
+					" tempMaxIncrement: " + tempMaxIncrement +
+					" tempFrequency: " + tempFrequency);
+	for(var i = 0; i < incrementThreshold; i++) {
+	
+		for(var h = 0; h < scores.length; h++) {
+			if(scores[h] >= tempMinIncrement && scores[h] < tempMaxIncrement) {
+				console.log("Score["+h+"]: " + scores[h] +" tempMinIncrement: " + tempMinIncrement +
+					" tempMaxIncrement: " + tempMaxIncrement);
+				tempFrequency += 1;
+			}
+		}
+		
+		incrementArray[i] = tempFrequency;
+		console.log("Variables in for loop: " +
+					" incrementArray["+i+"]: " + incrementArray[i] +
+					" tempMinIncrement: " + tempMinIncrement +
+					" tempMaxIncrement: " + tempMaxIncrement +
+					" tempFrequency: " + tempFrequency);
+		tempMinIncrement = tempMaxIncrement;
+		tempMaxIncrement += parseInt(incrementBy);
+		
+		tempFrequency = 0;
+	}
+
+	for(var k = 0; k < incrementArray.length; k++)
+	{
+		/*data.addRows([
+			[String(i), incrementArray[k]],
+		]);*/
+	}
 	
 	/*var data = google.visualization.arrayToDataTable([
           ['Age', 'Weight'],
@@ -672,23 +726,14 @@ function drawComparisonAMRAPChart(scores) {
         ]);*/
 
 		var options = {
-			title: 'Age vs. Weight comparison',
-			hAxis: {title: 'Age', minValue: 0, maxValue: 15},
-			vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
+			title: 'Athlete WoD Comparison',
+			//hAxis: {minValue: (min*.8), maxValue: (max*1.2)},
+			//vAxis: {minValue: 0, maxValue: 15},
 			'width':500,
 			'height':400, 
 			'chartArea': {'width': '80%', 'height': '80%'},
 			'legend': {'position': 'bottom'}
 		};
-
-	/*var temp_header = "Temporary"
-	// Set chart options
-	var options = {'title':temp_header,
-				   'width':500,
-				   'height':400, 
-				   'chartArea': {'width': '80%', 'height': '80%'},
-				'legend': {'position': 'bottom'}
-			   };*/
 
 	// Instantiate and draw our chart, passing in some options.
 	var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
