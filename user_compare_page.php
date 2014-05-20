@@ -305,7 +305,7 @@ $( "#div_compare_by" ).on("change", "#wod_type_selector", function() {
 			$('#wod_list_headers').append(second_str);
 		} else if($(this).text() == 'RFT') {
 			console.log("RFT");
-			
+			type_of_wod_main = "RFT";
 			second_str+="<h4><p id=\"display_workout\"></p></h4>";
         	second_str+="<table width=\"530\" rules=\"cols\" id=\"tbl_wod_list\">";
             second_str+="<tr id=\"wod_list_headers\">";  	
@@ -319,7 +319,7 @@ $( "#div_compare_by" ).on("change", "#wod_type_selector", function() {
 			$('#wod_list_headers').append(second_str);
 		} else if($(this).text() == 'AMRAP') {
 			console.log("AMRAP");
-			
+			type_of_wod_main = "AMRAP";
 			second_str+="<h4><p id=\"display_workout\"> WORKOUT HERE </p></h4>";
         	second_str+="<table width=\"530\" rules=\"cols\" id=\"tbl_wod_list\">";
             second_str+="<tr id=\"wod_list_headers\">";  	
@@ -487,9 +487,7 @@ function loadCompareData(data_wods) {
 		console.log("data[i].time: " + data_wods[i].time);
 		console.log("data[i].rounds: " + data_wods[i].rounds);
 		
-		tow = data_wods[i].type_of_wod;
-		type_of_wod_main = tow;
-		
+		tow = data_wods[i].type_of_wod;		
 		dow = data_wods[i].date_of_wod;
 		level = data_wods[i].level_perf;
 		descrip = data_wods[i].rx_descrip;
@@ -651,33 +649,49 @@ function loadGraphs(wod_type, data_array)
 function drawComparisonAMRAPChart(scores) {
 	// Create the data table.
 	var data = new google.visualization.DataTable();
+	console.log("SCORES: " );
+	data.addColumn('number', 'Task');
+	data.addColumn('number', 'Hours per Day');
 
-	console.log("SCORES: " +scores[0]+" "+scores[1]+
-	" "+scores[2]+" "+scores[3]+" "
-	+scores[4]+" "+scores[5]+" "+scores[6]);
+	for(var i = 0; i < scores.length; i++) {
+		console.log(" " +scores[i]);
+		data.addRows([
+			[i, parseInt(scores[i])],
+			]);
+	}
 	
-	data.addColumn('string', 'Competitor');
-	data.addColumn('number', 'scores');
-	data.addRows([
-	  ['Sunday', parseInt(scores[0])],
-	  ['Monday', parseInt(scores[1])],
-	  ['Tuesday', parseInt(scores[2])],
-	  ['Wednesday', parseInt(scores[3])],
-	  ['Thursday', parseInt(scores[4])],
-	  ['Friday', parseInt(scores[5])],
-	  ['Saturday', parseInt(scores[6])]
-	]);
-	var temp_header = "Temporary"
+	
+	/*var data = google.visualization.arrayToDataTable([
+          ['Age', 'Weight'],
+          [ 8,      12],
+          [ 4,      5.5],
+          [ 11,     14],
+          [ 4,      5],
+          [ 3,      3.5],
+          [ 6.5,    7]
+        ]);*/
+
+		var options = {
+			title: 'Age vs. Weight comparison',
+			hAxis: {title: 'Age', minValue: 0, maxValue: 15},
+			vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
+			'width':500,
+			'height':400, 
+			'chartArea': {'width': '80%', 'height': '80%'},
+			'legend': {'position': 'bottom'}
+		};
+
+	/*var temp_header = "Temporary"
 	// Set chart options
 	var options = {'title':temp_header,
 				   'width':500,
 				   'height':400, 
 				   'chartArea': {'width': '80%', 'height': '80%'},
 				'legend': {'position': 'bottom'}
-			   };
+			   };*/
 
 	// Instantiate and draw our chart, passing in some options.
-	var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+	var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
 	chart.draw(data, options);
 }
  
