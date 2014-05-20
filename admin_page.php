@@ -791,6 +791,7 @@ function loadRxIntoScale()
 * is.
 *
 */
+var data_array_2;
 function submitWOD() {
 	if(hasLoadedScaled == true) {
 		var sendRequest = true;
@@ -868,7 +869,7 @@ function submitWOD() {
 		$.each(data_four, function(i, field){
 			console.log("DATA ROUND TWO: " +field.name + ":" + field.value + " ");
 		});
-		
+		data_array_2 = data_four;
 		//sendRequest = false;
 		if(sendRequest == true) {
 			$.ajax({
@@ -876,10 +877,14 @@ function submitWOD() {
 				url: "php_form_test.php",
 				data: data_four,
 				success: function(data) {
-					 console.log('Data send:' + data);
-					 $("#wod_form_modal").dialog("close");
-					 openModal("Success","WOD Entered Successfully<p><p><a onclick=\"resetFormModals()\" class=\"btn btn-primary btn-small\">Ok!</a></p></p>");
-					 $('#calendar').fullCalendar('refetchEvents');
+					 console.log('Data send:' + data + " : substring: " + data.substring(0,1));
+					 if(data.substring(0,1) == "1") {
+						 openModal("Duplicate Entry","You've already input a WOD for today, would you like to add to custom list? <p><p><a onclick=\"\" class=\"btn btn-primary btn-small\">No</a><a onclick=\"addToCustomWOD()\" class=\"btn btn-primary btn-small\">Yes</a></p></p>");
+					 } else {
+						 $("#wod_form_modal").dialog("close");
+						 openModal("Success","WOD Entered Successfully<p><p><a onclick=\"resetFormModals()\" class=\"btn btn-primary btn-small\">Ok!</a></p></p>");
+						 $('#calendar').fullCalendar('refetchEvents');
+					 }
 					 
 				},
 				error: function(data) {
@@ -888,7 +893,7 @@ function submitWOD() {
 			});
 		}
 	} else {
-		openModal("Set Scaled Movements","Please set scaled movements before submitting the WoD");
+		openModal("Set Scaled Movements","Please set scaled movements before submitting the WOD");
 	}
 }
 
@@ -960,6 +965,36 @@ function submitStrength() {
         });
 	}
 }
+
+
+function addToCustomWOD() {
+		var sendRequest = false;
+		var data_array = data_array_2;
+		$.each(data_array, function(i, field){
+			console.log("DATA TO CUSTOM: " +field.name + ":" + field.value + " ");
+		});
+		data_array.push({ name: "custom_wod", value: "1" });
+		
+		openModal("Almost there...","Custom WOD functionality is currently in the works");
+		
+		if(sendRequest == true) {
+			$.ajax({
+				type: "POST",
+				url: "php_form_test.php",
+				data: data_array,
+				success: function(data) {
+					 console.log('Data send:' + data);
+					 $("#wod_form_modal").dialog("close");
+					 openModal("Success","Custom WOD Entered Successfully<p><p><a onclick=\"resetFormModals()\" class=\"btn btn-primary btn-small\">Ok!</a></p></p>");
+					 $('#calendar').fullCalendar('refetchEvents');
+				},
+				error: function(data) {
+						alert('Error:' + data);
+				}
+			});
+		}
+}
+
 
 /****************************** Girls and heroes array builder **********************************************/
 function theGirls(girl_id)

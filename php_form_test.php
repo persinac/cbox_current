@@ -2,17 +2,12 @@
 <?php
 session_start();
 
-#$_SESSION['MM_Username'] = "kellintc";
-if(!(isset($_SESSION['MM_Username'])))
-{
-	header("Location: Error401UnauthorizedAccess.php");
-}
-
 $colname_getUserWODs = "-1";
 if (isset($_SESSION['MM_UserID'])) {
   $colname_getUserWODs = $_SESSION['MM_UserID'];
 }
-mysql_select_db($database_cboxConn, $cboxConn);
+
+//mysql_select_db($database_cboxConn, $cboxConn);
 
 #echo "<!doctype html>
 #<html>
@@ -38,6 +33,7 @@ $t_penalty = $_POST['penalty'];
 $t_special = $_POST['special'];
 $t_amrap_time = "";
 $t_rft_rounds = "";
+$t_is_custom = "0";
 
 
 $t_string_builder = "";
@@ -54,27 +50,28 @@ if($t_typeOfWOD == "GIRLS") {
 	$t_typeOfWOD = $t_girl_wod;	
 }
 
+
 if(!(empty($t_typeOfWOD))) {
 	if(strlen($t_special) > 0) {
-	echo "SPECIAL";
+	//echo "SPECIAL";
 			$rx_wod .= "Special instructions: " . $t_special . "; ";
 			$inter_wod .= "Special instructions; " . $t_special . "; ";
 			$nov_wod .= "Special instructions: " . $t_special . "; ";
 	}
 	if(strlen($t_penalty) > 0) {
-	echo "PENALTY";
+	//echo "PENALTY";
 			$rx_wod .= "Penalty: " . $t_penalty . ";";
 			$inter_wod .= "Penalty: " . $t_penalty . "; ";
 			$nov_wod .= "Penalty: " . $t_penalty . "; ";
 	}
 	if(strlen($t_buy_in) > 0) {
-	echo "BUY IN";
+	//echo "BUY IN";
 			$rx_wod .= "Buy in: " . $t_buy_in . ";";
 			$inter_wod .= "Buy in: " . $t_buy_in . ";";
 			$nov_wod .= "Buy in: " . $t_buy_in . "; ";
 	}
 	if($t_typeOfWOD == "RFT") {
-	echo "SRFT";
+	//echo "SRFT";
 		$rx_wod .= $t_wod_specifics . " rounds for time of:; ";
 		$inter_wod .= $t_wod_specifics . " rounds for time of:; ";
 		$nov_wod .= $t_wod_specifics . " rounds for time of:; ";
@@ -82,7 +79,7 @@ if(!(empty($t_typeOfWOD))) {
 		$t_amrap_time = '-';
 	}
 	elseif($t_typeOfWOD == "AMRAP") {
-	echo "AMRAP";
+	//echo "AMRAP";
 		$t_amrap_time = $_POST['amrap_time_update'];
 		$rx_wod .= $t_amrap_time . " minutes of:; ";
 		$inter_wod .= $t_amrap_time . " minutes of:; ";
@@ -91,7 +88,7 @@ if(!(empty($t_typeOfWOD))) {
 		$t_rft_rounds = '-';
 	}
 	elseif($t_typeOfWOD == "TABATA") {
-	echo "TABATA";
+	//echo "TABATA";
 		$rx_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
 		$inter_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
 		$nov_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
@@ -105,7 +102,7 @@ if(!(empty($t_typeOfWOD))) {
  * If false, build string same as before, if true, build differently
  */
 if ($pos === false) {
-	echo " NO DASHES ";
+	//echo " NO DASHES ";
     foreach( $_POST['movement'] as $cnt => $mvmnt ) 
 	{
 		$t_movement = $_POST['movement'][$cnt];
@@ -221,30 +218,54 @@ if(strlen($t_cash_out) >0) {
 # Need to get box ID based on user first
 #
 #######
+$mysqli = new mysqli($hostname_cboxConn, $username_cboxConn, $password_cboxConn, $database_cboxConn);
+/* check connection */
+if (mysqli_connect_errno()) {
+	printf("Connect failed: %s\n", mysqli_connect_error());
+	exit();
+}
 
-$query_getAdminWODs = "select box_id
+$query_getBoxID = "select box_id
  from athletes
 WHERE user_id = '{$colname_getUserWODs}'";
 
-$getAdminWODs = mysql_query($query_getAdminWODs, $cboxConn) or die(mysql_error());
-$totalRows_getAdminWODs = mysql_num_rows($getAdminWODs);
-####echo $totalRows_getAdminWODs;
-$row = mysql_fetch_array($getAdminWODs);
-
-//$t_box_id = $row[0];
-$t_wodID = $row[0] . "_" . str_replace("-", "", $t_date);
-
-$query_insert_wod = "insert into wods values ('{$t_wodID}', '{$t_girl_id}', '{$t_typeOfWOD}', '{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}')";
-#echo $query_insert_wod;
-$retval = mysql_query( $query_insert_wod, $cboxConn );
-if(! $retval )
-{
-  die('Could not enter data: ' . mysql_error());
+if ($result = $mysqli->query($query_getBoxID)) {
+	$row = $result->fetch_assoc();
+	$t_box_id = $row['box_id'];
+	$t_wodID = $row['box_id'] . "_" . str_replace("-", "", $t_date);
+	$length_of_box_id = strlen($t_box_id);
 }
-echo "Entered data successfully\n";
-mysql_close($cboxConn);
+//echo "box id stuff: ".$t_box_id.", ".$t_wodID.", ".$length_of_box_id;
 
-#echo "<body>
-#</body>
-#</html>";
+$stmt = $mysqli->prepare("insert into wods values ('{$t_wodID}', 
+	'{$t_girl_id}', 
+	'{$t_typeOfWOD}', 
+	'{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}')");
+$stmt->bind_param( 'sssssssss', $t_wodID, $t_girl_id, $t_typeOfWOD, $rx_wod, $inter_wod, $nov_wod, $t_date, $t_rft_rounds, $t_amrap_time );
+
+if($result = $stmt->execute()) {
+	echo "Entered data successfully\n";
+	$stmt->close();
+} else {
+	echo "1 ";
+}
+$mysqli->close();
+
+function getCustomIDCount($date_to_check, $box_id_check, $box_id_length) {
+	$mysqli = new mysqli('127.0.0.1', 'root', 'password!', $database_cboxConn);
+	if (mysqli_connect_errno()) {
+		printf("Connect failed: %s\n", mysqli_connect_error());
+		exit();
+	}
+	$max_id = "";
+	$query_getMaxIDCount = "select MAX(custom_id) AS maxID from custom_wods WHERE SUBSTRING(custom_id, 1, {$box_id_length}) = '{$box_id_check}'";
+	echo "Query: " . $query_getMaxIDCount;
+	if ($result = $mysqli->query($query_getMaxIDCount)) {
+		echo "row: " . $row['maxID'];
+		$max_id = $row['maxID'];
+		echo "MAX ID: " . $max_id;
+	}
+	$mysqli->close();
+}
+
 ?>

@@ -45,7 +45,7 @@
         <br></br>
         <input type="text" name="country" class="form-control" placeholder="Country" required>
         <br></br>
-        <select id="region_selector" name="region" class="selector">
+        Region: <select id="region_selector" name="region" class="selector">
         <option value="Africa">Africa</option>
         <option value="Asia">Asia</option>
         <option value="Australia">Australia</option>
