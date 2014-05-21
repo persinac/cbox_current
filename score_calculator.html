@@ -1,0 +1,235 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>COMPARE</title>
+    <!-- Bootstrap core CSS and Custom CSS-->
+    <link href="dist/css/scorecalc.css" rel="stylesheet">
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet"> 
+    <link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="dist/css/jquery.datepick.css" rel="stylesheet">
+    
+</head>
+
+<body>
+
+<div id="my_container">
+
+        <div id="what_to_compare">
+        	<h4>User Rating Calculator</h4>
+			<form id="what_to_compare_form">
+				Enter Athlete Name: <input type="text" name="name_input" id="name_input"/>
+				<p></p>
+				Enter Athlete Score: <input type="text" name="score_input" id="score_input"/>
+				<input type="button" class="button" value="Submit" id="submit"/>
+            </form>
+            <input type="button" class="button" value="Calculate Rating" id="calc"/>
+        </div> <!-- END WHAT_TO_COMPARE -->
+		
+        <div id="user_scores">
+		<table width="350" rules="cols" id="tbl_leaderboard">
+			<tr  id="leaderboard_headers">
+				<th>Athlete</th>
+				<th>Score</th>
+				<th>Rating</th>
+			</tr>
+			<tbody class="tbl_body_leaderboard" id="tbl_body_leaderboard">
+			</tbody>
+		</table>
+		</div>
+
+	<div id="algorithm_div">
+	
+	Base the Athlete rating off of the average</br>
+	tempRate = ((score/avg)*100)-100;
+	<p></p>
+	Get the absolute value of the temporary rating</br>
+	if the tempRate is less than 0</br>
+	if(tempRate < 0) {</br>
+		tempRate = (tempRate*(-1));</br>
+	}</br>
+	<p></p>
+	If the users score is less than 50, we are going to</br>
+	subtract their tempRate from 50</br>
+	if(score < avg) {</br>
+		if(tempRate > 50) {</br> 
+			rating = 1;</br>
+		} else {</br>
+			rating = 50 - tempRate;</br>
+		}</br>
+		<p></p>
+	If the users score is greater than 50, we are going to</br>
+	add 50 to the temp rating</br>
+	} else {</br>
+		if(tempRate > 100) {</br>
+			rating = 100;</br>
+		} else {</br>
+			rating = 50 + tempRate;</br>
+		}</br>
+	}</br>
+	
+	</div>
+	
+	<div id="chart_div"></div>
+	
+</div> <!-- END CONTAINER -->
+
+<!-- JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script src="dist/js/jquery.plugin.min.js"></script>
+<script src="dist/js/jquery.datepick.min.js"></script>
+
+<script>
+
+google.load('visualization', '1.0', {'packages':['corechart']});
+$('#submit').click(function() {
+	submit();
+});
+
+$('#calc').click(function() {
+	if(data_array.length > 0) {
+		//calculateRating(data_array);
+	} else {
+		alert("Please submit a few scores first");
+	}
+});
+
+var count = 0;
+var data_array = new Array();
+function submit() {
+	var athlete_array = $("#what_to_compare_form").serializeArray();
+	var temp_array = new Array();
+	$.each(athlete_array, function(i, field){
+		console.log("DATA TO CUSTOM: " +field.name + ":" + field.value + " ");
+		temp_array.push(field.value);
+	});
+	temp_array.push(0);
+	data_array[count] = temp_array;
+	count++;
+	//console.log("values: " + data_array[count][0] +", "+data_array[count][1]);
+	arrayCurrent(data_array);
+	calculateRating(data_array);
+}
+function arrayCurrent(arrayToSee) {
+	for(var i = 0; i < arrayToSee.length; i++) {
+		console.log("Current Data: " + arrayToSee[i][0] + ", " +arrayToSee[i][1]  + ", " +arrayToSee[i][2]);
+	}
+}
+
+function calculateRating(data) {
+	var avg = 0;
+	var sum = 0;
+	var t_count = 0;
+	var tempRate = 0;
+	var name = "";
+	var score = 0;
+	var html = "";
+	var rating = 0;
+	console.log("Scores: ");
+	for(var i = 0; i < data.length; i++) {
+		console.log(data[i][1]);
+		sum = sum + parseInt(data[i][1]);
+		t_count = i+1;
+	}
+	console.log("sum: "+sum);
+	avg = (sum/t_count);
+	console.log(avg);
+	for(var i = 0; i < data.length; i++) {
+		name = data[i][0];
+		score = data[i][1];
+		console.log( name + ", "+ score);
+		
+		/*tempRate = score/avg;
+		console.log("score/avg: "+tempRate)
+		tempRate = tempRate * 100;
+		console.log("temprate*100: "+tempRate)
+		tempRate = tempRate-100;
+		console.log("temprate-100: "+tempRate)*/
+		tempRate = ((score/avg)*100)-100;
+		console.log("temprate: "+tempRate)
+		
+		if(tempRate < 0) {
+			tempRate = (tempRate*(-1));
+			console.log("Absolute value: "+tempRate);
+		}
+		if(score < avg) {
+			if(tempRate > 50) { 
+				rating = 1;
+			} else {
+				rating = 50 - tempRate;
+			}
+		} else {
+			if(tempRate > 50) {
+				rating = 100;
+			} else {
+				rating = 50 + tempRate;
+			}
+		}
+		data[i][2] = parseFloat(rating).toFixed(2);
+		html += "<tr>";
+		html += "<td><div id=\"tdDivName\">"+name+"</div></td>";
+		html +="<td class=\"tdDivScore\">"+score+"</td>";
+		html +="<td class=\"tdDivName\">"+parseFloat(rating).toFixed(2)+"</td></tr>";
+		
+	}
+	arrayCurrent(data);
+	$('.tbl_body_leaderboard').empty();
+	$('.tbl_body_leaderboard').html(html);
+	loadGraphs(data);
+}
+
+function loadGraphs(data)
+{
+	console.log("load graph");
+	var tempArray = new Array();
+
+	drawChart(data);
+
+}
+
+function drawChart(scores) {
+	// Create the data table.
+	var data = new google.visualization.DataTable();
+	var min = 9999;
+	var max = 0;
+	console.log("SCORES: " );
+	data.addColumn('number', 'Rating');
+	data.addColumn('number', 'Score');
+	data.addColumn({type:'string',role:'tooltip'});
+	for(var i = 0; i < scores.length; i++) {
+		var name = String(scores[i][0]);
+		var parsedScore = parseInt(scores[i][1]);
+		var parsedRating = parseFloat(scores[i][2]);
+		console.log(" " +parsedScore + " "+ parsedRating);
+		data.addRows([
+			[parsedRating, parsedScore, name+ " " +parsedRating ],
+		]);
+		if(parsedScore < min) {
+			min = parsedScore;
+		}
+		if(parsedScore > max) {
+			max = parsedScore;
+		}
+	}
+
+	var options = {
+		title: 'Athlete Rating',
+		vAxis: {title:'Score', minValue: (min*.8), maxValue: (max*1.2)},
+		hAxis: {title:'Rating',minValue: 0, maxValue: 100},
+		'width':500,
+		'height':400, 
+		'chartArea': {'width': '80%', 'height': '80%'},
+		'legend': {'position': 'bottom'}
+	};
+
+	// Instantiate and draw our chart, passing in some options.
+	var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+	chart.draw(data, options);
+}
+
+
+</script>

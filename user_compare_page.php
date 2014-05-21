@@ -95,6 +95,11 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
         
         <div id="wod_list">
         </div> <!-- END WOD_LIST -->
+		<div id="wod_description">
+			<h2 style="color: #FFF">WOD Description</h2>
+			<div id="wod_actual_description">Description of wod goes here. It should wrap around and not extend the page.
+			</div>
+		</div>
         <div id="leaderboard">
 			<h2 style="color: #FFF">Leaderboard</h2>
 			<div id="leaderboard_data">
@@ -106,6 +111,13 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";} // COMME
 					<tbody class="tbl_body_leaderboard" id="tbl_body_leaderboard">
 					</tbody>
 				</table>
+			</div>
+		</div>
+		
+		<div id="average_user_score">
+			<h2 id="avg_score_header">Average Score</h2>
+			<p></p>
+			<div id="avg_score">
 			</div>
 		</div>
     </div> <!-- END DATA_CONTAINER -->
@@ -135,6 +147,7 @@ $(document).ready(function() {
 
 var header_wod = "";
 var type_of_wod_main = "";
+var main_description = "";
 
 $("#navbar_main_ul li").click(function() {
 		//event.preventDefault();
@@ -402,7 +415,7 @@ function getLeaderBoardData(data) {
 		loadLeaderBoardData(response);
 		console.log(type_of_wod_main);
 		if(type_of_wod_main == "AMRAP") {
-			loadGraphs(type_of_wod_main, response);
+			calculateRating(response, type_of_wod_main);
 		}
 	  },
   	  error: function(error){
@@ -490,7 +503,10 @@ function loadCompareData(data_wods) {
 		tow = data_wods[i].type_of_wod;		
 		dow = data_wods[i].date_of_wod;
 		level = data_wods[i].level_perf;
+		
 		descrip = data_wods[i].rx_descrip;
+		//main_description = descrip;
+		
 		time =  data_wods[i].time;
 		rounds = data_wods[i].rounds;
 		date_link_id = "date_link_"+i;
@@ -539,15 +555,11 @@ function loadLeaderBoardData(data_leaders) {
 	for(var i = 0; i < data_leaders.length; i++) {
 		
 		if(typeof data_leaders[i].descrip != undefined) {
-			/*console.log("DATA: " + data_leaders);
-			console.log("data[i].descrip: " +data_leaders[i].descrip);
-			console.log("data[i].name: " + data_leaders[i].name);
-			console.log("data[i].score: " + data_leaders[i].score);
-			console.log("data[i].score: " + data_leaders[i].level_perf);*/
+			//console.log("data[i].descrip: " +data_leaders[i].descrip);
 			//console.log("userid data[i]: " + data_leaders[i].user_id);
 			//console.log("user id php: " + <?php echo $_SESSION['MM_UserID']; ?>);
 			
-			descrip = data_leaders[i].rx_descrip;
+			main_description = data_leaders[i].descrip;
 			name = data_leaders[i].name;
 			score = data_leaders[i].score;
 			
@@ -573,6 +585,8 @@ function loadLeaderBoardData(data_leaders) {
 		
 	}
 	//Update html content
+	$("#wod_actual_description").empty();
+	$("#wod_actual_description").html(main_description);
 	$('.tbl_body_leaderboard').empty();
 	$('.tbl_body_leaderboard').html(html_sec1);
 }
@@ -587,7 +601,7 @@ function loadTodayWOD(data_wods) {
 	var score = "";
 
 	console.log("data[0].descrip: " +data_wods[0].descrip);
-	console.log("data[0].descrip: " +data_wods[0].descrip)
+	console.log("data[0].descrip: " +data_wods[0].descrip);
 	descrip = data_wods[0].descrip;
 
 	html_sec1 += descrip;
@@ -612,42 +626,87 @@ function loadTodayWOD(data_wods) {
 	getLeaderBoardData(result);
 }
 
+/***************************** Generate ratings ****************************************/
+var arrayToSend = new Array();
+function calculateRating(data_for_array, wod_type) {
+	var avg = 0;
+	var sum = 0;
+	var t_count = 0;
+	var tempRate = 0;
+	var name = "";
+	var score = 0;
+	var rating = 0;
+	
+	
+	
+	console.log("Scores: ");
+	for(var i = 0; i < data_for_array.length; i++) {
+		console.log(data_for_array[i].score + " "+ data_for_array[i].name);
+		sum = sum + parseInt(data_for_array[i].score);
+		t_count = i+1;
+	}
+	console.log("sum: "+sum);
+	avg = (sum/t_count);
+	console.log(avg);
+	for(var i = 0; i < data_for_array.length; i++) {
+		var tempArray = new Array();
+		name = data_for_array[i].name;
+		score = data_for_array[i].score;
+		
+		tempRate = ((score/avg)*100)-100;
+		console.log("temprate: "+tempRate)
+		
+		if(tempRate < 0) {
+			tempRate = (tempRate*(-1));
+		}
+		if(score < avg) {
+			if(tempRate > 50) { 
+				rating = 1;
+			} else {
+				rating = 50 - tempRate;
+			}
+		} else {
+			if(tempRate > 50) {
+				rating = 100;
+			} else {
+				rating = 50 + tempRate;
+			}
+		}
+		console.log( name + ", "+ score+", "+rating);
+		tempArray.push(name);
+		tempArray.push(score);
+		tempArray.push(parseFloat(rating).toFixed(2));
+		for(var t= 0; t< tempArray.length; t++) {
+			console.log("tempArray values:" + tempArray[t]);
+		}
+		arrayToSend[i] = tempArray;
+	}
+
+	arrayCurrent(arrayToSend);
+	loadGraphs(wod_type, arrayToSend);
+	$('#avg_score').empty();
+	$('#avg_score').html(avg);
+}
+
+function arrayCurrent(arrayToSee) {
+	for(var i = 0; i < arrayToSee.length; i++) {
+		console.log("Current Data: " + arrayToSee[i][0]+ ", " +arrayToSee[i][1]  + ", " +arrayToSee[i][2]);
+	}
+}
 
 /********************************* Load and draw graph functions***********************************************/
 
 function loadGraphs(wod_type, data_array)
 {
 	console.log("load graphs: " + wod_type);
-	var tempArray = new Array();
-	for(var i = 0; i < data_array.length; i++) {
-		
-		if(typeof data_array[i].descrip != undefined) {
-			/*console.log("DATA: " + data_leaders);
-			console.log("data[i].descrip: " +data_leaders[i].descrip);
-			console.log("data[i].name: " + data_leaders[i].name);
-			console.log("data[i].score: " + data_leaders[i].score);
-			console.log("data[i].score: " + data_leaders[i].level_perf);*/
-			//console.log("userid data[i]: " + data_leaders[i].user_id);
-			//console.log("user id php: " + <?php echo $_SESSION['MM_UserID']; ?>);
-			
-			score = data_array[i].score;
-			
-			if(score.substring(0, 3) == "00:") {
-				console.log(score.substring(3));
-				score = score.substring(3);
-			}
-			tempArray.push(score);
-		}
-	}
-	drawComparisonAMRAPChart(tempArray);
-    //drawChart();
-	//drawWeeklyActivityBreakdown();
+	drawComparisonAMRAPChart(data_array);
 }
 // Callback that creates and populates a data table,
 // instantiates the pie chart, passes in the data and
 // draws it.
 function drawComparisonAMRAPChart(scores) {
 	// Create the data table.
+	/********************** Old Stuff ******************
 	var data = new google.visualization.DataTable();
 	console.log("SCORES: " );
 	data.addColumn('number', 'Athletes');
@@ -712,32 +771,51 @@ function drawComparisonAMRAPChart(scores) {
 	{
 		/*data.addRows([
 			[String(i), incrementArray[k]],
-		]);*/
+		]);
+		*****************************************************/
+		
+		// Create the data table.
+	var data = new google.visualization.DataTable();
+	var min = 9999;
+	var max = 0;
+	console.log("SCORES: " );
+	data.addColumn('number', 'Rating');
+	data.addColumn('number', 'Score');
+	data.addColumn({type:'string',role:'tooltip'});
+	for(var i = 0; i < scores.length; i++) {
+		var name = String(scores[i][0]);
+		var parsedScore = parseInt(scores[i][1]);
+		var parsedRating = parseFloat(scores[i][2]);
+		console.log(" " +parsedScore + " "+ parsedRating);
+		data.addRows([
+			[parsedRating, parsedScore, name+ " " +parsedRating ],
+		]);
+		if(parsedScore < min) {
+			min = parsedScore;
+		}
+		if(parsedScore > max) {
+			max = parsedScore;
+		}
 	}
-	
-	/*var data = google.visualization.arrayToDataTable([
-          ['Age', 'Weight'],
-          [ 8,      12],
-          [ 4,      5.5],
-          [ 11,     14],
-          [ 4,      5],
-          [ 3,      3.5],
-          [ 6.5,    7]
-        ]);*/
 
-		var options = {
-			title: 'Athlete WoD Comparison',
-			//hAxis: {minValue: (min*.8), maxValue: (max*1.2)},
-			//vAxis: {minValue: 0, maxValue: 15},
-			'width':500,
-			'height':400, 
-			'chartArea': {'width': '80%', 'height': '80%'},
-			'legend': {'position': 'bottom'}
-		};
+	var options = {
+		title: 'Athlete Rating',
+		vAxis: {title:'Score', minValue: (min*.8), maxValue: (max*1.2)},
+		hAxis: {title:'Rating',minValue: 0, maxValue: 100},
+		'width':500,
+		'height':400, 
+		'chartArea': {'width': '80%', 'height': '80%'},
+		'legend': {'position': 'bottom'}
+	};
 
 	// Instantiate and draw our chart, passing in some options.
 	var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
 	chart.draw(data, options);
+	
+	//clear data from the main array
+	while(arrayToSend.length > 0){
+		arrayToSend.pop();
+	}
 }
  
 </script>
