@@ -550,8 +550,11 @@ function loadLeaderBoardData(data_leaders) {
 	var score = "";
 	var name = "";
 	var descrip = "";
+	var min = "99:99";
+	var max = "00:00";
+	var sumOfTime = "";
 	console.log("loadLeaderboardData PRE-FOR LOOP");
-	
+	var tempTimeArray = new Array();
 	for(var i = 0; i < data_leaders.length; i++) {
 		
 		if(typeof data_leaders[i].descrip != undefined) {
@@ -562,12 +565,33 @@ function loadLeaderBoardData(data_leaders) {
 			main_description = data_leaders[i].descrip;
 			name = data_leaders[i].name;
 			score = data_leaders[i].score;
-			
+			/*
+			 Going to have to create a function that converts the time into seconds
+			 That way I can compare them to each other
+			*/
+			var now = new Date();
 			if(score.substring(0, 3) == "00:") {
 				console.log(score.substring(3));
-				score = score.substring(3);
-			}
 				
+				now.setHours(score.substring(0,score.indexOf(":")));
+				console.log("Hours: "+score.substring(0,score.indexOf(":")));
+				score = score.substring(3);
+				now.setMinutes(score.substr(0,score.indexOf(":")));
+				console.log("Minutes: "+score.substring(0,score.indexOf(":")));
+				now.setSeconds(score.substr(score.indexOf(":")+1));
+				console.log("seconds: "+score.substring(score.indexOf(":")+1));
+				console.log("Time: " + now);
+			} else {
+				now.setHours(score.substring(0,score.indexOf(":")));
+			}
+			
+			if(score < min) {
+				min = score;
+			}
+			if(score > max) {
+				max = score;
+			}
+			sumOfTime = sumOfTime + score;
 			html_sec1 += "<tr class="+sec1_classID+" id=\"leader_"+i+"\">";
 			
 			if(data_leaders[i].user_id == "<?php echo $_SESSION['MM_UserID']; ?>") {
@@ -584,6 +608,8 @@ function loadLeaderBoardData(data_leaders) {
 		}
 		
 	}
+	console.log("Max: "+max+" Min: "+min+" Sum: " +sumOfTime);
+	
 	//Update html content
 	$("#wod_actual_description").empty();
 	$("#wod_actual_description").html(main_description);
