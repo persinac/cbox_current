@@ -118,7 +118,8 @@ CASE WHEN (w.type_of_wod = 'RFT') THEN aw.time_comp
  WHEN (w.type_of_wod = 'AMRAP') THEN aw.rounds_compl
 END AS score,
 a.user_id AS user_id,
-aw.level_perf AS level_perf
+aw.level_perf AS level_perf,
+0 AS temporary_score
 from wods w
 JOIN athlete_wod aw ON aw.wod_id = w.wod_id
 JOIN athletes a ON a.user_id = aw.user_id

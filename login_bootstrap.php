@@ -40,6 +40,13 @@ if (!isset($_SESSION)) {
   session_start();	
 }
 
+### For the live server ###
+if($_SERVER["HTTPS"] != "on")
+{
+	header("Location: https://" . "compete-box.com\/" . $_SERVER["REQUEST_URI"]);
+	exit();
+}
+
 $loginForm = $_SERVER['PHP_SELF'];
 if (isset($_GET['accesscheck'])) 
 {

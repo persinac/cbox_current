@@ -414,9 +414,7 @@ function getLeaderBoardData(data) {
 		console.log("get leaderboard content: " + response);
 		loadLeaderBoardData(response);
 		console.log(type_of_wod_main);
-		if(type_of_wod_main == "AMRAP") {
-			calculateRating(response, type_of_wod_main);
-		}
+		returnRatings(response, type_of_wod_main);
 	  },
   	  error: function(error){
     		console.log('error receiving leaderboard content!' + error);
@@ -654,7 +652,7 @@ function loadTodayWOD(data_wods) {
 
 /***************************** Generate ratings ****************************************/
 var arrayToSend = new Array();
-function calculateRating(data_for_array, wod_type) {
+function returnRatings(data_for_array, wod_type) {
 	var avg = 0;
 	var sum = 0;
 	var t_count = 0;
@@ -663,41 +661,142 @@ function calculateRating(data_for_array, wod_type) {
 	var score = 0;
 	var rating = 0;
 	
-	
+	console.log("Scores: ");
+	if(wod_type == "AMRAP" || wod_type == "amrap") {
+		avg = calculateAMRAPRating(data_for_array);
+	} else {
+		avg = calculateRFTRating(data_for_array);
+		
+	}
+	arrayCurrent(arrayToSend);
+	loadGraphs(wod_type, arrayToSend);
+	$('#avg_score').empty();
+	$('#avg_score').html(avg);
+}
+
+function calculateRFTRating(rft_data) {
+	var avg = 0;
+	var total_sum = 0;
+	var user_sum = 0;
+	var t_sum = 0;
+	var t_count = 0;
+	var tempRate = 0;
+	var name = "";
+	var score = 0;
+	var rating = 0;
+	var scoreInSeconds = 0;
+	var hours = 0;
+	var minutes = 0;
+	var seconds = 0;
+	var user_time = "";
 	
 	console.log("Scores: ");
-	for(var i = 0; i < data_for_array.length; i++) {
-		console.log(data_for_array[i].score + " "+ data_for_array[i].name);
-		sum = sum + parseInt(data_for_array[i].score);
+	for(var i = 0; i < rft_data.length; i++) {
+		console.log(rft_data[i].score + " "+ rft_data[i].name);
+		t_count = i+1;
+	}
+	console.log("Converting scores to seconds...");
+	//console.log("Scores (in seconds): ");
+	var tempScoreString = "";
+	for(var i = 0; i < rft_data.length; i++) {
+		tempScoreString = rft_data[i].score;
+		var tempCount = 0;
+		if(tempScoreString.substring(0,tempScoreString.indexOf(":")) != "00") {
+			hours = parseInt(tempScoreString.substring(0,tempScoreString.indexOf(":")));
+			hours = hours*(3600);
+		}
+		
+		tempScoreString = tempScoreString.substring(3);
+		if(tempScoreString.substring(0,tempScoreString.indexOf(":")) != "00") {
+			minutes = parseInt(tempScoreString.substring(0,tempScoreString.indexOf(":")));
+			minutes = minutes * 60;
+		}
+		
+		if(tempScoreString.substring(tempScoreString.indexOf(":")+1) != "00") {
+			seconds = parseInt(tempScoreString.substring(tempScoreString.indexOf(":")+1));
+		}
+		
+		user_sum = hours + minutes + seconds
+		total_sum = total_sum + user_sum;
+		console.log("Hours: "+hours);
+		console.log("Minutes: "+minutes);
+		console.log("seconds: "+seconds);
+		console.log("User Score: " + user_sum);
+		console.log("Total: " + total_sum);
+		rft_data[i].temporary_score = user_sum;		
+		user_sum = 0;
+	}
+	console.log("Scores (in seconds): ");
+	for(var i = 0; i < rft_data.length; i++) {
+		
+		if(rft_data[i].score.substring(0, 3) == "00:") {
+				console.log(rft_data[i].score.substring(3));
+				rft_data[i].score = rft_data[i].score.substring(3);
+		}
+		console.log(rft_data[i].score + " "+ rft_data[i].name + ", temp: " + rft_data[i].temporary_score);
+		var tempArray = new Array();
+		name = rft_data[i].name;
+		score = rft_data[i].temporary_score;
+		user_time = rft_data[i].score;
+		avg = (total_sum/t_count);
+		console.log("Avg: "+avg);
+		tempRate = ((score/avg)*100)-100;
+		console.log("temprate: "+tempRate)
+		
+		rating = (100-getRating(tempRate, score, avg));
+		console.log( name + ", "+ score+", "+rating);
+		tempArray.push(name);
+		tempArray.push(user_time);
+		tempArray.push(score);
+		tempArray.push(parseFloat(rating).toFixed(2));
+		for(var t= 0; t< tempArray.length; t++) {
+			console.log("tempArray values:" + tempArray[t]);
+		}
+		arrayToSend[i] = tempArray;
+	}
+	var returnString= "";
+	var tempString = "";
+	var tempInt = 0;
+	if(avg < 3600) {
+		tempString = parseFloat(avg/60).toFixed(2);
+		returnString = tempString.substring(0, tempString.indexOf("."));
+		tempInt = parseInt(tempString.substring(tempString.indexOf(".")+1));
+		tempInt = tempInt/100;
+		console.log("tempInt: " + tempInt);
+		tempInt = parseInt(tempInt * 60);
+		returnString += ":"+tempInt;
+	}
+	return returnString;
+}
+
+
+function calculateAMRAPRating(amrap_data) {
+	var avg = 0;
+	var sum = 0;
+	var t_count = 0;
+	var tempRate = 0;
+	var name = "";
+	var score = 0;
+	var rating = 0;
+	
+	console.log("Scores: ");
+	for(var i = 0; i < amrap_data.length; i++) {
+		console.log(amrap_data[i].score + " "+ amrap_data[i].name);
+		sum = sum + parseInt(amrap_data[i].score);
 		t_count = i+1;
 	}
 	console.log("sum: "+sum);
 	avg = (sum/t_count);
 	console.log(avg);
-	for(var i = 0; i < data_for_array.length; i++) {
+	for(var i = 0; i < amrap_data.length; i++) {
 		var tempArray = new Array();
-		name = data_for_array[i].name;
-		score = data_for_array[i].score;
+		name = amrap_data[i].name;
+		score = amrap_data[i].score;
 		
 		tempRate = ((score/avg)*100)-100;
 		console.log("temprate: "+tempRate)
 		
-		if(tempRate < 0) {
-			tempRate = (tempRate*(-1));
-		}
-		if(score < avg) {
-			if(tempRate > 50) { 
-				rating = 1;
-			} else {
-				rating = 50 - tempRate;
-			}
-		} else {
-			if(tempRate > 50) {
-				rating = 100;
-			} else {
-				rating = 50 + tempRate;
-			}
-		}
+		rating = getRating(tempRate, score, avg);
 		console.log( name + ", "+ score+", "+rating);
 		tempArray.push(name);
 		tempArray.push(score);
@@ -707,11 +806,28 @@ function calculateRating(data_for_array, wod_type) {
 		}
 		arrayToSend[i] = tempArray;
 	}
+	return avg;
+}
 
-	arrayCurrent(arrayToSend);
-	loadGraphs(wod_type, arrayToSend);
-	$('#avg_score').empty();
-	$('#avg_score').html(avg);
+function getRating(tempRate, score, average) {
+	var rating = 0;
+	if(tempRate < 0) {
+		tempRate = (tempRate*(-1));
+	}
+	if(score < average) {
+		if(tempRate > 50) { 
+			rating = 1;
+		} else {
+			rating = 50 - tempRate;
+		}
+	} else {
+		if(tempRate > 50) {
+			rating = 100;
+		} else {
+			rating = 50 + tempRate;
+		}
+	}
+	return rating;
 }
 
 function arrayCurrent(arrayToSee) {
@@ -725,12 +841,12 @@ function arrayCurrent(arrayToSee) {
 function loadGraphs(wod_type, data_array)
 {
 	console.log("load graphs: " + wod_type);
-	drawComparisonAMRAPChart(data_array);
+	drawComparisonAMRAPChart(data_array, wod_type);
 }
 // Callback that creates and populates a data table,
 // instantiates the pie chart, passes in the data and
 // draws it.
-function drawComparisonAMRAPChart(scores) {
+function drawComparisonAMRAPChart(scores, wod_type) {
 	// Create the data table.
 	/********************** Old Stuff ******************
 	var data = new google.visualization.DataTable();
@@ -804,29 +920,57 @@ function drawComparisonAMRAPChart(scores) {
 	var data = new google.visualization.DataTable();
 	var min = 9999;
 	var max = 0;
+	var vAxisTitle = "";
 	console.log("SCORES: " );
+	
+	
+	if(wod_type == "AMRAP" || wod_type == "amrap") {
 	data.addColumn('number', 'Rating');
 	data.addColumn('number', 'Score');
 	data.addColumn({type:'string',role:'tooltip'});
-	for(var i = 0; i < scores.length; i++) {
-		var name = String(scores[i][0]);
-		var parsedScore = parseInt(scores[i][1]);
-		var parsedRating = parseFloat(scores[i][2]);
-		console.log(" " +parsedScore + " "+ parsedRating);
-		data.addRows([
-			[parsedRating, parsedScore, name+ " " +parsedRating ],
-		]);
-		if(parsedScore < min) {
-			min = parsedScore;
+		for(var i = 0; i < scores.length; i++) {
+			var name = String(scores[i][0]);
+			var parsedScore = parseInt(scores[i][1]);
+			var parsedRating = parseFloat(scores[i][2]);
+			console.log(" " +parsedScore + " "+ parsedRating);
+			data.addRows([
+				[parsedRating, parsedScore, name+ " \nScore: "+parsedScore+" \nRating: " +parsedRating ],
+			]);
+			if(parsedScore < min) {
+				min = parsedScore;
+			}
+			if(parsedScore > max) {
+				max = parsedScore;
+			}
 		}
-		if(parsedScore > max) {
-			max = parsedScore;
+		vAxisTitle = "Scores";
+	} else {
+	data.addColumn('number', 'Rating');
+	data.addColumn('number', 'Score');
+	data.addColumn({type:'string',role:'tooltip'});
+		for(var i = 0; i < scores.length; i++) {
+		
+			var name = String(scores[i][0]);
+			var parsedScore = parseInt(scores[i][1]);
+			var parsedSeconds = parseInt(scores[i][2]);
+			var parsedRating = parseFloat(scores[i][3]);
+			console.log(" " +parsedScore + " "+ parsedRating);
+			data.addRows([
+				[parsedRating, parsedSeconds, name+ " \nTime: " +scores[i][1] + " \nRating: " + parsedRating ],
+			]);
+			if(parsedSeconds < min) {
+				min = parsedSeconds;
+			}
+			if(parsedSeconds > max) {
+				max = parsedSeconds;
+			}
 		}
+		vAxisTitle = "Time (in seconds)";
 	}
 
 	var options = {
 		title: 'Athlete Rating',
-		vAxis: {title:'Score', minValue: (min*.8), maxValue: (max*1.2)},
+		vAxis: {title: vAxisTitle, minValue: (min*.8), maxValue: (max*1.2)},
 		hAxis: {title:'Rating',minValue: 0, maxValue: 100},
 		'width':500,
 		'height':400, 
