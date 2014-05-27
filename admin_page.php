@@ -110,17 +110,18 @@ if (isset($_SESSION['MM_UserID'])) {
     </div>
 
     <hr class="featurette-divider">
-	<div id="calendar"></div>
-	<div id="eventContent" title="Event Details">
-		<div id="eventInfo"></div>
-	</div>
-	
-	<div id="button_container">
-		<p><a onclick="openWODModal()" class="btn btn-primary btn-large" id="new_wod_button" class="buttons_in_but_container">New WOD</a></p>
-		<p><a onclick="openStrengthModal()" class="btn btn-primary btn-large" id="new_strength_button" class="buttons_in_but_container">New Strength</a></p>
-		<p><a onclick="openPostWODModal()" class="btn btn-primary btn-large" id="new_postwod_button" class="buttons_in_but_container">New Post WOD</a></p>
-	</div>
-	
+    	<div id="calendar_holder">
+            <div id="button_container">
+            <p><a onclick="openWODModal()" class="btn btn-primary btn-large" id="new_wod_button" class="buttons_in_but_container">New WOD</a></p>
+            <p><a onclick="openStrengthModal()" class="btn btn-primary btn-large" id="new_strength_button" class="buttons_in_but_container">New Strength</a></p>
+            <p><a onclick="openPostWODModal()" class="btn btn-primary btn-large" id="new_postwod_button" class="buttons_in_but_container">New Post WOD</a></p>
+        </div>
+        <div id="calendar"></div>
+        <div id="eventContent" title="Event Details">
+            <div id="eventInfo"></div>
+        </div>
+    </div>
+
 	<!--------------------------- TEST -------------------------------------->
 	
 	<div id="wod_form_modal" title="New WOD" style="display:none;">
@@ -153,8 +154,10 @@ if (isset($_SESSION['MM_UserID'])) {
 				<p class="new_wod_p"></p>
 			</div> <!-- END OF new_wod -->
 			<input onclick="addRow('','','');" type="button" value="Add row" id="addRowBut"/>
+            <input onclick="addRow('','','','add');" type="button" value="Add another part" id="addPartBut"/>
 			<input onclick="submitWOD(this.form);" type="button" value="Submit WOD" id="submitWodBut"/>
 		 </form>
+         
 		<p><a onclick="openScaledWODModal()" class="btn btn-primary btn-small">Set Scaled Movements</a></p>
 		
 		</div>
@@ -634,10 +637,18 @@ function addRow() {
 * and uses rowNum to id the paragraph and input text fields
 *
 */
-function addRow(movement, weight, reps) {
+function addRow(movement, weight, reps, part) {
 	rowNum++;
+	var row = "";
 	console.log("RowNum ADDED ROW: "+rowNum);
-	var row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'" value="'+movement+'"> Weight: <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'" value="'+weight+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'" value="'+reps+'"> <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
+	if(typeof part === "undefined" ) {
+	row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'" value="'+movement+'"> Weight: <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'" value="'+weight+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'" value="'+reps+'"> <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
+	} else if(part.length > 0) {
+		console.log("Adding part...");
+		//open modal with options here...
+		row = '<p id="rowNum'+rowNum+'">Extra part '+rowNum+': <input type="text" name="extra_part[]" class="extra_part" id="extra_part_'+rowNum+'" value=""><input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';	
+	} 
+	console.log("ROW: " + row);
 	$('.new_wod_p').append(row);
 }
 
@@ -727,6 +738,7 @@ function addScaledRows()
 			movement =  $('#movement_'+rowCount+'').val();
 			weight =  $('#weight_'+rowCount+'').val();
 			reps =  $('#reps_'+rowCount+'').val();
+			console.log("testing add scaled: " + field.name);
 			if(typeof movement === 'undefined')
 			{
 				console.log("UNDEFINED!!!! X = "+x+", RowCount: "+rowCount+", Movement: " +movement + ", Weight: " + weight + ", Reps: " + reps);
@@ -1337,7 +1349,7 @@ function resetFormModals() {
 	
 	$( "#wod_form_modal input" ).each(function(index, element) {
         console.log(index + " : " + $(this).text() + " : " + $(this).attr("id"));
-		if($(this).attr("id") == "removebutton" || $(this).attr("id") == "addRowBut" || $(this).attr("id") == "submitWodBut") {
+		if($(this).attr("id") == "removebutton" || $(this).attr("id") == "addRowBut" || $(this).attr("id") == "submitWodBut" || $(this).attr("id") == "addPartBut") {
 			console.log("button");
 		} else {
 			$(this).val('');

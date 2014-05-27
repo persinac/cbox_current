@@ -195,7 +195,7 @@ $(function() {
 			str += '<option value="INTER">Intermediate</option>';
 			str += '<option value="NOV">Novice</option>';
 			str += '</select><br>';
-			str += '<input onclick="today_compare(this.form);" type="button" id="compare_but" value="today" />';
+			str += '<input onclick="today_compare(this.form);" type="button" id="compare_but" value="Today" />';
 			//$('#div_compare_by').append(str);
 		} else if($(this).text() == "Search") {
 			console.log("Search");
@@ -232,7 +232,7 @@ $(function() {
 			str +="<option value=\"HERO\">HEROES</option>";
 			str +="</select><br>";
 			str += '</p>';
-			str += '<input onclick="search(this.form);" type="button" id="search_but" value="search" />';
+			str += '<input onclick="search(this.form);" type="button" id="search_but" value="Search" />';
 			
 		}
 		$('#div_compare_by').append(str);
@@ -242,7 +242,13 @@ $(function() {
 $( "#div_compare_by" ).on("change", "#compare_selector", function() {
     var str = "";
 	var second_str = "";
-	console.log("CHANGED");
+	console.log("Compare selector CHANGED");
+	//clear the page
+	$('#avg_score').empty();
+	$('#wod_actual_description').empty();
+	$('#tbl_body_leaderboard').empty();
+	$('#wod_list').empty();
+	
     $( "#compare_selector option:selected" ).each(function() 
 	{
 		$('#comparisons_to_add').empty();
@@ -277,6 +283,7 @@ $( "#div_compare_by" ).on("change", "#compare_selector", function() {
 			str +="</select>";
 			str +="<p></p>";
 			str += "Type of WOD: <select id=\"wod_type_selector\" name=\"wod_type_selector\">";
+			str +="<option value=\"NONE\">-</option>";
 			str +="<option value=\"ALL\">ALL</option>";
 			str +="<option value=\"RFT\">RFT</option>";
 			str += "<option value=\"AMRAP\">AMRAP</option>";
@@ -312,7 +319,7 @@ $( "#div_compare_by" ).on("change", "#wod_type_selector", function() {
             second_str+="<tbody class=\"tbl_body_wod_list\" id=\"tbl_body_wod_list\">";
             second_str+="</tbody></table>";
 			$('#wod_list').html(second_str);
-			second_str = "<th width=\"80\" height=\"25\">Date>/th>";
+			second_str = "<th width=\"80\" height=\"25\">Date</th>";
             second_str +="<th width=\"80\">Type of WOD</th>";
             second_str +="<th width=\"200\">Place</th>";
 			$('#wod_list_headers').append(second_str);
@@ -380,6 +387,10 @@ function getCurrentDate()
 
 function getLeaderBoardData(data) {
 	console.log("get leader board data: " + data);
+	$('#avg_score').empty();
+	$('#wod_actual_description').empty();
+	$('#tbl_body_leaderboard').empty();
+	$('#chart_div').empty();
 	var comma_index = data.indexOf(",");
 	var temp_str = "";
 	var date = "";
@@ -411,7 +422,8 @@ function getLeaderBoardData(data) {
 	  dataType: "json",  //data format      
 	  success: function(response) //on receive of reply
 	  {
-		console.log("get leaderboard content: " + response);
+		console.log("get leaderboard content: " + response + ", type of wod: " + response[0].type_of_wod);
+		type_of_wod_main = response[0].type_of_wod;
 		loadLeaderBoardData(response);
 		console.log(type_of_wod_main);
 		returnRatings(response, type_of_wod_main);
@@ -509,7 +521,7 @@ function loadCompareData(data_wods) {
 		rounds = data_wods[i].rounds;
 		date_link_id = "date_link_"+i;
 		console.log("date link id: " + date_link_id);
-		header_wod = "Past WODs";
+		//header_wod = "Past WODs";
 		var temp_descrip = "";
 		if(descrip.length > 42) {
 			temp_descrip = descrip.substring(0, 39);
@@ -533,7 +545,7 @@ function loadCompareData(data_wods) {
 	//Update html content
 	//alert("HTML: " + html);
 	$('#display_workout').empty();
-	$('#display_workout').append(header_wod);
+	//$('#display_workout').append(header_wod);
 	$('.tbl_body_wod_list').empty();
 	$('.tbl_body_wod_list').html(html_sec1);
 	header_wod = "";
@@ -661,7 +673,7 @@ function returnRatings(data_for_array, wod_type) {
 	var score = 0;
 	var rating = 0;
 	
-	console.log("Scores: ");
+	console.log("type pf wod: "+wod_type+", Scores: ");
 	if(wod_type == "AMRAP" || wod_type == "amrap") {
 		avg = calculateAMRAPRating(data_for_array);
 	} else {
