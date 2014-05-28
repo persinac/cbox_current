@@ -219,6 +219,26 @@ if (isset($_SESSION['MM_UserID'])) {
 		<div id="workoutcontent"></div>
 	  <p></p>
 	</div>
+    
+    <div id="newPartModal" title="Add new Section" style="display:none;">
+		<div id="newPartContent">
+            <form id="submitPartToText_form">
+            Rest for: <input type="text" name="rest_m" class="extra_wod_stuff" id="rest_m" placeholder="2 minutes..."/>
+            Type of WOD: <select id="wod_type_selector_modal" name="wod_type_selector_modal">
+            <option value="NONE"> - </option>
+            <option value="RFT">RFT</option>
+            <option value="AMRAP">AMRAP</option>
+            <option value="TABATA">TABATA</option>
+            </select>
+            <div id="specific_to_wod_modal"></div>
+            <div><p>
+            Penalty: <input type="text" name="penalty_m" class="extra_wod_stuff" id="penalty_m" placeholder="Everytime you drop the bar..."/>
+            Special: <input type="text" name="special_m" class="extra_wod_stuff" id="special_m" placeholder="Every minute on the minute..."/>
+            </p></div>
+            </form>
+            <button class="btn btn-success" id="submitPartToText">Submit</button>
+		</div>
+	</div>
 	
 </div><!-- END OF DIV CONTAINER -->
 
@@ -254,6 +274,8 @@ var data_two;
 var data_three;
 var hasLoadedScaled = false;
 var rowNum = 0;
+var extra_rowNum = 0;
+var max_count = 0;
 
 var previousVal = "";
 var currentVal = "";
@@ -606,6 +628,89 @@ $( "#specific_to_wod" ).on("change", "#girl_selector", function() {
 	}
 });
 
+$( "#newPartContent" ).on("change", "#wod_type_selector_modal", function() {
+	console.log("MODAL WOD SELECTOR CHANGED");
+	$('#specific_to_wod_modal').empty();
+	var str = "DEFAULT";
+	console.log($(this).val());
+	if($( this ).val() == "RFT"){
+		str = "Rounds: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\" placeholder=\"5, 21-15-9, etc\"/>";
+	} else if($( this ).val() == "AMRAP") {
+		str = "Time: <select size=\"1\" name=\"amrap_0\" class=\"num_of_rounds\" id=\"amrap_0\">";
+		//for loop to produce 00-24
+		for(var i = 0; i < 24; i++) {
+			if(i < 10) {
+				str += "<option value=\"0"+i+"\">0"+i+"</option>";
+			} else {
+				str += "<option value=\""+i+"\">"+i+"</option>";
+			}	
+		}
+		str +="</select>";
+		str += " : <select size=\"1\" name=\"amrap_1\" class=\"num_of_rounds\" id=\"amrap_1\">";
+		//for loop to produce 00-59
+		for(var i = 0; i < 60; i++) {
+			if(i < 10) {
+				str += "<option value=\"0"+i+"\">0"+i+"</option>";
+			} else {
+				str += "<option value=\""+i+"\">"+i+"</option>";
+			}	
+		}
+		str +="</select>";
+		str += " : <select size=\"1\" name=\"amrap_2\" class=\"num_of_rounds\" id=\"amrap_2\">";
+		//for loop to produce 00-59
+		for(var i = 0; i < 60; i++) {
+			if(i < 10) {
+				str += "<option value=\"0"+i+"\">0"+i+"</option>";
+			} else {
+				str += "<option value=\""+i+"\">"+i+"</option>";
+			}	
+		}
+		str +="</select>";
+	} else if($( this ).val() == "TABATA") {
+		str = "Number of Intervals: <input type=\"text\" name=\"num_of_rounds\" class=\"num_of_rounds\" id=\"num_of_rounds\"/>";
+	}
+	console.log("STR: " + str);
+	$('#specific_to_wod_modal').append(str);
+});
+
+$("#submitPartToText").click(function() {
+	console.log("CLICKED SUBMIT");
+	var tempArray = $('#submitPartToText_form').serializeArray();
+	var tempString = "";
+	
+	var amrap_time = "";
+	
+	
+	$.each(tempArray, function(i, field){
+		console.log("DATA TO STRING: " +field.name + ":" + field.value + " ");
+		var name = field.name;
+		if(name.indexOf("amrap_0") > -1 ) {
+			//alert("DATA: " +field.name + ":" + field.value + " ");
+			tempString += field.value;
+		} else if(name.indexOf("amrap_1") > -1 || name.indexOf("amrap_2") > -1 ) {
+			//alert("DATA: " +field.name + ":" + field.value + " ");
+			tempString += ":"+field.value;
+		} else {
+			tempString += field.value + "   ";
+		}
+	});	
+	console.log("Post build string: " + tempString + ", extra row num: " + extra_rowNum)
+	
+	for(var i = 0; i< extra_rowNum; i++) {
+		var elm = document.getElementById("extrapart_"+i+"");
+		console.log(elm);
+		if(elm === null) {
+			console.log("NULL")
+		} else {
+			if($("#extrapart_"+i+"").val().length < 1)
+				$("#extrapart_"+i+"").val(tempString);
+			else console.log("false");
+		} 
+	}
+	$("#newPartModal").dialog("close");
+	
+});	
+
 
 /********************************* GETTER METHODS *********************************/
 
@@ -638,18 +743,41 @@ function addRow() {
 *
 */
 function addRow(movement, weight, reps, part) {
-	rowNum++;
+	
 	var row = "";
-	console.log("RowNum ADDED ROW: "+rowNum);
+	var toReset = 0;
 	if(typeof part === "undefined" ) {
-	row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_'+rowNum+'" value="'+movement+'"> Weight: <input type="text" name="weight[]" class="weight" id="weight_'+rowNum+'" value="'+weight+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_'+rowNum+'" value="'+reps+'"> <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
+		rowNum++;
+		console.log("RowNum ADDED ROW: "+rowNum);
+		row = '<p id="rowNum'+rowNum+'">Movement: <input type="text" name="movement[]" class="movement" id="movement_9999" value="'+movement+'"> Weight: <input type="text" name="weight[]" class="weight" id="weight_9999" value="'+weight+'"> Reps: <input type="text" name="reps[]" class="reps" id="reps_9999" value="'+reps+'"> <input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';
 	} else if(part.length > 0) {
 		console.log("Adding part...");
+		toReset = 1;
+		console.log("extra_RowNum ADDED PART: "+extra_rowNum);
 		//open modal with options here...
-		row = '<p id="rowNum'+rowNum+'">Extra part '+rowNum+': <input type="text" name="extra_part[]" class="extra_part" id="extra_part_'+rowNum+'" value=""><input type="button" value="Remove" id="removebutton" onclick="removeRow('+rowNum+');"></p>';	
+		row = '<p id="extrarowNum'+extra_rowNum+'">Extra part '+extra_rowNum+': <input type="text" name="extrapart[]" class="extrapart" id="extrapart_'+extra_rowNum+'" value=""><input type="button" value="Remove" id="removebutton" onclick="removeRow('+extra_rowNum+', 1);"></p>';	
+		extra_rowNum++;
+		//open modal
+		//first set the html to go inside modal...
+		var html = '<form id="submitPartToText">';
+		html+= 'Type of WOD: <select id="wod_type_selector_modal" name="wod_type_selector_modal">';
+		html+='<option value="NONE"> - </option>';
+		html+='<option value="RFT">RFT</option>';
+		html+='<option value="AMRAP">AMRAP</option>';
+		html+='<option value="TABATA">TABATA</option>';
+		html+='</select>';
+		html+='<div id="specific_to_wod_modal"></div>';
+		html+='<div><p>';
+		html+='Penalty: <input type="text" name="penalty_m" class="extra_wod_stuff" id="penalty_m" placeholder="Everytime you drop the bar..."/>';
+		html+='Special: <input type="text" name="special_m" class="extra_wod_stuff" id="special_m" placeholder="Every minute on the minute..."/>';
+		html+='</p></div>';
+		html='<input type="button" value="Submit" id="submitPartToText" onclick="partToText();"></form>';
+		console.log(html);
+		openNewPartModal();
 	} 
 	console.log("ROW: " + row);
 	$('.new_wod_p').append(row);
+	resetIDs(toReset);
 }
 
 /*
@@ -660,62 +788,101 @@ function addRow(movement, weight, reps, part) {
 * Cannot remove the first line of inputs
 *
 */
-function removeRow(rnum) {
+function removeRow(rnum, extra) {
 	var movement =  "";
 	var weight =  "";
 	var reps =  "";
 	var counter = 0;
+	var counter_for_extra = 0;
 	var rowc  = 0;
 	movement =  $('#movement_'+rnum+'').val();
 	weight =  $('#weight_'+rnum+'').val();
 	reps =  $('#reps_'+rnum+'').val();
 	//metric = $('#rep_type_selector_'+rowNum+'').val();
-	$('#rowNum'+rnum).remove();
-	$('#inter_rowNum'+rnum).remove();
-	$('#nov_rowNum'+rnum).remove();
 	
+	var extra = (typeof extra === "undefined") ? 0 : extra;
 	
+	if(extra > 0) {
+		$('#extrarowNum'+rnum).remove();
+		$('#inter_extrarowNum'+rnum).remove();
+		$('#nov_extrarowNum'+rnum).remove();
+	} else {
+		$('#rowNum'+rnum).remove();
+		$('#inter_rowNum'+rnum).remove();
+		$('#nov_rowNum'+rnum).remove();
+	}
 	//alert("Exercise to remove: " + movementArray[rnum] + " " +weightArray[rnum]+ " " +repArray[rnum]);
 	//reset all the ids of existing rows
+	console.log("Extra: " + extra);
 	
+	//function: reset ID's
+	resetIDs(extra);
+	
+	if(rowNum > 0 && extra < 1) {
+		console.log("RowNum REMOVED ROW: "+rowNum);
+	} else if(extra_rowNum >= 0 && extra > 0) {
+		console.log("extra_RowNum REMOVED ROW: "+extra_rowNum);
+	}
+}
+
+function resetIDs(extra) {
+	var movement =  "";
+	var weight =  "";
+	var reps =  "";
+	var counter = 0;
+	var counter_for_extra = 0;
+	var rowc  = 0;
 	var myDiv = document.getElementById( "new_wod_row" ); 
 	var inputArr = myDiv.getElementsByTagName( "input" ); 
 	
-	console.log("ARRAYLENGTH: " + inputArr.length);
 	var hasChanged = false;
+	
+	if(extra > 0) {
+		console.log("Resetting IDs for extrarows");
+	} else {
+		console.log("Resetting IDs for exercises");
+	}
+	console.log("ARRAYLENGTH: " + inputArr.length);
+	
 	for (var i = 0; i < inputArr.length; i++) 
 	{ 
 		var tempString = inputArr[i].getAttribute( 'id' );
 		if(tempString == "removebutton") {
 			console.log("button");
 			console.log("i: "+i+", rowc: "+rowc);
-		}
-		 else {
+		} else if(tempString.indexOf("extrapart") > -1) {
+			console.log("extra part");
+			console.log("i: "+i+", rowc: "+rowc);
+			if(extra > 0) {				
+				//extract rowNum from the ID
+				var t_index = tempString.indexOf("_"); 
+				var t_id = tempString.substring(t_index+1, tempString.length);
+				console.log("tempString: "+tempString+", ID: "+t_id + ", INDEX: "+t_index +", counter: " + counter_for_extra); 
+				document.getElementById("extrapart_"+t_id+"").id = "extrapart_"+(counter_for_extra);
+				counter_for_extra++;
+				//extra_rowNum = counter_for_extra + 1;
+			}
+		} else if(extra < 1){
 			if(rowc%3==0) {
 				hasChanged = false;
 				counter++;
 			}
 			var t_index = tempString.indexOf("_"); 
 			var t_id = tempString.substring(t_index+1, tempString.length);
-			console.log("ID: "+t_id + ", INDEX: "+t_index +", rowCount variable: "+rowc+" counter: " + counter); 
+			console.log("tempString: "+tempString+", ID: "+t_id + ", INDEX: "+t_index +", rowCount variable: "+rowc+" counter: " + counter); 
 			if(document.getElementById("movement_"+t_id+"") && hasChanged == false)
 			{
-				//alert("movement_"+t_id+"  exists");
-				
 				document.getElementById("movement_"+t_id+"").id = "movement_"+(counter-1);
 				document.getElementById("weight_"+t_id+"").id = "weight_"+(counter-1);
 				document.getElementById("reps_"+t_id+"").id = "reps_"+(counter-1);
-				//document.getElementById("rep_type_selector_"+t_id+"").id = "rep_type_selector_"+(counter-1);
 				hasChanged = true;
+				//rowNum = counter;
 			}
 			rowc++;
 		}	
 	}
-	if(rowNum > 0) {
-			rowNum--;
-			console.log("RowNum REMOVED ROW: "+rowNum);
-		}
 }
+
 
 /*
 * Called from the  example_modal when user presses Load RX Data.
@@ -724,51 +891,110 @@ function removeRow(rnum) {
 * and weight automatically in form for better user experience
 * 
 */
+var ep_positon = 0;
+var ep_num = 0;
+var ep_id = "0,";
+var ep_array = new Array();
 function addScaledRows()
 {
+	if(ep_array.length > 0) {
+		while (ep_array.length > 0) {
+			ep_array.pop();
+		}
+	}
+
 	var movement =  "";
 	var weight =  "";
 	var reps =  "";
+	var extraInstruction = "";
 	var x = 7;
 	var rowCount = 0;
+	var extraRowCount = 0;
+	var totalRowCount = 0;
 	var newMvmArray = $("#new_wod_form").serializeArray();
 	$.each(newMvmArray, function(i, field){
-		if(i >= 7 && i%3==1) {
+		if(i >= 7 && i%3==1 && field.name !== "extrapart[]") {
 			x = i;
-			movement =  $('#movement_'+rowCount+'').val();
-			weight =  $('#weight_'+rowCount+'').val();
-			reps =  $('#reps_'+rowCount+'').val();
 			console.log("testing add scaled: " + field.name);
-			if(typeof movement === 'undefined')
-			{
+			if(typeof movement === 'undefined') {
 				console.log("UNDEFINED!!!! X = "+x+", RowCount: "+rowCount+", Movement: " +movement + ", Weight: " + weight + ", Reps: " + reps);
 			} else {
+				movement =  $('#movement_'+rowCount+'').val();
+				weight =  $('#weight_'+rowCount+'').val();
+				reps =  $('#reps_'+rowCount+'').val();
 				movementArray.push(movement);
 				weightArray.push(weight);
 				repArray.push(reps);
-			 }
-			rowCount++;
+				rowCount++;
+			}
+			x = i + 3
+			console.log("rowCount: " + rowCount)
+		} else if(field.name === "extrapart[]"){
+			extraInstruction = "E98734" + $('#extrapart_'+extraRowCount+'').val();
+			console.log("Extra Part: " + extraInstruction);
+			movementArray.push(extraInstruction);
+			weightArray.push(" ");
+			repArray.push(" ");
+			extraRowCount++;
+			ep_num = extraRowCount;
+			ep_positon = rowCount + extraRowCount;
+			/*ep_id.substring(0) = ep_num;
+			ep_id.substring(ep_id.indexOf(",")+1) = ep_id.concat(ep_position;
+			*/
+			ep_array.push(ep_positon);
 		}
-		x = i + 3
+		totalRowCount++;
   	});
+	
+	ep_array.push(ep_num);
+	ep_id = ep_array[ep_array.length-1] + ",";
+	console.log("EP ID: " + ep_id);
+	for(var t = 0; t < ep_array.length; t++) {
+		if(typeof ep_array[t+1] !== "undefined") {
+			ep_id = ep_id.concat(ep_array[t] + ",");
+		}
+		console.log("EP ID for loop: " + ep_id );
+	}
+	
 	
 	for(var k = 0; k < movementArray.length; k++)
 	{
-		console.log("Row to be inserted: " + movementArray[k] + " "+weightArray[k]+" "+ repArray[k]);
+		if(movementArray[k].indexOf("E98734") < 0 ) {
+			console.log("Row to be inserted: " + movementArray[k] + " "+weightArray[k]+" "+ repArray[k]);
+		} else {
+			console.log("New Part: " + movementArray[k]);
+		}
 	}
 	if(movementArray.length > 0) 
 	{
 		var row = "";
+		var inter_extra_row_inc = 0;
+		var nov_extra_row_inc = 0;
+		var substring = 0;
 		//first intermediate
 		$('#inter_new_wod_row').empty();
 		for(var i = 0; i < movementArray.length; i++) 
 		{	
-			row = '<p id="inter_rowNum'+i+'">Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_'+i+'" value="'+ movementArray[i] +'"> Weight: <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_'+i+'" value="'+weightArray[i]+'"> Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_'+i+'" value="'+repArray[i]+'"></p>';
+			substring = movementArray[i].indexOf("E98734");
+			if(substring < 0 ) {
+				row = '<p id="inter_rowNum'+i+'">Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_'+i+'" value="'+ movementArray[i] +'"> Weight: <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_'+i+'" value="'+weightArray[i]+'"> Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_'+i+'" value="'+repArray[i]+'"></p>';
+			} else {
+				console.log("Substring: " + substring);
+				row = '<p id="inter_extrarowNum'+inter_extra_row_inc+'">Extra part: <input type="text" name="inter_extrapart[]" class="inter_extrapart" id="inter_extrapart_'+inter_extra_row_inc+'" value="'+movementArray[i].substring(6)+'"></p>';	
+				inter_extra_row_inc++;
+			}
 			$('#inter_new_wod_row').append(row);
 		}
 		$('#novice_new_wod_row').empty();
 		for(var j = 0; j < movementArray.length; j++) {
-			row = '<p id="nov_rowNum'+j+'">Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_'+j+'" value="'+ movementArray[j] +'"> Weight: <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_'+j+'" value="'+weightArray[j]+'"> Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_'+j+'" value="'+repArray[j]+'"></p>';
+			substring = movementArray[j].indexOf("E98734");
+			if(substring < 0 ) {
+				row = '<p id="nov_rowNum'+j+'">Movement: <input type="text" name="nov_movement[]" class="nov_movement" id="nov_movement_'+j+'" value="'+ movementArray[j] +'"> Weight: <input type="text" name="nov_weight[]" class="nov_weight" id="nov_weight_'+j+'" value="'+weightArray[j]+'"> Reps: <input type="text" name="nov_reps[]" class="nov_reps" id="nov_reps_'+j+'" value="'+repArray[j]+'"></p>';
+			} else {
+				console.log("Substring: " + substring);
+				row = '<p id="nov_extrarowNum'+nov_extra_row_inc+'">Extra part: <input type="text" name="nov_extrapart[]" class="nov_extrapart" id="nov_extrapart_'+nov_extra_row_inc+'" value="'+movementArray[j].substring(6)+'"></p>';	
+				nov_extra_row_inc++;
+			}
 			$('#novice_new_wod_row').append(row);
 		}
 	}
@@ -786,6 +1012,10 @@ function addScaledRows()
 function loadRxIntoScale()
 {
 	//alert("Load RX data into Scaled form");
+}
+
+function submitPartToText(form) {
+	
 }
 
 /*********************************** FINAL SUBMIT *****************************************/
@@ -807,6 +1037,8 @@ var data_array_2;
 function submitWOD() {
 	if(hasLoadedScaled == true) {
 		var sendRequest = true;
+		var num_of_movements = 0;
+		var num_of_parts = 0;
 		if($("#datepicker").val().length == 0){
 			sendRequest = false;
 		}
@@ -872,11 +1104,19 @@ function submitWOD() {
 				field.value = "RFT";
 				data_four.push({ name: "num_of_rounds", value: number_of_rounds });
 				data_four.push({ name: "girl_id", value: id_of_girl });
-			}
+			} else if(field.name.indexOf("extrapart[]") > -1) {
+				console.log("i :" + i);
+				if(field.name.indexOf("inter_extrapart[]") > -1) {
+					data_four.splice(i, 1, {name:"inter_movement[]", value:"r0000*"+field.value});
+				} else if(field.name.indexOf("nov_extrapart[]") > -1) {
+					data_four.splice(i, 1, {name:"nov_movement[]", value:"r0000*"+field.value});
+				} else {
+					data_four.splice(i, 1, {name:"movement[]", value:"r0000*"+field.value});
+				}
+			}	
 		});
 		
 		data_four.push({ name: "amrap_time_update", value: amrap_time });
-		
 		
 		$.each(data_four, function(i, field){
 			console.log("DATA ROUND TWO: " +field.name + ":" + field.value + " ");
@@ -1274,6 +1514,17 @@ function openStrengthModal() {
 
 function openPostWODModal() {
     openModal("Post WOD", "This feature is not yet implemented", '', 200);
+}
+
+function openNewPartModal() {
+    $( "#newPartModal" ).dialog({
+      height: 400,
+	  width: 600,
+      modal: true
+    });
+
+	$( "#newPartModal" ).dialog();
+	
 }
 
 function openModal(title, info, shouldFormat, height, width) {

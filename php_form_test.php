@@ -35,7 +35,6 @@ $t_amrap_time = "";
 $t_rft_rounds = "";
 $t_is_custom = "0";
 
-
 $t_string_builder = "";
 $rx_wod = "";
 $inter_wod = "";
@@ -45,6 +44,7 @@ $mystring = $t_wod_specifics;
 $findme   = '-';
 $pos = strpos($mystring, $findme);
 
+echo "Parts: " . $t_num_of_parts . ", Position: " . $t_position;
 
 if($t_typeOfWOD == "GIRLS") {
 	$t_typeOfWOD = $t_girl_wod;	
@@ -103,6 +103,7 @@ if(!(empty($t_typeOfWOD))) {
  */
 if ($pos === false) {
 	//echo " NO DASHES ";
+	$first_count = 0;
     foreach( $_POST['movement'] as $cnt => $mvmnt ) 
 	{
 		$t_movement = $_POST['movement'][$cnt];
@@ -111,14 +112,24 @@ if ($pos === false) {
 		
 		if(strlen($t_weight) > 0) 
 		{
-			$rx_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$rx_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;";
+			} else {
+				$rx_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+			}
 		} 
 		else 
 		{
-			$rx_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$rx_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;";
+			} else {
+				$rx_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+			}
 		}
 	}
-
+	
 	foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
 	{
 		$t_movement = $_POST['inter_movement'][$cnt];
@@ -127,11 +138,21 @@ if ($pos === false) {
 		
 		if(strlen($t_weight) > 0) 
 		{
-			$inter_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$inter_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;";
+			} else {
+				$inter_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+			}
 		} 
 		else 
 		{
-			$inter_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$inter_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;";
+			} else {
+				$inter_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+			}
 		}
 	}
 
@@ -143,11 +164,21 @@ if ($pos === false) {
 		
 		if(strlen($t_weight) > 0) 
 		{
-			$nov_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$nov_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;";
+			} else {
+				$nov_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
+			}
 		} 
 		else 
 		{
-			$nov_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$nov_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;";
+			} else {
+				$nov_wod .= $t_reps . " reps of " . $t_movement . ", " ;
+			}
 		}
 	}
 } else {
@@ -164,11 +195,21 @@ if ($pos === false) {
 		
 		if(strlen($t_weight) > 0) 
 		{
-			$rx_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$rx_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;";
+			} else {
+				$rx_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+			}
 		} 
 		else 
 		{
-			$rx_wod .= $t_movement . ", " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$rx_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;";
+			} else {
+				$rx_wod .= $t_movement . ", " ;
+			}
 		}
 	}
 
@@ -180,11 +221,21 @@ if ($pos === false) {
 		
 		if(strlen($t_weight) > 0) 
 		{
-			$inter_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$inter_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;";
+			} else {
+				$inter_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+			}
 		} 
 		else 
 		{
-			$inter_wod .= $t_movement . ", " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$inter_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;";
+			} else {
+				$inter_wod .= $t_movement . ", " ;
+			}
 		}
 	}
 
@@ -196,11 +247,21 @@ if ($pos === false) {
 		
 		if(strlen($t_weight) > 0) 
 		{
-			$nov_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$nov_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;";
+			} else {
+				$nov_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
+			}
 		} 
 		else 
 		{
-			$nov_wod .= $t_movement . ", " ;
+			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+			if($t_to_compare == "r0000") {
+				$nov_wod .= " then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;";
+			} else {
+				$nov_wod .= $t_movement . ", " ;
+			}
 		}
 	}
 }
