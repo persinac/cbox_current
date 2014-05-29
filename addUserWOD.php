@@ -32,6 +32,11 @@ $t_pwod_id = $_POST['pwod_id'];
 $t_strength_id = $_POST['strength_id'];
 $t_actual_time = $_POST['actualTime'];
 $t_wod_type = $_POST['wod_type'];
+$t_mixed_score = "-";
+
+if($t_wod_type == "MIXED") {
+	$t_mixed_score = $_POST['mixed_score'];
+}
 
 $t_string_builder = ""; //nice to have
 
@@ -77,6 +82,9 @@ echo ", ".$t_strength_id;
 echo ", ".$t_actual_time;
 echo " GirlID: " . $t_girlID;
 echo " WOD Type: " . $t_wod_type;
+if($t_wod_type == "MIXED") {
+	echo " Mixed score:  ".$t_mixed_score;
+}
 */
 
 if($t_wod_type == "RFT") {
@@ -89,9 +97,27 @@ if($t_wod_type == "RFT") {
 	$getTime = mysql_query($query_get_time, $cboxConn) or die(mysql_error());
 	$row = mysql_fetch_array($getTime);
 	$t_time = $row[0];
+} else if ($t_wod_type == "MIXED") {
+	$t_time = "-";
+	$t_rounds_compl = "-";
 }
 
-$query_insert_wod = "insert into athlete_wod values ('{$t_user_id}', '{$t_wodID}', '{$t_wod_descrip}', '{$t_level_perf}', '{$t_rounds_compl}', '{$t_time}', '{$t_pwod_id}', '{$t_strength_id}', '{$t_actual_time}')";
+echo " ". $t_user_id;
+echo ", ".$t_wodID;
+echo ", ".$t_wod_descrip;
+echo ", ".$t_level_perf;
+echo ", ".$t_rounds_compl;
+echo ", ".$t_time;
+echo ", ".$t_pwod_id;
+echo ", ".$t_strength_id;
+echo ", ".$t_actual_time;
+echo ", GirlID: " . $t_girlID;
+echo ", WOD Type: " . $t_wod_type;
+if($t_wod_type == "MIXED") {
+	echo ", Mixed score:  ".$t_mixed_score;
+}
+
+$query_insert_wod = "insert into athlete_wod values ('{$t_user_id}', '{$t_wodID}', '{$t_wod_descrip}', '{$t_level_perf}', '{$t_rounds_compl}', '{$t_time}', '{$t_pwod_id}', '{$t_strength_id}', '{$t_actual_time}', '{$t_mixed_score}')";
 echo $query_insert_wod;
 $retval = mysql_query( $query_insert_wod, $cboxConn );
 if(! $retval )
@@ -99,19 +125,19 @@ if(! $retval )
   die('Could not enter data: ' . mysql_error());
   
 } else {
-if(strlen($t_girlID) > 0) {
-	  if($t_wod_type == "RFT") {
-	  	$query_insert_benchmark = "insert into benchmarks values ('{$t_user_id}', '{$t_girlID}', '', '', '{$t_actual_time}', '{$t_wod_id}', '', 'r')";
-	  } else {
-		 $query_insert_benchmark = "insert into benchmarks values ('{$t_user_id}', '{$t_girlID}', '', '', '', '{$t_wod_id}', '{$t_actual_time}', 'r')"; 
-	  }
-		echo $query_insert_benchmark;
-		$retval = mysql_query( $query_insert_benchmark, $cboxConn );
-		if(! $retval )
-		{
-  			die('Could not enter data: ' . mysql_error());
-		}
-  }	
+	if(strlen($t_girlID) > 0) {
+		  if($t_wod_type == "RFT") {
+			$query_insert_benchmark = "insert into benchmarks values ('{$t_user_id}', '{$t_girlID}', '', '', '{$t_actual_time}', '{$t_wod_id}', '', 'r')";
+		  } else {
+			 $query_insert_benchmark = "insert into benchmarks values ('{$t_user_id}', '{$t_girlID}', '', '', '', '{$t_wod_id}', '{$t_actual_time}', 'r')"; 
+		  }
+			echo $query_insert_benchmark;
+			$retval = mysql_query( $query_insert_benchmark, $cboxConn );
+			if(! $retval )
+			{
+				die('Could not enter data: ' . mysql_error());
+			}
+	  }	
 }
 echo "Entered data successfully\n";
 mysql_close($cboxConn);

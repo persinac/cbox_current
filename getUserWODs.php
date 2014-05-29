@@ -63,6 +63,7 @@ $query_getUserWODs = "SELECT aw.wod_id
 	, w.type_of_wod
 	, aw.time_comp
 	, aw.rounds_compl
+	, aw.mixed_score
 	, CASE WHEN (aw.level_perf = 'RX') THEN w.rx_descrip
 		WHEN (aw.level_perf = 'IN') THEN w.inter_descrip
 		WHEN (aw.level_perf = 'NO') THEN w.nov_descrip
@@ -88,7 +89,7 @@ FROM athlete_wod AS aw
 	JOIN wods AS w ON aw.wod_id=w.wod_id
 	LEFT OUTER JOIN strength AS str ON aw.str_id = str.str_id
 	LEFT OUTER JOIN post_wod AS p ON aw.pwod_id = p.pwod_id
-WHERE aw.user_id = '{$colname_getUserWODs}%'";
+WHERE aw.user_id = '{$colname_getUserWODs}'";
 $getUserWODs = mysql_query($query_getUserWODs, $cboxConn) or die(mysql_error());
 #$rows = mysql_fetch_assoc($getUserBenchmarks);
 $totalRows_getUserWODs = mysql_num_rows($getUserWODs);

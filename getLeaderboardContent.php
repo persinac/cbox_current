@@ -77,6 +77,8 @@ $order_by = "";
 
 if($t_type_of_wod == "AMRAP") {
 	$order_by = "ORDER BY CONVERT(score, SIGNED) DESC";
+} else if($t_type_of_wod == "MIXED") {
+	$order_by = "ORDER BY CONVERT(SUBSTRING(score, LOCATE('Final', score)+6), SIGNED) DESC";
 } else {
 	$order_by = "ORDER BY score";
 }	
@@ -116,6 +118,7 @@ if(strlen($t_level_perf) < 1) {
 $query_getLeaderBoardContent = "select w.rx_descrip AS descrip, CONCAT(a.first_name, ' ', a.last_name) AS name, 
 CASE WHEN (w.type_of_wod = 'RFT') THEN aw.time_comp
  WHEN (w.type_of_wod = 'AMRAP') THEN aw.rounds_compl
+ WHEN (w.type_of_wod = 'MIXED') THEN aw.mixed_score
 END AS score,
 a.user_id AS user_id,
 aw.level_perf AS level_perf,

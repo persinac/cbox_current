@@ -733,6 +733,8 @@ function changeTextColorOfTables() {
 				rounds_completed = data[i].rounds_compl + " rounds";
 			} else if (type_of_wod == "AMRAP" || type_of_wod == "ME" || type_of_wod == "TABATTA" ) {
 				rounds_completed = data[i].rounds_compl + " reps";
+			} else if (type_of_wod == "MIXED") {
+				rounds_completed = data[i].mixed_score.substring(data[i].mixed_score.indexOf("Final")+6) + " reps";
 			}
 			time_completed = data[i].time_comp;
 			if(data[i].str_mov != "") {

@@ -149,6 +149,9 @@ if ($result = $mysqli->query($query_getAdminWODs)) {
 		} else if($w->type_of_wod == "RFT") {
 			$w->title = "Conditioning: RFT";
 			$w->color = "orange";
+		} else if($w->type_of_wod == "MIXED") {
+			$w->title = "Conditioning: MIXED";
+			$w->color = "blue";
 		}
 
 		$wods[] = $w;

@@ -39,44 +39,24 @@ if (isset($_SESSION['MM_UserID'])) {
 $link = "index.html";
 if ($_SESSION['MM_Admin'] == "0") {$link = "User_Home_Page.php";} //Default Blank 
 else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMMENT 
-########
-#REMOVE ME
-########
-if (!(isset($_SESSION['MM_UserID']))) {
-  $colname_getUserBenchmarks = 1;
-  $_SESSION['MM_Username']= "persinac";
-}
 
-	#if(!(isset($_SESSION['MM_Username'])))
-	#{
-	#	header("Location: Error401UnauthorizedAccess.php");
-	#}
-
-mysql_select_db($database_cboxConn, $cboxConn);
-
-###
-# Defualt view is Crossfit->Foundamental benchmarks
-###
-#$movement_id = "cft";
-#$query_getUserWoD = "";
-#$getUserWoD = mysql_query($query_getUserWoD, $cboxConn) or die(mysql_error());
-#$rows = mysql_fetch_assoc($getUserBenchmarks);
-#$totalRows_getUserBenchmarks = mysql_num_rows($getUserWoD);
-
-
-
-	
 ?>
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Untitled Document</title>
-<!-- Bootstrap core CSS and Custom CSS-->
-
-<link href="dist/css/bootstrap.min.css" rel="stylesheet"> 
-<link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
-<link href="dist/css/user_wod_page.css" rel="stylesheet">
+<title>WOD</title>
+	<!-- Bootstrap core CSS and Custom CSS-->
+	<link href="dist/css/user_wod_page.css" rel="stylesheet">
+	<link href="dist/css/bootstrap.min.css" rel="stylesheet">
+ 	<link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="dist/css/jquery.qtip.css" />
+    <link href="dist/css/jquery.datepick.css" rel="stylesheet">
+	
+	<!-- Calendar stuff -->
+	<link href='dist/fullcalendar/fullcalendar.css' rel='stylesheet' />
+	<link href='dist/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
 <style>
 	p#wod_descrip {text-indent:15px;}
 </style>
@@ -84,150 +64,141 @@ mysql_select_db($database_cboxConn, $cboxConn);
 
 <body>
 <div id="container">
-<div id="navbar_main">
-  <ul id="navbar_main_ul"> 
-	<li id="home" ><?php echo "<a href='$link' >"; ?>HOME</a></li> 
-	<li id="compare"><a href="user_compare_page.php" >COMPARE</a></li> 
-	<li id="wod" class="active"><a href="#" >WOD</a></li> 
-	<li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li> 
-	<li id="account" ><a href="#" >ACCOUNT</a></li> 
-	<li id="logout" ><a href="#" >LOGOUT</a></li>
-  </ul> 
-</div>
 
-<div id="image_div">
-	<img src="images/wod_page/WOD_PAGE_CFAPP2.jpg" width="1224" height="792" alt=""/>
-</div>
-<div id="data_container">
-	
-	<div id="box_loc">
-		<h3 id="h_box_loc">box location and logo</h3>
-    </div>
+	<div id="navbar_main">
+	  <ul id="navbar_main_ul"> 
+		<li id="home" ><?php echo "<a href='$link' >"; ?>HOME</a></li> 
+		<li id="compare"><a href="user_compare_page.php" >COMPARE</a></li> 
+		<li id="wod" class="active"><a href="#" >WOD</a></li> 
+		<li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li> 
+		<li id="account" ><a href="#" >ACCOUNT</a></li> 
+		<li id="logout" ><a href="#" >LOGOUT</a></li>
+	  </ul> 
+	</div>
+
+	<div id="image_div">
+		<img src="images/wod_page/WOD_PAGE_CFAPP2.jpg" width="1224" height="792" alt=""/>
+	</div>
+	<div id="data_container">
+		
+		<div id="box_loc">
+			<h3 id="h_box_loc"></h3>
+		</div>
+		
+		<div id="wod_div"> 
+			<p id="temp_para"></p>
+		</div>
+		
+		<div id="post_wod_div">
+			<p id="temp_pwod"></p>
+		</div>
+		
+		<div id="strength_div">
+			<p id="temp_strength"></p>
+		</div>
+		
+		<div id="add_custom_modal" class="modal" style="display:none; ">
+			<div class="modal-header">
+			  <a class="close" data-dismiss="modal">×</a>
+			  <h3>Add WOD</h3>
+			</div>
+			<div class="modal-body">
+				<!-- Grab number of rows and place that many into here -->  
+				<form method="POST" id="add_custom_wod_form" class="add_wod">
+					<div id="add_wod_row">
+					<h4>WOD</h4>
+						Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_0"/> 
+						Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_0"/> 
+						Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_0"/>
+						<p></p>   
+					</div> <!-- END OF new_wod -->
+				 </form> 
+			</div>
+			<div class="modal-footer">
+			  <button class="btn btn-success" id="load">Load RX Data</button>
+			  <button class="btn btn-success" id="submit">submit</button>
+			  <a href="#" class="btn" data-dismiss="modal">Close</a>
+			</div>
+		</div>
+		
+		<!-- Strength pop up -->
+		<div id="strength_modal" class="modal" style="display:none; ">
+			<div class="modal-header">
+			  <a class="close" data-dismiss="modal">×</a>
+			  <h3>Add Strength</h3>
+			</div>
+			<div class="modal-body">
+				<!-- Grab number of rows and place that many into here -->  
+				<form method="POST" id="add_strength_form" class="add_strength">
+					<div id="add_strength_row">
+					<h4>Strength</h4>
+						Set 1 Weight: <input type="text" name="strength_weight_0" class="strength_weight" id="strength_weight_0" /> lbs Reps Completed: <input type="text" name="strength_reps_0" class="strength_reps" id="strength_reps_0" /> 
+						<p></p>   
+					</div> <!-- END OF new_strength -->
+				 </form> 
+			</div>
+			<div class="modal-footer">
+			  <button class="btn btn-success" onclick="addRow(this.form);" type="button" id="add_strength">Add Set</button>
+			  <button class="btn btn-success" id="submit_strength">Submit</button>
+			  <a href="#" class="btn" data-dismiss="modal">Close</a>
+			</div>
+		</div>
+		
+		
+		<div class="btn-group" id="level_selector">
+		  <button type="button" class="btn btn-default" id="lvl_rx">RX</button>
+		  <button type="button" class="btn btn-default" id="lvl_inter">Intermediate</button>
+		  <button type="button" class="btn btn-default" id="lvl_nov">Novice</button>
+		</div>
+		
+		<div id="button_holder">
+			<p>
+				<button class="btn btn-primary" data-toggle="modal" name="wod_" id="wod_" type="button">Add WOD</button>
+				</p><p>
+				<a data-toggle="modal" href="#" class="btn btn-default" name="wod_custom" id="wod_custom">Add Scaled WOD</a>
+				</p><p>
+				<button class="btn btn-primary" data-toggle="modal" name="strength" id="strength" type="button">Add Strength</button>
+				</p><p>
+				<button class="btn btn-default" name="post_wod" id="post_wod" type="button">Add Post WOD</button>
+				</p><p>
+				<button class="btn btn-primary" name="rest" id="rest" type="button">Rest Day</button>
+			</p>
+		</div>
+		
+	</div> <!-- END data_container -->
     
-    <div id="wod_div"> 
-    	<p id="temp_para">wod stuff goes here</p>
-    </div>
-    
-    <div id="post_wod_div">
-    	<p id="temp_pwod">post wod stuff</p>
-    </div>
-    
-    <div id="strength_div">
-    	<p id="temp_strength">strength stuff</p>
-    </div>
-	
-	<div id="add_custom_modal" class="modal" style="display:none; ">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">×</a>
-          <h3>Add WOD</h3>
-        </div>
-        <div class="modal-body">
-        	<!-- Grab number of rows and place that many into here -->  
-            <form method="POST" id="add_custom_wod_form" class="add_wod">
-                <div id="add_wod_row">
-                <h4>WOD</h4>
-                    Movement: <input type="text" name="inter_movement[]" class="inter_movement" id="inter_movement_0"/> 
-                    Weight (leave blank if bodyweight): <input type="text" name="inter_weight[]" class="inter_weight" id="inter_weight_0"/> 
-                    Reps: <input type="text" name="inter_reps[]" class="inter_reps" id="inter_reps_0"/>
-                    <p></p>   
-                </div> <!-- END OF new_wod -->
-             </form> 
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-success" id="load">Load RX Data</button>
-          <button class="btn btn-success" id="submit">submit</button>
-          <a href="#" class="btn" data-dismiss="modal">Close</a>
-        </div>
-    </div>
-	
-	<!-- Rounds for time pop up -->
-	<div id="rft_modal" class="modal" style="display:none; ">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">×</a>
-          <h3>Add WOD</h3>
-        </div>
-        <div class="modal-body">
-        	<!-- Grab number of rows and place that many into here -->  
-            <form method="POST" id="add_rft_wod_form" class="add_wod">
+    <div id="newRFTWOD" title="Add new WOD" class="new_modals" style="display:none;">
+		<div id="newRFTContent">
+			<form method="POST" id="add_rft_wod_form" class="add_wod">
                 <div id="rft_time_row">
                     Time: <input type="text" name="rft_time" class="rft_time" id="rft_time" placeholder="00:00:00"/> 
                     <p></p>   
                 </div> <!-- END OF new_wod -->
              </form> 
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-success" id="submit_rft">Submit</button>
-          <a href="#" class="btn" data-dismiss="modal">Close</a>
-        </div>
-    </div>
+		</div>
+		<button class="btn btn-success" id="submit_rft">Submit</button>
+	</div>
     
-    <!-- AMRAP/Tabata pop up -->
-    <div id="amrap_modal" class="modal" style="display:none; ">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">×</a>
-          <h3>Add WOD</h3>
-        </div>
-        <div class="modal-body">
-        	<!-- Grab number of rows and place that many into here -->  
-            <form method="POST" id="add_amrap_wod_form" class="add_wod">
+    
+    <div id="newAMRAPWOD" title="Add new WOD" class="new_modals" style="display:none;">
+		<div id="newAMRAPContent">
+			<form method="POST" id="add_amrap_wod_form" class="add_wod">
                 <div id="add_wod_row">
                 <h4>WOD</h4>
-                    Reps: <input type="text" name="amrap_reps" class="amrap_reps" id="amrap_reps" placeholder="total reps accumulated"/> 
+                    Reps: <input type="text" name="amrap_reps" class="amrap_reps" id="amrap_reps"/> 
                     <p></p>   
                 </div> <!-- END OF new_wod -->
              </form> 
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-success" id="submit_amrap">Submit</button>
-          <a href="#" class="btn" data-dismiss="modal">Close</a>
-        </div>
-    </div>
-	
-	<!-- Strength pop up -->
-    <div id="strength_modal" class="modal" style="display:none; ">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">×</a>
-          <h3>Add Strength</h3>
-        </div>
-        <div class="modal-body">
-        	<!-- Grab number of rows and place that many into here -->  
-            <form method="POST" id="add_strength_form" class="add_strength">
-                <div id="add_strength_row">
-                <h4>Strength</h4>
-                    Set 1 Weight: <input type="text" name="strength_weight_0" class="strength_weight" id="strength_weight_0" /> lbs Reps Completed: <input type="text" name="strength_reps_0" class="strength_reps" id="strength_reps_0" /> 
-                    <p></p>   
-                </div> <!-- END OF new_strength -->
-             </form> 
-        </div>
-        <div class="modal-footer">
-		  <button class="btn btn-success" onclick="addRow(this.form);" type="button" id="add_strength">Add Set</button>
-          <button class="btn btn-success" id="submit_strength">Submit</button>
-          <a href="#" class="btn" data-dismiss="modal">Close</a>
-        </div>
-    </div>
-	
-	
-	<div class="btn-group" id="level_selector">
-	  <button type="button" class="btn btn-default" id="lvl_rx">RX</button>
-	  <button type="button" class="btn btn-default" id="lvl_inter">Intermediate</button>
-	  <button type="button" class="btn btn-default" id="lvl_nov">Novice</button>
+		</div>
+		<button class="btn btn-success" id="submit_amrap">Submit</button>
 	</div>
-	
-	<div id="button_holder">
-		<p>
-			<button class="btn btn-primary" data-toggle="modal" name="wod_" id="wod_" type="button">Add WOD</button>
-			</p><p>
-			<a data-toggle="modal" href="#" class="btn btn-default" name="wod_custom" id="wod_custom">Add Scaled WOD</a>
-			</p><p>
-			<button class="btn btn-primary" data-toggle="modal" name="strength" id="strength" type="button">Add Strength</button>
-			</p><p>
-			<button class="btn btn-default" name="post_wod" id="post_wod" type="button">Add Post WOD</button>
-			</p><p>
-			<button class="btn btn-primary" name="rest" id="rest" type="button">Rest Day</button>
-		</p>
+    
+	<div id="newMixedWOD" title="Add new WOD" class="new_modals" style="display:none;">
+		<div id="newPartContent">
+		
+		</div>
+		<button class="btn btn-success" id="submitMixedScore">Submit</button>
 	</div>
-
-</div> <!-- END data_container -->
 </div> <!-- END div_container -->
 
 
@@ -235,23 +206,32 @@ mysql_select_db($database_cboxConn, $cboxConn);
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 
+<!-- These must be in THIS ORDER! DO NOT FUCK WITH -->
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="dist/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="dist/js/jquery.plugin.js"></script> 
-<script type="text/javascript" src="dist/js/jquery.datepick.js"></script>
+
+
+<!-- Required for full calendar -->
+<script src='dist/lib/moment.min.js'></script>
+<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+
+<!-- Required for date picker -->
+<script src="dist/js/jquery.plugin.min.js"></script>
+<script src="dist/js/jquery.datepick.min.js"></script> 
+
+<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
 
 <script id="source" language="javascript" type="text/javascript">
 $(document).ready(function() {
-	//load everything
-	//first get the current date
 	getCurrentDate();
 	getBoxName();
-	//get wod
 	getWOD("rx");
-	//get postWod
-	//get strength
 	getStrength();
 });
+
+var unformattedWOD = "";
+
 
 $("#navbar_main_ul li").click(function() {
 		//event.preventDefault();
@@ -290,19 +270,13 @@ $(function(){
 		if(wod_type == "rft" || wod_type == "RFT") {
 			type_of_wod = "RFT";
 			//generate time dropdown function
-			modalHeight = ($(this).height() / 2 ) + 'in !important';
-			modalWidth = ($(this).width() / 2 ) + 'in !important';
-			$('#rft_modal').css('margin-top', modalHeight);
-			$('#rft_modal').css('margin-left', modalWidth);
-			$('#rft_modal').modal('show');
+			openNewRFTModal();
 			generateRFTModalDropDown();
 		} else if (wod_type == "amrap" || wod_type == "AMRAP") {
 			type_of_wod = "AMRAP";
-			modalHeight = ($(this).height() / 2 ) + 'in !important';
-			modalWidth = ($(this).width() / 2 ) + 'in !important';
-			$('#amrap_modal').css('margin-top', modalHeight);
-			$('#amrap_modal').css('margin-left', modalWidth);
-			$('#amrap_modal').modal('show');
+			openNewAMRAPModal();
+		} else if (wod_type == "mixed" || wod_type == "MIXED") {
+			openNewPartModal();
 		}
 		//alert(wod_description + " " + wod_name + " "+wod_type+" "+level_perf+" " );
 	});
@@ -347,7 +321,7 @@ $(function() {
 		var pwod_id = "";
 		var strID = "";
 		var actualTime = "";
-		var time_comp = "";
+		var time_comp = ""; 
 		var rounds_compl = 1;
 		
 		var name = "";
@@ -371,7 +345,7 @@ $(function() {
 				data: { 
 					"wod_id": today, //build this based on box id and date - I've got this variable in PHP
 					"wod_descrip" : "", 
-					"level_perf" : level_perf,
+					"level_perf" : level_perf.toUpperCase(),
 					"rounds_compl": rft_rounds,
 					"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
 					"pwod_id" : pwod_id, //same as wod_id
@@ -414,7 +388,7 @@ $(function() {
 				data: { 
 					"wod_id": today, //build this based on box id and date - I think I've got this variable in PHP
 					"wod_descrip" : "", 
-					"level_perf" : level_perf,
+					"level_perf" : level_perf.toUpperCase(),
 					"rounds_compl": rounds_compl,
 					"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
 					"pwod_id" : pwod_id, //same as wod_id
@@ -508,6 +482,44 @@ $(function() {
 	});
 });
 
+$("#submitMixedScore").click(function() {
+	var data = $("#newMixedWOD_form").serializeArray();
+	var hours = "";
+	var min = "";
+	var sec = "";
+	var score = 0;
+	var tempScore = 0;
+	var mixed_score = "";
+	var mixed_final_score = "";
+	$.each(data, function(i, field) {
+		console.log("DATA: " + field.name + " : " + field.value)
+		if(field.value.indexOf(":") > -1 && field.value.length < 6) {
+			min = parseInt(field.value.substring(0, field.value.indexOf(":")));
+			sec = parseInt(field.value.substring(field.value.indexOf(":") + 1));
+			console.log(min+":"+sec)
+			min = min*60
+			score = score + min + sec;
+			tempScore = min + sec;
+		} else if(field.value.indexOf(":") > -1 && field.value.length < 8 && field.value.length > 5) {
+			console.log("HH:MM:SS");
+		} else {
+			score = score + parseInt(field.value);
+			tempScore = parseInt(field.value);
+		}
+		console.log("i: " + i + "data.length: " + data.length + " tempscore: " + tempScore + " score: " + score);
+		//last element, add final score to string
+		if(i == (data.length-1)) {
+			mixed_final_score = mixed_score + "S" + i +"_" +tempScore +",Final_"+score;
+		} else {
+			//more elements to go
+			mixed_score += "S" + i +"_"+tempScore+",";	
+		}
+		console.log("Mixed score: "+ mixed_score +" mixed final: " + mixed_final_score);
+	});
+	console.log(score);
+	submitMixedWOD(mixed_final_score);
+});
+
 var today = new Date();
 function getCurrentDate()
 {
@@ -555,7 +567,7 @@ function getWOD(level_performed)
 		dataType: "json",
 		success: function(msg)
 		{
-			//alert(msg);
+			console.log(msg);
 			loadWODData(msg, level_performed);
 		}
 	});
@@ -610,17 +622,14 @@ function loadWODData(data, level_performed)
 		}
 		amrap_time = data[0].time;
 		rft_rounds = data[0].rounds;
-		//alert("AMRAP: " + amrap_time + ", RFT: " + rft_rounds);
 		if(wodname != "-") {
 			html_sec1 += "<h3>"+wodname+"</h3>";
 		}
 		html_sec1 +="<p>Type of WOD: "+type_of_wod+"</p>";
 		html_sec1 +="<p>Description: </p>";
-		//alert(descrip);
+		unformattedWOD = descrip;
 		$.map( descrip.split(','), function( n ) {
-		  //alert(n.length);
 		  descripLength += n.length;
-		  //alert(descripLength);
 		  var colon = n.indexOf(";");
 		  //if(){}
 		  //alert("index of colon = "+colon);
@@ -731,6 +740,95 @@ function generateRFTModalDropDown() {
 	$('#rft_time_row').empty();
 	$('#rft_time_row').html(str);
 }
+
+function openNewAMRAPModal() {
+    $( "#newAMRAPWOD" ).dialog({
+      height: 400,
+	  width: 600,
+      modal: true
+    });
+
+	$( "#newAMRAPWOD" ).dialog();
+	$('.amrap_reps').qtip({ 
+		content: 'Total reps accumulated'
+	});
+}
+
+function openNewRFTModal() {
+    $( "#newRFTWOD" ).dialog({
+      height: 400,
+	  width: 600,
+      modal: true
+    });
+
+	$( "#newRFTWOD" ).dialog();
+}
+
+function openNewPartModal() {
+    $( "#newMixedWOD" ).dialog({
+      height: 400,
+	  width: 600,
+      modal: true
+    });
+	var formattedWOD = "<form id=\"newMixedWOD_form\">";
+	var tempString = "";
+	var tempString2 = "";
+	var inputString = 'Score: <input type="text" name="mixed_score" class="mixed_score" id="mixed_score"/> ';
+	if(unformattedWOD.length > 0) {
+		tempString = unformattedWOD;
+		while(tempString.indexOf(">") > -1) {
+			tempString2 = tempString.substring(0, tempString.indexOf(">"));
+			if(tempString2.indexOf("then") > -1) {
+				formattedWOD += "<p>" +inputString+ "</p>";
+			}
+			formattedWOD += "<p>"+tempString2+"</p>";
+			tempString = tempString.substring(tempString.indexOf(">")+1);
+			console.log("T1: " + tempString + "\nT2: " + tempString2 + "\nForWOD: " + formattedWOD);
+		}
+		formattedWOD += "<p>" +inputString+ "</p>";
+	}
+	
+	formattedWOD += "</form>";
+	console.log(formattedWOD)
+	$( "#newMixedWOD" ).dialog();
+	$("#newPartContent").html(formattedWOD);
+	$('.mixed_score').qtip({ 
+		content: 'Enter your time if RFT, or enter your total reps if AMRAP'
+	});
+}
+
+
+function submitMixedWOD(score_string) {
+	var pwod_id = "";
+	var strID = "";
+	var actualTime = "00:15:09";
+	var time_comp = "";
+	var rounds_compl = 0;
+	
+	$.ajax({
+		type: "POST",
+		url: "addUserWOD.php",
+		data: { 
+			"wod_id": today, //build this based on box id and date - I think I've got this variable in PHP
+			"wod_descrip" : "", 
+			"level_perf" : level_perf.toUpperCase(),
+			"rounds_compl": rounds_compl,
+			"time" : time_comp, //this needs to equal nothing - mistype in backend - will remove later
+			"pwod_id" : pwod_id, //same as wod_id
+			"strength_id" : strID, //same as wod_id
+			"actualTime" : amrap_time,
+			"wod_type" : "MIXED",
+			"mixed_score" : score_string
+			}, 
+		success: function(msg)
+		{
+			console.log(msg);
+			//loadWODData(msg, level_performed);
+		}
+	});
+	
+}
+
 
 </script>
 

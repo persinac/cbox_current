@@ -280,6 +280,8 @@ var max_count = 0;
 var previousVal = "";
 var currentVal = "";
 
+var newWODType = new Array(); //used for new part(s)
+
 var number_of_rounds = 0;
 var girl_amrap_time = "";
 
@@ -674,26 +676,40 @@ $( "#newPartContent" ).on("change", "#wod_type_selector_modal", function() {
 });
 
 $("#submitPartToText").click(function() {
-	console.log("CLICKED SUBMIT");
 	var tempArray = $('#submitPartToText_form').serializeArray();
 	var tempString = "";
 	
 	var amrap_time = "";
-	
+	var rest_period = "";
+	var type = "";
+	var specific = "";
+	var penalty = "";
+	var special = "";
 	
 	$.each(tempArray, function(i, field){
 		console.log("DATA TO STRING: " +field.name + ":" + field.value + " ");
 		var name = field.name;
-		if(name.indexOf("amrap_0") > -1 ) {
-			//alert("DATA: " +field.name + ":" + field.value + " ");
-			tempString += field.value;
-		} else if(name.indexOf("amrap_1") > -1 || name.indexOf("amrap_2") > -1 ) {
-			//alert("DATA: " +field.name + ":" + field.value + " ");
-			tempString += ":"+field.value;
+		if(name.indexOf("rest_m") > -1) {
+			rest_period = field.value;
+		} else if(name.indexOf("wod_type_") > -1) {
+			type = field.value;
+		} else if(name.indexOf("penalty_m") > -1) {
+			penalty = field.value;
+		} else if(name.indexOf("special_m") > -1) {
+			special = field.value;
 		} else {
-			tempString += field.value + "   ";
+			if(name.indexOf("amrap_0") > -1 ) {
+				//alert("DATA: " +field.name + ":" + field.value + " ");
+				specific += field.value;
+			} else if(name.indexOf("amrap_1") > -1 || name.indexOf("amrap_2") > -1 ) {
+				//alert("DATA: " +field.name + ":" + field.value + " ");
+				specific += ":"+field.value;
+			} else {
+				specific += field.value + " ";
+			}
 		}
 	});	
+	tempString = rest_period + " " + penalty + " " + special + " " +type+ " " + specific;
 	console.log("Post build string: " + tempString + ", extra row num: " + extra_rowNum)
 	
 	for(var i = 0; i< extra_rowNum; i++) {
@@ -907,13 +923,18 @@ function addScaledRows()
 	var weight =  "";
 	var reps =  "";
 	var extraInstruction = "";
-	var x = 7;
+	var countForWodType = 7; //default for RFT, should = 9 if AMRAP
 	var rowCount = 0;
 	var extraRowCount = 0;
 	var totalRowCount = 0;
 	var newMvmArray = $("#new_wod_form").serializeArray();
 	$.each(newMvmArray, function(i, field){
-		if(i >= 7 && i%3==1 && field.name !== "extrapart[]") {
+		if(field.name === "wod_type_selector") {
+			if(field.value == "AMRAP") {
+				countForWodType = 9;
+			}
+		}
+		if(i >= countForWodType && i%3==1 && field.name !== "extrapart[]") {
 			x = i;
 			console.log("testing add scaled: " + field.name);
 			if(typeof movement === 'undefined') {
@@ -1091,9 +1112,14 @@ function submitWOD() {
 				amrap_time += ":"+field.value;
 			}
 		});
-		//alert("AMRAP_TIME: "+amrap_time);
+		
+		var t_index = 0;
+		var numRounds = "";
 		$.each(data_four, function(i, field){
 			console.log("DATA: " +field.name + ":" + field.value + " ");
+			if(field.name == "num_of_rounds" ) {
+				numRounds = field.value;
+			}
 			if(field.value == "grl_04" || field.value == "grl_14" || field.value == "grl_19" || field.value == "grl_20" ) {
 				id_of_girl = field.value;
 				field.value = "AMRAP";	
@@ -1105,18 +1131,48 @@ function submitWOD() {
 				data_four.push({ name: "num_of_rounds", value: number_of_rounds });
 				data_four.push({ name: "girl_id", value: id_of_girl });
 			} else if(field.name.indexOf("extrapart[]") > -1) {
-				console.log("i :" + i);
 				if(field.name.indexOf("inter_extrapart[]") > -1) {
 					data_four.splice(i, 1, {name:"inter_movement[]", value:"r0000*"+field.value});
 				} else if(field.name.indexOf("nov_extrapart[]") > -1) {
 					data_four.splice(i, 1, {name:"nov_movement[]", value:"r0000*"+field.value});
 				} else {
 					data_four.splice(i, 1, {name:"movement[]", value:"r0000*"+field.value});
-				}
-			}	
+					if(field.value.indexOf("RFT") > -1) {
+						console.log("RFT Index: "+field.value.indexOf("RFT"));
+						t_index = field.value.indexOf("RFT");
+						newWODType.push({ name:field.value.substring(t_index, t_index+3), value:field.value.substring(t_index+4)})
+					} else if(field.value.indexOf("AMRAP") > -1) {
+						console.log("AMRAP Index: "+field.value.indexOf("AMRAP"));
+						t_index = field.value.indexOf("AMRAP");
+						newWODType.push({ name:field.value.substring(t_index, t_index+5), value:field.value.substring(t_index+6)});
+					}
+				}				
+			}
+			
 		});
+		var isDifferent = false;
+		var mixed = "";
+		var originalWODType = $("#wod_type_selector").val();
+		if(newWODType.length > 0) {
+			for(var z = 0; z < newWODType.length; z++) {
+				console.log(newWODType[z].name +" : "+newWODType[z].value );
+				if(newWODType[z].name !== originalWODType) {
+					isDifferent = true;
+				}
+			}
+		}
+		//console.log("Does "+$("#wod_type_selector").val() +" = "+newWODType +"?");
+		
+		if(newWODType.length > 0 && isDifferent === true) {
+			mixed += originalWODType + " " + amrap_time + "" + numRounds + ",";
+			for(var z = 0; z < newWODType.length; z++) {
+				mixed += newWODType[z].name +" "+newWODType[z].value +",";
+			}
+		}
+		console.log("Mixed: " + mixed);
 		
 		data_four.push({ name: "amrap_time_update", value: amrap_time });
+		data_four.push({ name: "mixed_column", value: mixed });
 		
 		$.each(data_four, function(i, field){
 			console.log("DATA ROUND TWO: " +field.name + ":" + field.value + " ");
@@ -1134,6 +1190,9 @@ function submitWOD() {
 						 openModal("Duplicate Entry","You've already input a WOD for today, would you like to add to custom list? <p><p><a onclick=\"\" class=\"btn btn-primary btn-small\">No</a><a onclick=\"addToCustomWOD()\" class=\"btn btn-primary btn-small\">Yes</a></p></p>");
 					 } else {
 						 $("#wod_form_modal").dialog("close");
+						 while(newWODType.length > 0) {
+							newWODType.pop();
+						 }
 						 openModal("Success","WOD Entered Successfully<p><p><a onclick=\"resetFormModals()\" class=\"btn btn-primary btn-small\">Ok!</a></p></p>");
 						 $('#calendar').fullCalendar('refetchEvents');
 					 }

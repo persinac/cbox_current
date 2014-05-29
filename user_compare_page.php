@@ -205,14 +205,14 @@ $(function() {
             str += '<select id="compare_selector" name="compare_selector" class="selector">';
 			str += "<option value=\"ALL\"> - </option>";
 			str += '<option value="WOD">WODS</option>';
-			str += '<option value="AMRAP">Core Lifts</option>';
-			str += '<option value="TABATA">Olympic</option>';
-			str += '<option value="GIRLS">Powerlifting</option>';
-			str += '<option value="HERO">Girls</option>';
+			str += '<option value="CORE">Core Lifts</option>';
+			str += '<option value="OLY">Olympic</option>';
+			str += '<option value="PWR">Powerlifting</option>';
+			str += '<option value="GIRLS">Girls</option>';
 			str += '<option value="HERO">Heroes</option>';
-			str += '<option value="HERO">Open</option>';
-			str += '<option value="HERO">Regionals</option>';
-			str += '<option value="HERO">Games</option>';
+			str += '<option value="OPEN">Open</option>';
+			str += '<option value="REG">Regionals</option>';
+			str += '<option value="GAME">Games</option>';
 			str += '</select>';
 			str += '<p id="comparisons_to_add">';
 			
@@ -288,6 +288,7 @@ $( "#div_compare_by" ).on("change", "#compare_selector", function() {
 			str +="<option value=\"RFT\">RFT</option>";
 			str += "<option value=\"AMRAP\">AMRAP</option>";
 			str +="<option value=\"TABATA\">TABATA</option>";
+			str +="<option value=\"MIXED\">MIXED</option>";
 			str += "<option value=\"GIRLS\">GIRLS</option>"
 			str +="<option value=\"HERO\">HEROES</option>";
 			str +="</select>";
@@ -351,7 +352,22 @@ $( "#div_compare_by" ).on("change", "#wod_type_selector", function() {
             second_str +="<th width=\"80\">Type of WOD</th>";
             second_str +="<th width=\"200\">Place</th>";
 			$('#wod_list_headers').append(second_str);
+		} else if($(this).text() == 'MIXED') {
+			console.log("MIXED");
+			type_of_wod_main = "MIXED";
+			second_str+="<h4><p id=\"display_workout\"> WORKOUT HERE </p></h4>";
+        	second_str+="<table width=\"530\" rules=\"cols\" id=\"tbl_wod_list\">";
+            second_str+="<tr id=\"wod_list_headers\">";  	
+            second_str+="</tr>";
+            second_str+="<tbody class=\"tbl_body_wod_list\" id=\"tbl_body_wod_list\">";
+            second_str+="</tbody></table>";
+			$('#wod_list').html(second_str);
+			second_str = "<th width=\"80\" height=\"25\">Date</th>";
+            second_str +="<th width=\"80\">Type of WOD</th>";
+            second_str +="<th width=\"200\">Place</th>";
+			$('#wod_list_headers').append(second_str);
 		}
+		
     });
   }).trigger( "change" );
   
@@ -560,11 +576,16 @@ function loadLeaderBoardData(data_leaders) {
 	var score = "";
 	var name = "";
 	var descrip = "";
-	var min = "99:99";
-	var max = "00:00";
-	var sumOfTime = "";
+	var t_wod_type = "";
+	var mix_index = 0;
 	console.log("loadLeaderboardData PRE-FOR LOOP");
+	
 	var tempTimeArray = new Array();
+	
+	if(data_leaders.length > 0) {
+		t_wod_type = data_leaders[0].type_of_wod;
+	}
+	
 	for(var i = 0; i < data_leaders.length; i++) {
 		
 		if(typeof data_leaders[i].descrip != undefined) {
@@ -575,33 +596,14 @@ function loadLeaderBoardData(data_leaders) {
 			main_description = data_leaders[i].descrip;
 			name = data_leaders[i].name;
 			score = data_leaders[i].score;
-			/*
-			 Going to have to create a function that converts the time into seconds
-			 That way I can compare them to each other
-			*/
-			var now = new Date();
-			if(score.substring(0, 3) == "00:") {
-				console.log(score.substring(3));
-				
-				now.setHours(score.substring(0,score.indexOf(":")));
-				console.log("Hours: "+score.substring(0,score.indexOf(":")));
-				score = score.substring(3);
-				now.setMinutes(score.substr(0,score.indexOf(":")));
-				console.log("Minutes: "+score.substring(0,score.indexOf(":")));
-				now.setSeconds(score.substr(score.indexOf(":")+1));
-				console.log("seconds: "+score.substring(score.indexOf(":")+1));
-				console.log("Time: " + now);
-			} else {
-				now.setHours(score.substring(0,score.indexOf(":")));
+			
+			if(t_wod_type == "MIXED") {
+				mix_index = score.indexOf("Final");
+				if(mix_index > -1) {
+					score = score.substring(mix_index+6);
+				}	
 			}
 			
-			if(score < min) {
-				min = score;
-			}
-			if(score > max) {
-				max = score;
-			}
-			sumOfTime = sumOfTime + score;
 			html_sec1 += "<tr class="+sec1_classID+" id=\"leader_"+i+"\">";
 			
 			if(data_leaders[i].user_id == "<?php echo $_SESSION['MM_UserID']; ?>") {
@@ -618,7 +620,6 @@ function loadLeaderBoardData(data_leaders) {
 		}
 		
 	}
-	console.log("Max: "+max+" Min: "+min+" Sum: " +sumOfTime);
 	
 	//Update html content
 	$("#wod_actual_description").empty();
@@ -676,6 +677,8 @@ function returnRatings(data_for_array, wod_type) {
 	console.log("type pf wod: "+wod_type+", Scores: ");
 	if(wod_type == "AMRAP" || wod_type == "amrap") {
 		avg = calculateAMRAPRating(data_for_array);
+	} else if(wod_type == "MIXED" || wod_type == "mixed") {
+		avg = calculateMixedRating(data_for_array);
 	} else {
 		avg = calculateRFTRating(data_for_array);
 		
@@ -821,6 +824,54 @@ function calculateAMRAPRating(amrap_data) {
 	return avg;
 }
 
+function calculateMixedRating(mixed_data) {
+	var avg = 0;
+	var sum = 0;
+	var t_count = 0;
+	var tempRate = 0;
+	var name = "";
+	var score = 0;
+	var t_score = 0;
+	var rating = 0;
+	var mix_index = 0; 
+	
+	console.log("Scores: ");
+	for(var i = 0; i < mixed_data.length; i++) {
+		mix_index = mixed_data[i].score.indexOf("Final");
+		if(mix_index > -1) {
+			t_score = mixed_data[i].score.substring(mix_index+6);
+		}	
+		console.log(t_score + " "+ mixed_data[i].name);
+		sum = sum + parseInt(t_score);
+		t_count = i+1;
+	}
+	console.log("sum: "+sum);
+	avg = (sum/t_count);
+	console.log(avg);
+	for(var i = 0; i < mixed_data.length; i++) {
+		var tempArray = new Array();
+		mix_index = mixed_data[i].score.indexOf("Final");
+		if(mix_index > -1) {
+			score = parseInt(mixed_data[i].score.substring(mix_index+6));
+		}	
+		name = mixed_data[i].name;
+		
+		tempRate = ((score/avg)*100)-100;
+		console.log("temprate: "+tempRate)
+		
+		rating = getRating(tempRate, score, avg);
+		console.log( name + ", "+ score+", "+rating);
+		tempArray.push(name);
+		tempArray.push(score);
+		tempArray.push(parseFloat(rating).toFixed(2));
+		for(var t= 0; t< tempArray.length; t++) {
+			console.log("tempArray values:" + tempArray[t]);
+		}
+		arrayToSend[i] = tempArray;
+	}
+	return parseFloat(avg).toFixed(2);
+}
+
 function getRating(tempRate, score, average) {
 	var rating = 0;
 	if(tempRate < 0) {
@@ -937,6 +988,26 @@ function drawComparisonAMRAPChart(scores, wod_type) {
 	
 	
 	if(wod_type == "AMRAP" || wod_type == "amrap") {
+	data.addColumn('number', 'Rating');
+	data.addColumn('number', 'Score');
+	data.addColumn({type:'string',role:'tooltip'});
+		for(var i = 0; i < scores.length; i++) {
+			var name = String(scores[i][0]);
+			var parsedScore = parseInt(scores[i][1]);
+			var parsedRating = parseFloat(scores[i][2]);
+			console.log(" " +parsedScore + " "+ parsedRating);
+			data.addRows([
+				[parsedRating, parsedScore, name+ " \nScore: "+parsedScore+" \nRating: " +parsedRating ],
+			]);
+			if(parsedScore < min) {
+				min = parsedScore;
+			}
+			if(parsedScore > max) {
+				max = parsedScore;
+			}
+		}
+		vAxisTitle = "Scores";
+	} else if(wod_type == "MIXED" || wod_type == "MIXED") {
 	data.addColumn('number', 'Rating');
 	data.addColumn('number', 'Score');
 	data.addColumn({type:'string',role:'tooltip'});
