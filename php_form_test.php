@@ -114,7 +114,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;>";
+				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
 			} else {
 				$rx_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
 				$first_count++;
@@ -124,7 +124,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;>";
+				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
 			} else {
 				$rx_wod .= $t_reps . " reps of " . $t_movement . ", " ;
 				$first_count++;
@@ -142,7 +142,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;>";
+				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
 			} else {
 				$inter_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
 				$second_count++;
@@ -152,7 +152,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;>";
+				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
 			} else {
 				$inter_wod .= $t_reps . " reps of " . $t_movement . ", " ;
 				$second_count++;
@@ -170,7 +170,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;>";
+				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
 			} else {
 				$nov_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
 				$third_count++;
@@ -180,7 +180,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;>";
+				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
 			} else {
 				$nov_wod .= $t_reps . " reps of " . $t_movement . ", " ;
 				$third_count++;
@@ -204,7 +204,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;>";
+				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
 			} else {
 				$rx_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
 				$first_count++;
@@ -214,7 +214,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;>";
+				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
 			} else {
 				$rx_wod .= $t_movement . ", " ;
 				$first_count++;
@@ -232,7 +232,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;>";
+				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
 			} else {
 				$inter_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
 				$second_count++;
@@ -242,7 +242,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;>";
+				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
 			} else {
 				$inter_wod .= $t_movement . ", " ;
 				$second_count++;
@@ -260,7 +260,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " ; then :;>";
+				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
 			} else {
 				$nov_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
 				$third_count++;
@@ -270,7 +270,7 @@ if ($pos === false) {
 		{
 			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " ; then :;>";
+				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
 			} else {
 				$nov_wod .= $t_movement . ", " ;
 				$third_count++;

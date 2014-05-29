@@ -690,7 +690,7 @@ $("#submitPartToText").click(function() {
 		console.log("DATA TO STRING: " +field.name + ":" + field.value + " ");
 		var name = field.name;
 		if(name.indexOf("rest_m") > -1) {
-			rest_period = field.value;
+			rest_period = field.value + " rest";
 		} else if(name.indexOf("wod_type_") > -1) {
 			type = field.value;
 		} else if(name.indexOf("penalty_m") > -1) {
@@ -1606,29 +1606,56 @@ function openModal(title, info, shouldFormat, height, width) {
 		var tempStr_two = "";
 		var formattedDescription ="";
 		console.log(tempStr_one.indexOf(";"));
-		var index = tempStr_one.indexOf(";");
+		var main_index = tempStr_one.indexOf(";");
+		var npIndex = 0;
+		var exerIndex = 0
 		/******
 		 * First take care of Time/Rounds, Buy In, Cash Out, Special Instructions
 		 * Then parse the WOD
 		 *******/
-		if(index == -1) {
+		if(main_index == -1) {
 			formattedDescription = tempStr_one;
 		} else {
-			while(index > -1) {
-				console.log("index  = "+index);
-				tempStr_two = tempStr_one.substring(0, index);
-				tempStr_one = tempStr_one.substring(index+1);
-				formattedDescription += tempStr_two + "<p></p>";
-				index = tempStr_one.indexOf(";");
+			while(main_index > -1) {
+				console.log("main_index  = "+main_index);
+				tempStr_two = tempStr_one.substring(0, main_index);
+				tempStr_one = tempStr_one.substring(main_index+1);
+				formattedDescription += tempStr_two + "***";
+				main_index = tempStr_one.indexOf(";");
 			}
-			index = tempStr_one.indexOf(","); //parse the WOD
-			while(index > -1) {
-				console.log("index  = "+index);
-				tempStr_two = tempStr_one.substring(0, index);
-				tempStr_one = tempStr_one.substring(index+1);
-				formattedDescription += tempStr_two + "<p></p>";
-				index = tempStr_one.indexOf(",");
+			console.log("after main index T1: " + tempStr_one + " FMDes: " + formattedDescription);
+			exerIndex = tempStr_one.indexOf(","); //parse the WOD
+			if(tempStr_one.length > 0) {
+				formattedDescription += tempStr_one;
 			}
+			if(exerIndex > -1) {
+				formattedDescription = "";
+				while(exerIndex > -1) {
+					console.log("exerIndex  = "+exerIndex);
+					tempStr_two = tempStr_one.substring(0, exerIndex);
+					tempStr_one = tempStr_one.substring(exerIndex+1);
+					formattedDescription += tempStr_two + "***";
+					exerIndex = tempStr_one.indexOf(",");
+					console.log("T1: " + tempStr_one + " T2: " + tempStr_two + " exerIndex: " + exerIndex);
+				}
+			}
+			console.log("after exr index T1: " + tempStr_one + " FMDes: " + formattedDescription);
+			npIndex = tempStr_one.indexOf(">"); //parse the WOD
+			if(tempStr_one.trim.length > 0) {
+				formattedDescription += tempStr_one;
+			}
+			if(npIndex > -1) {
+				formattedDescription = "";
+				while(npIndex > -1) {
+					console.log("npIndex  = "+npIndex);
+					tempStr_two = tempStr_one.substring(0, npIndex);
+					tempStr_one = tempStr_one.substring(npIndex+1);
+					formattedDescription += tempStr_two + "***";
+					npIndex = tempStr_one.indexOf(">");
+					console.log("T1: " + tempStr_one + " T2: " + tempStr_two + " npIndex: " + npIndex);
+				}
+			}
+			console.log("after np index T1: " + tempStr_one + " FMDes: " + formattedDescription);
 		}
 		console.log("Formatted: "+formattedDescription);
 	} else {
