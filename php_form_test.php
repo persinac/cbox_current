@@ -33,7 +33,7 @@ $t_penalty = $_POST['penalty'];
 $t_special = $_POST['special'];
 $t_amrap_time = "";
 $t_rft_rounds = "";
-$t_is_custom = "0";
+$t_is_custom = $_POST['custom_wod'];
 $t_mixed = $_POST['mixed_column'];
 
 $t_string_builder = "";
@@ -45,310 +45,453 @@ $mystring = $t_wod_specifics;
 $findme   = '-';
 $pos = strpos($mystring, $findme);
 
-echo "Parts: " . $t_num_of_parts . ", Position: " . $t_position;
-
-if($t_typeOfWOD == "GIRLS") {
-	$t_typeOfWOD = $t_girl_wod;	
-}
-
-
-if(!(empty($t_typeOfWOD))) {
-	if(strlen($t_special) > 0) {
-	//echo "SPECIAL";
-			$rx_wod .= "Special instructions: " . $t_special . "; ";
-			$inter_wod .= "Special instructions; " . $t_special . "; ";
-			$nov_wod .= "Special instructions: " . $t_special . "; ";
-	}
-	if(strlen($t_penalty) > 0) {
-	//echo "PENALTY";
-			$rx_wod .= "Penalty: " . $t_penalty . ";";
-			$inter_wod .= "Penalty: " . $t_penalty . "; ";
-			$nov_wod .= "Penalty: " . $t_penalty . "; ";
-	}
-	if(strlen($t_buy_in) > 0) {
-	//echo "BUY IN";
-			$rx_wod .= "Buy in: " . $t_buy_in . ";";
-			$inter_wod .= "Buy in: " . $t_buy_in . ";";
-			$nov_wod .= "Buy in: " . $t_buy_in . "; ";
-	}
-	if($t_typeOfWOD == "RFT") {
-	//echo "SRFT";
-		$rx_wod .= $t_wod_specifics . " rounds for time of:; ";
-		$inter_wod .= $t_wod_specifics . " rounds for time of:; ";
-		$nov_wod .= $t_wod_specifics . " rounds for time of:; ";
-		$t_rft_rounds = $_POST['num_of_rounds'];
-		$t_amrap_time = '-';
-	}
-	elseif($t_typeOfWOD == "AMRAP") {
-	//echo "AMRAP";
-		$t_amrap_time = $_POST['amrap_time_update'];
-		$rx_wod .= $t_amrap_time . " minutes of:; ";
-		$inter_wod .= $t_amrap_time . " minutes of:; ";
-		$nov_wod .= $t_amrap_time . " minutes of:; ";
-		
-		$t_rft_rounds = '-';
-	}
-	elseif($t_typeOfWOD == "TABATA") {
-	//echo "TABATA";
-		$rx_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
-		$inter_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
-		$nov_wod .= $t_wod_specifics . " :20 on :10 off of:; ";
-	}
-}
-/*
- * Build the string based on what the user has typed into wod_specifics
- * Currently searching for a -, for rep schemes such as 21-15-9
- * The string need to be built differently to be displayed correctly
- * 
- * If false, build string same as before, if true, build differently
- */
-if ($pos === false) {
-	//echo " NO DASHES ";
-	$first_count = 0;
-    foreach( $_POST['movement'] as $cnt => $mvmnt ) 
-	{
-		$t_movement = $_POST['movement'][$cnt];
-		$t_weight = $_POST['weight'][$first_count];
-		$t_reps = $_POST['reps'][$first_count];
-		if(strlen($t_weight) > 0) 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
-			} else {
-				$rx_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
-				$first_count++;
-			}
-		} 
-		else 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
-			} else {
-				$rx_wod .= $t_reps . " reps of " . $t_movement . ", " ;
-				$first_count++;
-			}
-		}
-	}
-	$second_count = 0;
-	foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
-	{
-		$t_movement = $_POST['inter_movement'][$cnt];
-		$t_weight = $_POST['inter_weight'][$second_count];
-		$t_reps = $_POST['inter_reps'][$second_count];
-		
-		if(strlen($t_weight) > 0) 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
-			} else {
-				$inter_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
-				$second_count++;
-			}
-		} 
-		else 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
-			} else {
-				$inter_wod .= $t_reps . " reps of " . $t_movement . ", " ;
-				$second_count++;
-			}
-		}
-	}
-	$third_count = 0;
-	foreach( $_POST['nov_movement'] as $cnt => $mvmnt ) 
-	{
-		$t_movement = $_POST['nov_movement'][$cnt];
-		$t_weight = $_POST['nov_weight'][$third_count];
-		$t_reps = $_POST['nov_reps'][$third_count];
-		
-		if(strlen($t_weight) > 0) 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
-			} else {
-				$nov_wod .= $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs, " ;
-				$third_count++;
-			}
-		} 
-		else 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
-			} else {
-				$nov_wod .= $t_reps . " reps of " . $t_movement . ", " ;
-				$third_count++;
-			}
-		}
-	}
-} else {
-	/*
-	 * If rep scheme is provided, do not display the reps
-	 * 
-	 */
-	 echo " DASHES ";
-	 $first_count = 0;
-	foreach( $_POST['movement'] as $cnt => $mvmnt ) 
-	{
-		$t_movement = $_POST['movement'][$cnt];
-		$t_weight = $_POST['weight'][$first_count];
-		//$t_reps = $_POST['reps'][$cnt];
-		
-		if(strlen($t_weight) > 0) 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
-			} else {
-				$rx_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
-				$first_count++;
-			}
-		} 
-		else 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$rx_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
-			} else {
-				$rx_wod .= $t_movement . ", " ;
-				$first_count++;
-			}
-		}
-	}
-	$second_count = 0;
-	foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
-	{
-		$t_movement = $_POST['inter_movement'][$cnt];
-		$t_weight = $_POST['inter_weight'][$second_count];
-		//$t_reps = $_POST['inter_reps'][$cnt];
-		
-		if(strlen($t_weight) > 0) 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
-			} else {
-				$inter_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
-				$second_count++;
-			}
-		} 
-		else 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$inter_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
-			} else {
-				$inter_wod .= $t_movement . ", " ;
-				$second_count++;
-			}
-		}
-	}
-	$third_count = 0;
-	foreach( $_POST['nov_movement'] as $cnt => $mvmnt ) 
-	{
-		$t_movement = $_POST['nov_movement'][$cnt];
-		$t_weight = $_POST['nov_weight'][$third_count];
-		//$t_reps = $_POST['nov_reps'][$cnt];
-		
-		if(strlen($t_weight) > 0) 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1). " > then :;";
-			} else {
-				$nov_wod .= $t_movement . " @ " . $t_weight . "lbs, " ;
-				$third_count++;
-			}
-		} 
-		else 
-		{
-			$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
-			if($t_to_compare == "r0000") {
-				$nov_wod .= "> then " . substr($t_movement, strpos($t_movement, "*")+1) . " > then :;";
-			} else {
-				$nov_wod .= $t_movement . ", " ;
-				$third_count++;
-			}
-		}
-	}
-}
-
-if(strlen($t_cash_out) >0) {
-	$rx_wod .= "; Cash out: " . $t_cash_out . "";
-	$inter_wod .= "; Cash out: " . $t_cash_out . "";
-	$nov_wod .= "; Cash out: " . $t_cash_out . "";
-}
-$rx_wod .= ">";
-$inter_wod .= ">";
-$nov_wod .= ">";
-//echo $t_num_of_rounds . ", AMRAP: " . $t_amrap_time . ", POST: " .$_POST['amrap_time_update']."\n";
-#######
-#
-# MySql insert
-#
-# Need to get box ID based on user first
-#
-#######
 $mysqli = new mysqli($hostname_cboxConn, $username_cboxConn, $password_cboxConn, $database_cboxConn);
-/* check connection */
+	/* check connection */
 if (mysqli_connect_errno()) {
 	printf("Connect failed: %s\n", mysqli_connect_error());
 	exit();
 }
 
-$query_getBoxID = "select box_id
- from athletes
-WHERE user_id = '{$colname_getUserWODs}'";
+if($t_is_custom == "1") {
+	$t_first_name = "";
+	$query_getBoxID = "select first_name, user_id,box_id
+	 from athletes
+	WHERE user_id = '{$colname_getUserWODs}'";
 
-if ($result = $mysqli->query($query_getBoxID)) {
-	$row = $result->fetch_assoc();
-	$t_box_id = $row['box_id'];
-	$t_wodID = $row['box_id'] . "_" . str_replace("-", "", $t_date);
-	$length_of_box_id = strlen($t_box_id);
-}
-//echo "box id stuff: ".$t_box_id.", ".$t_wodID.", ".$length_of_box_id;
-echo "\nMIXED: " . $t_mixed . "\n";
-if(strlen($t_mixed) > 0) {
-	$t_typeOfWOD = "MIXED";
-	$t_rft_rounds = "-";
-	$t_amrap_time = "-";
-}
-
-$stmt = $mysqli->prepare("insert into wods values ('{$t_wodID}', 
-	'{$t_girl_id}', 
-	'{$t_typeOfWOD}', 
-	'{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}', '{$t_mixed}')");
-$stmt->bind_param( 'ssssssssss', $t_wodID, $t_girl_id, $t_typeOfWOD, $rx_wod, $inter_wod, $nov_wod, $t_date, $t_rft_rounds, $t_amrap_time, $t_mixed );
-
-if($result = $stmt->execute()) {
-	echo "Entered data successfully\n";
-	$stmt->close();
-} else {
-	echo "1 ";
-}
-$mysqli->close();
-
-function getCustomIDCount($date_to_check, $box_id_check, $box_id_length) {
-	$mysqli = new mysqli('127.0.0.1', 'root', 'password!', $database_cboxConn);
-	if (mysqli_connect_errno()) {
-		printf("Connect failed: %s\n", mysqli_connect_error());
-		exit();
+	if ($result = $mysqli->query($query_getBoxID)) {
+		$row = $result->fetch_assoc();
+		$t_box_id = $row['user_id'];
+		$t_wodID = $row['user_id'] . "_" . str_replace("-", "", $t_date);
+		$t_first_name = $row['first_name'];
+		$length_of_box_id = strlen($t_box_id);
 	}
+	
 	$max_id = "";
-	$query_getMaxIDCount = "select MAX(custom_id) AS maxID from custom_wods WHERE SUBSTRING(custom_id, 1, {$box_id_length}) = '{$box_id_check}'";
+	$query_getMaxIDCount = "select MAX(custom_id) AS maxID from custom_wods WHERE SUBSTRING(custom_id, 1, {$length_of_box_id}) = '{$t_box_id}'";
 	echo "Query: " . $query_getMaxIDCount;
 	if ($result = $mysqli->query($query_getMaxIDCount)) {
-		echo "row: " . $row['maxID'];
 		$max_id = $row['maxID'];
 		echo "MAX ID: " . $max_id;
 	}
-	$mysqli->close();
-}
+	$description = "";
+	if(strlen($t_buy_in) > 0) {
+			$description .= "<p> Buy in: " . $t_buy_in . "</p>";
+	}
+	if($t_typeOfWOD == "RFT") {
+		$description .= "<p>".$t_wod_specifics . " rounds for time of:</p> ";
+	}
+	elseif($t_typeOfWOD == "AMRAP") {
+		$description .= "<p>".$t_amrap_time . " minutes of:</p> ";
+	}
+	elseif($t_typeOfWOD == "TABATA") {
+		$description .= "<p>".$t_wod_specifics . " :20 on :10 off of:</p> ";
+	}
+	
+	if ($pos === false) {
+		//echo " NO DASHES ";
+		$first_count = 0;
+		foreach( $_POST['movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['movement'][$cnt];
+			$t_weight = $_POST['weight'][$first_count];
+			$t_reps = $_POST['reps'][$first_count];
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$description .= '<p class="new_part_for_wod"> - ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$description .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$first_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$description .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$description .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
+					$first_count++;
+				}
+			}
+		}
+	} else {
+		/*
+		 * If rep scheme is provided, do not display the reps
+		 * 
+		 */
+		 //echo " DASHES ";
+		 $first_count = 0;
+		foreach( $_POST['movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['movement'][$cnt];
+			$t_weight = $_POST['weight'][$first_count];
+			//$t_reps = $_POST['reps'][$cnt];
+			
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$description .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$description .= '<p class="movement_for_wod"> '. $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$first_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$description .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$description .= '<p class="movement_for_wod">' . $t_movement . "</p> " ;
+					$first_count++;
+				}
+			}
+		}
+	}
 
+	if(strlen($t_cash_out) >0) {
+		$description .= "<p> Cash out: " . $t_cash_out . "</p>";
+	}
+
+	if(strlen($t_special) > 0) {
+		//echo "SPECIAL";
+		$description .= "<p> Special instructions: " . $t_special . " </p> ";
+	}
+
+	if(strlen($t_penalty) > 0) {
+		//echo "PENALTY";
+		$description .= "<p class=\"penalty_for_wod\"> Penalty: " . $t_penalty . "</p>";
+	}
+	echo "\n".$description;
+	
+	if($max_id > 0) {
+		$custom_wod_id = $max_id + 1;
+		echo "\nUse max_id+1 as the insert ID...Wod ID: " . $t_wodID . " Custom ID num: ".$custom_wod_id;
+		$t_wodID .= "_" . $custom_wod_id;
+		echo "\nNew custom ID...Wod ID: " . $t_wodID; 
+	} else {
+		echo "\nCreate new ID...Wod ID: " . $t_wodID . " Custom ID num: 0" ;
+		$t_wodID .= "_0";
+		echo "\nNew custom ID...Wod ID: " . $t_wodID; 
+	}
+	
+	#######
+	#
+	# Custom WOD insert
+	#
+	#######
+	$t_name_of_wod = "";
+	$t_score = "";
+	$stmt = $mysqli->prepare("insert into custom_wods values ('{$t_wodID}', 
+		'{$t_first_name}', 
+		'{$t_name_of_wod}', 
+		'{$t_typeOfWOD}', '{$description}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}', '{$t_score}')");
+	$stmt->bind_param( 'ssssssssss', $t_wodID, $t_first_name, $t_name_of_wod, $t_typeOfWOD, $description, $t_date, $t_rft_rounds, $t_amrap_time, $t_score );
+
+	if($result = $stmt->execute()) {
+		echo "Entered custom wod successfully\n";
+		$stmt->close();
+	} else {
+		echo "1 ";
+	}
+	
+	
+	
+	
+	
+	$mysqli->close();
+} 
+else {
+
+	if($t_typeOfWOD == "GIRLS") {
+		$t_typeOfWOD = $t_girl_wod;	
+	}
+
+
+	if(!(empty($t_typeOfWOD))) {
+		if(strlen($t_buy_in) > 0) {
+		//echo "BUY IN";
+				$rx_wod .= "<p> Buy in: " . $t_buy_in . "</p>";
+				$inter_wod .= "<p> Buy in: " . $t_buy_in . "</p>";
+				$nov_wod .= "<p> Buy in: " . $t_buy_in . "</p> ";
+		}
+		if($t_typeOfWOD == "RFT") {
+		//echo "SRFT";
+			$rx_wod .= "<p>".$t_wod_specifics . " rounds for time of:</p> ";
+			$inter_wod .= "<p>".$t_wod_specifics . " rounds for time of:</p> ";
+			$nov_wod .= "<p>".$t_wod_specifics . " rounds for time of:</p> ";
+			$t_rft_rounds = $_POST['num_of_rounds'];
+			$t_amrap_time = '-';
+		}
+		elseif($t_typeOfWOD == "AMRAP") {
+		//echo "AMRAP";
+			$t_amrap_time = $_POST['amrap_time_update'];
+			$rx_wod .= "<p>".$t_amrap_time . " minutes of:</p> ";
+			$inter_wod .= "<p>".$t_amrap_time . " minutes of:</p> ";
+			$nov_wod .= "<p>".$t_amrap_time . " minutes of:</p> ";
+			
+			$t_rft_rounds = '-';
+		}
+		elseif($t_typeOfWOD == "TABATA") {
+		//echo "TABATA";
+			$rx_wod .= "<p>".$t_wod_specifics . " :20 on :10 off of:</p> ";
+			$inter_wod .= "<p>".$t_wod_specifics . " :20 on :10 off of:</p> ";
+			$nov_wod .= "<p>".$t_wod_specifics . " :20 on :10 off of:</p> ";
+		}
+	}
+	/*
+	 * Build the string based on what the user has typed into wod_specifics
+	 * Currently searching for a -, for rep schemes such as 21-15-9
+	 * The string need to be built differently to be displayed correctly
+	 * 
+	 * If false, build string same as before, if true, build differently
+	 */
+	if ($pos === false) {
+		//echo " NO DASHES ";
+		$first_count = 0;
+		foreach( $_POST['movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['movement'][$cnt];
+			$t_weight = $_POST['weight'][$first_count];
+			$t_reps = $_POST['reps'][$first_count];
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$rx_wod .= '<p class="new_part_for_wod"> - ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$rx_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$first_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$rx_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$rx_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
+					$first_count++;
+				}
+			}
+		}
+		$second_count = 0;
+		foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['inter_movement'][$cnt];
+			$t_weight = $_POST['inter_weight'][$second_count];
+			$t_reps = $_POST['inter_reps'][$second_count];
+			
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$inter_wod .= '<p class="new_part> - '. substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$inter_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$second_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$inter_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$inter_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
+					$second_count++;
+				}
+			}
+		}
+		$third_count = 0;
+		foreach( $_POST['nov_movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['nov_movement'][$cnt];
+			$t_weight = $_POST['nov_weight'][$third_count];
+			$t_reps = $_POST['nov_reps'][$third_count];
+			
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$nov_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$nov_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$third_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$nov_wod .= 'p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$nov_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
+					$third_count++;
+				}
+			}
+		}
+	} else {
+		/*
+		 * If rep scheme is provided, do not display the reps
+		 * 
+		 */
+		 //echo " DASHES ";
+		 $first_count = 0;
+		foreach( $_POST['movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['movement'][$cnt];
+			$t_weight = $_POST['weight'][$first_count];
+			//$t_reps = $_POST['reps'][$cnt];
+			
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$rx_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$rx_wod .= '<p class="movement_for_wod"> '. $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$first_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$rx_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$rx_wod .= '<p class="movement_for_wod">' . $t_movement . "</p> " ;
+					$first_count++;
+				}
+			}
+		}
+		$second_count = 0;
+		foreach( $_POST['inter_movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['inter_movement'][$cnt];
+			$t_weight = $_POST['inter_weight'][$second_count];
+			//$t_reps = $_POST['inter_reps'][$cnt];
+			
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$inter_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$inter_wod .= '<p class="movement_for_wod"> ' . $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$second_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$inter_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$inter_wod .=  '<p class="movement_for_wod">' . $t_movement . "</p> " ;
+					$second_count++;
+				}
+			}
+		}
+		$third_count = 0;
+		foreach( $_POST['nov_movement'] as $cnt => $mvmnt ) 
+		{
+			$t_movement = $_POST['nov_movement'][$cnt];
+			$t_weight = $_POST['nov_weight'][$third_count];
+			//$t_reps = $_POST['nov_reps'][$cnt];
+			
+			if(strlen($t_weight) > 0) 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$nov_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$nov_wod .= '<p class="movement_for_wod"> ' . $t_movement . " @ " . $t_weight . "lbs </p> " ;
+					$third_count++;
+				}
+			} 
+			else 
+			{
+				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
+				if($t_to_compare == "r0000") {
+					$nov_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+				} else {
+					$nov_wod .= '<p class="movement_for_wod">' . $t_movement . "</p> " ;
+					$third_count++;
+				}
+			}
+		}
+	}
+
+	if(strlen($t_cash_out) >0) {
+		$rx_wod .= "<p> Cash out: " . $t_cash_out . "</p>";
+		$inter_wod .= "<p> Cash out: " . $t_cash_out . "</p>";
+		$nov_wod .= "<p> Cash out: " . $t_cash_out . "</p>";
+	}
+
+	if(strlen($t_special) > 0) {
+		//echo "SPECIAL";
+		$rx_wod .= "<p> Special instructions: " . $t_special . " </p> ";
+		$inter_wod .= "<p> Special instructions; " . $t_special . " </p> ";
+		$nov_wod .= "<p> Special instructions: " . $t_special . " </p> ";
+	}
+
+	if(strlen($t_penalty) > 0) {
+		//echo "PENALTY";
+		$rx_wod .= "<p class=\"penalty_for_wod\"> Penalty: " . $t_penalty . "</p>";
+		$inter_wod .= "<p class=\"penalty_for_wod\"> Penalty: " . $t_penalty . "</p> ";
+		$nov_wod .= "<p class=\"penalty_for_wod\"> Penalty: " . $t_penalty . "</p> ";
+	}
+	
+	#######
+	#
+	# MySql insert
+	#
+	# Need to get box ID based on user first
+	#
+	#######
+	/*
+	$mysqli = new mysqli($hostname_cboxConn, $username_cboxConn, $password_cboxConn, $database_cboxConn);
+	/* check connection
+	if (mysqli_connect_errno()) {
+		printf("Connect failed: %s\n", mysqli_connect_error());
+		exit();
+	} */
+
+	$query_getBoxID = "select box_id
+	 from athletes
+	WHERE user_id = '{$colname_getUserWODs}'";
+
+	if ($result = $mysqli->query($query_getBoxID)) {
+		$row = $result->fetch_assoc();
+		$t_box_id = $row['box_id'];
+		$t_wodID = $row['box_id'] . "_" . str_replace("-", "", $t_date);
+		$length_of_box_id = strlen($t_box_id);
+	}
+	//echo "box id stuff: ".$t_box_id.", ".$t_wodID.", ".$length_of_box_id;
+
+	if(strlen($t_mixed) > 0) {
+		$t_typeOfWOD = "MIXED";
+		$t_rft_rounds = "-";
+		$t_amrap_time = "-";
+	}
+
+	$stmt = $mysqli->prepare("insert into wods values ('{$t_wodID}', 
+		'{$t_girl_id}', 
+		'{$t_typeOfWOD}', 
+		'{$rx_wod}', '{$inter_wod}', '{$nov_wod}', '{$t_date}', '{$t_rft_rounds}', '{$t_amrap_time}', '{$t_mixed}')");
+	$stmt->bind_param( 'ssssssssss', $t_wodID, $t_girl_id, $t_typeOfWOD, $rx_wod, $inter_wod, $nov_wod, $t_date, $t_rft_rounds, $t_amrap_time, $t_mixed );
+
+	if($result = $stmt->execute()) {
+		echo "Entered data successfully\n";
+		$stmt->close();
+	} else {
+		echo "1 ";
+	}
+	$mysqli->close();
+
+}
 ?>

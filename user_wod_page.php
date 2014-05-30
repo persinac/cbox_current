@@ -57,9 +57,9 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
 	<link href='dist/fullcalendar/fullcalendar.css' rel='stylesheet' />
 	<link href='dist/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
 	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
-<style>
-	p#wod_descrip {text-indent:15px;}
-</style>
+	
+	<link href="dist/css/wod_display.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -155,7 +155,7 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
 			<p>
 				<button class="btn btn-primary" data-toggle="modal" name="wod_" id="wod_" type="button">Add WOD</button>
 				</p><p>
-				<a data-toggle="modal" href="#" class="btn btn-default" name="wod_custom" id="wod_custom">Add Scaled WOD</a>
+				<button class="btn btn-primary" data-toggle="modal" name="custom_wod" id="custom_wod" type="button">Add Custom WOD</button>
 				</p><p>
 				<button class="btn btn-primary" data-toggle="modal" name="strength" id="strength" type="button">Add Strength</button>
 				</p><p>
@@ -199,6 +199,33 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
 		</div>
 		<button class="btn btn-success" id="submitMixedScore">Submit</button>
 	</div>
+	
+	<div id="newCustomWOD" title="Custom WODs" class="new_modals" style="display:none;">
+		<div id="newCustomWODContent">
+			<div id="list_of_cust_wods">
+				<h4>List of Custom WODs</h4>
+				<table width="250" rules="cols" id="tbl_wod_list">
+				<tr id="wod_list_headers"> 
+					<th width="75" height="25">Date</th>
+					<th width="100">WOD Type</th>
+					<th width="75">Score</th>					
+				</tr>
+				<tbody class="tbl_body_wod_list" id="tbl_body_wod_list">
+				</tbody>
+				</table>
+			</div>
+			<div id="custom_wod_description"> WOD DESCRIPTION WILL EVENTUALLY LOAD HERE
+			</div>
+			<div id="custom_wod_score">
+				Score: <input type="text" name="custom_score" class="custom_score" id="custom_score"/>  
+				<div id="customWODSubmit"><button class="btn btn-success" id="submit_custom_wod">Submit</button></div>
+			</div>
+		</div>
+		
+		<!--<button class="btn btn-success" id="submit_custom_wod">Submit</button>-->
+	</div>
+	
+	
 </div> <!-- END div_container -->
 
 
@@ -520,6 +547,24 @@ $("#submitMixedScore").click(function() {
 	submitMixedWOD(mixed_final_score);
 });
 
+$("#custom_wod").click( function() {
+	openCustomWODModal();
+	getCustomWODs();
+});
+
+$( "#list_of_cust_wods" ).on("click", ".date_link", function() {
+		var date = document.getElementById($(this).attr("id")).text;
+		console.log($(this).attr("id") + ", VALUE: " + document.getElementById($(this).attr("id")).text);
+		//parse the date - the value - and put the box_id in front of it
+		//then grab all the athletes that completed that wod
+		//and put the data into a table in the right side
+		var result = date.replace(/-/g, "");
+		console.log("Result: "+result);
+		//getLeaderBoardData(result);
+		return false;
+  });
+
+
 var today = new Date();
 function getCurrentDate()
 {
@@ -797,6 +842,36 @@ function openNewPartModal() {
 	});
 }
 
+function openCustomWODModal() {
+	$( "#newCustomWOD" ).dialog({
+      height: 400,
+	  width: 700,
+      modal: true
+    });
+	
+	$( "#newCustomWOD" ).dialog();
+	
+}
+
+function getCustomWODs() {
+	console.log("SEARCHING");
+	//$('#custom_wod_description').empty();
+
+	$.ajax(
+	{ 
+	  type:"POST",                                     
+	  url:"getUserCustomWODs.php",         
+	  dataType: "json",                //data format      
+	  success: function(response) //on recieve of reply
+	  {
+		  console.log("response_wods: " + response);
+		  loadWODList(response);
+	  },
+  	  error: function(error){
+    		console.log('error loading wods!' + error);
+  		}
+	});
+}
 
 function submitMixedWOD(score_string) {
 	var pwod_id = "";
@@ -828,6 +903,57 @@ function submitMixedWOD(score_string) {
 	});
 	
 }
+
+
+function loadWODList(data_wods) {
+	var t_data = data_wods;
+	
+	var html_sec1 = "";
+	var sec1_classID = "wod_sec1_data"; 
+	var date_link_id = "date_link_";
+	var dow = "";
+	var name;
+	var score = "";
+	var custom_id = "";
+	var descrip = "";
+	var time = "";
+	/*console.log("loadPastWODS PRE-FOR LOOP");
+	console.log("DATA: " + data_wods);
+	console.log("t_DATA: " + t_data);*/
+	for(var i = 0; i < data_wods.length; i++) {
+		console.log("data[i].dateofwod: " +data_wods[i].date_of_wod);
+		console.log("data[i].type_of_wod: " + data_wods[i].type_of_wod);
+		console.log("data[i].description: " + data_wods[i].description);
+		console.log("data[i].wod_id: " + data_wods[i].wod_id);
+		console.log("data[i].score: " + data_wods[i].score);
+		
+		tow = data_wods[i].type_of_wod;		
+		dow = data_wods[i].date_of_wod;
+		
+		descrip = data_wods[i].description;
+		//main_description = descrip;
+		
+		score =  data_wods[i].score;
+		custom_id = data_wods[i].wod_id;
+		date_link_id = "date_link_"+i;
+		console.log("date link id: " + date_link_id);
+		//header_wod = "Past WODs";
+
+		html_sec1 += "<tr class="+sec1_classID+">";
+		//html_sec1 += "<td>"+dow+"</td>";
+		html_sec1 += "<td><div class=\"tdDivBox\" id=\"tdDivBox\"><a class=\"date_link\" id=\""+date_link_id+"\" href=\"#\">"+dow+"</a></div></td>";
+		html_sec1 +="<td class=\"customwod_descrip\">"+tow+"</td>";
+		html_sec1 += "<td class=\"customwod_score\">"+score+"</td>";
+		html_sec1 += "</tr>";
+
+	}
+	//Update html content
+	$('.tbl_body_wod_list').empty();
+	$('.tbl_body_wod_list').html(html_sec1);
+	header_wod = "";
+}
+ 
+
 
 
 </script>

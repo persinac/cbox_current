@@ -80,7 +80,7 @@ if (isset($_SESSION['MM_UserID'])) {
 <title>Administrator</title>
 
 <!-- Bootstrap core CSS -->
-<link href="dist/css/admin_page.css" rel="stylesheet">
+	<link href="dist/css/admin_page.css" rel="stylesheet">
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
  	<link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
 	<link type="text/css" rel="stylesheet" href="dist/css/jquery.qtip.css" />
@@ -91,6 +91,8 @@ if (isset($_SESSION['MM_UserID'])) {
 	<link href='dist/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
 	<link href="dist/css/bryce_main.css" rel="stylesheet">
 	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+	
+	<link href="dist/css/wod_display.css" rel="stylesheet">
 
 </head>
 
@@ -159,6 +161,7 @@ if (isset($_SESSION['MM_UserID'])) {
 		 </form>
          
 		<p><a onclick="openScaledWODModal()" class="btn btn-primary btn-small">Set Scaled Movements</a></p>
+		<p><a onclick="addToCustomWOD()" class="btn btn-primary btn-small">Add as Custom WOD</a></p>
 		
 		</div>
     </div>
@@ -1173,6 +1176,7 @@ function submitWOD() {
 		
 		data_four.push({ name: "amrap_time_update", value: amrap_time });
 		data_four.push({ name: "mixed_column", value: mixed });
+		data_four.push({ name: "custom_wod", value: "0" });
 		
 		$.each(data_four, function(i, field){
 			console.log("DATA ROUND TWO: " +field.name + ":" + field.value + " ");
@@ -1280,14 +1284,20 @@ function submitStrength() {
 
 function addToCustomWOD() {
 		var sendRequest = false;
-		var data_array = data_array_2;
-		$.each(data_array, function(i, field){
-			console.log("DATA TO CUSTOM: " +field.name + ":" + field.value + " ");
-		});
+		var data_array = $("#new_wod_form").serializeArray();
+		var mixed = "";
 		data_array.push({ name: "custom_wod", value: "1" });
 		
-		openModal("Almost there...","Custom WOD functionality is currently in the works");
+		$.each(data_array, function(i, field){
+			console.log("DATA TO CUSTOM: " +field.name + ":" + field.value + " ");
+			if(field.name.indexOf("extrapart[]") > -1) {
+				data_array.splice(i, 1, {name:"movement[]", value:"r0000*"+field.value});
+			}				
+		});
+
+		//openModal("Almost there...","Custom WOD functionality is currently in the works");
 		
+		sendRequest = true;
 		if(sendRequest == true) {
 			$.ajax({
 				type: "POST",
@@ -1525,7 +1535,28 @@ function renderCalendar() {
 		],
 		eventRender: function (event, element) {
 			element.attr('href', 'javascript:void(0);');
-			element.attr('onclick', 'openModal("' + event.title + '","' + event.description + '","'+true+'");');
+			console.log(event.description);
+			var quoteIndex = 0;
+			var tempString = "";
+			var t_String2 = "";
+			var description = "";
+			quoteIndex = event.description.indexOf("\"");
+			if(quoteIndex > -1) {
+				t_String2 = event.description;
+				while (quoteIndex > -1) {
+					tempString = t_String2.substring(0, quoteIndex);
+					description += tempString +"\\" + '"';
+					t_String2 = t_String2.substring(quoteIndex+1);
+					quoteIndex = t_String2.indexOf("\"");
+				}
+				description += t_String2;
+				console.log("Description: " + description);
+			}
+			if(description.length < 1) {
+				element.attr('onclick', 'openModal("' + event.title + '","' + event.description + '","'+true+'");');
+			} else {
+				element.attr('onclick', 'openModal("' + event.title + '","' + description + '","'+true+'");');
+			}
 		}
 	});
 	getWorkouts();
@@ -1590,7 +1621,7 @@ function openModal(title, info, shouldFormat, height, width) {
     
 	var opt_height = (typeof height === "undefined") ? 400 : height;
 	var opt_width = (typeof width === "undefined") ? 300 : width;
-	
+	console.log(info);
     $( "#dialog-modal" ).dialog({
       height: opt_height,
 	  width: opt_width,
@@ -1601,66 +1632,115 @@ function openModal(title, info, shouldFormat, height, width) {
 	console.log("optional: " + optional);
 	
 	if(optional == "true") {
-		console.log("format info into readable form here");
-		var tempStr_one = info;
-		var tempStr_two = "";
-		var formattedDescription ="";
-		console.log(tempStr_one.indexOf(";"));
-		var main_index = tempStr_one.indexOf(";");
-		var npIndex = 0;
-		var exerIndex = 0
 		/******
 		 * First take care of Time/Rounds, Buy In, Cash Out, Special Instructions
 		 * Then parse the WOD
 		 *******/
-		if(main_index == -1) {
+		
+		
+		/*if(main_index == -1) {
 			formattedDescription = tempStr_one;
 		} else {
 			while(main_index > -1) {
 				console.log("main_index  = "+main_index);
 				tempStr_two = tempStr_one.substring(0, main_index);
 				tempStr_one = tempStr_one.substring(main_index+1);
-				formattedDescription += tempStr_two + "***";
+				formattedDescription += tempStr_two + "*P*";
 				main_index = tempStr_one.indexOf(";");
 			}
+			formattedDescription += tempStr_one;
 			console.log("after main index T1: " + tempStr_one + " FMDes: " + formattedDescription);
-			exerIndex = tempStr_one.indexOf(","); //parse the WOD
-			if(tempStr_one.length > 0) {
-				formattedDescription += tempStr_one;
-			}
+			
+			exerIndex = formattedDescription.indexOf(","); //parse the exercises/movements
 			if(exerIndex > -1) {
+				tempStr_one = formattedDescription;
 				formattedDescription = "";
 				while(exerIndex > -1) {
 					console.log("exerIndex  = "+exerIndex);
 					tempStr_two = tempStr_one.substring(0, exerIndex);
 					tempStr_one = tempStr_one.substring(exerIndex+1);
-					formattedDescription += tempStr_two + "***";
+					formattedDescription += tempStr_two + " *E* ";
 					exerIndex = tempStr_one.indexOf(",");
 					console.log("T1: " + tempStr_one + " T2: " + tempStr_two + " exerIndex: " + exerIndex);
 				}
 			}
+			formattedDescription += tempStr_one;
 			console.log("after exr index T1: " + tempStr_one + " FMDes: " + formattedDescription);
-			npIndex = tempStr_one.indexOf(">"); //parse the WOD
-			if(tempStr_one.trim.length > 0) {
-				formattedDescription += tempStr_one;
-			}
+			
+			npIndex = formattedDescription.indexOf(">"); //parse the WOD
 			if(npIndex > -1) {
+				tempStr_one = formattedDescription;
 				formattedDescription = "";
 				while(npIndex > -1) {
 					console.log("npIndex  = "+npIndex);
 					tempStr_two = tempStr_one.substring(0, npIndex);
 					tempStr_one = tempStr_one.substring(npIndex+1);
-					formattedDescription += tempStr_two + "***";
+					formattedDescription += tempStr_two + " *N* ";
 					npIndex = tempStr_one.indexOf(">");
 					console.log("T1: " + tempStr_one + " T2: " + tempStr_two + " npIndex: " + npIndex);
 				}
 			}
+			formattedDescription += tempStr_one;
 			console.log("after np index T1: " + tempStr_one + " FMDes: " + formattedDescription);
 		}
 		console.log("Formatted: "+formattedDescription);
 	} else {
 		formattedDescription = info;
+	}*/
+	
+	//main_index = formattedDescription.indexOf("*P*");
+	/*
+	if(main_index > -1) 
+	{
+		tempStr_one = formattedDescription;
+		formattedDescription = "";
+		while(main_index > -1) {
+			console.log("main_index  = "+main_index);
+			tempStr_two = tempStr_one.substring(0, main_index);
+			tempStr_one = tempStr_one.substring(main_index+3);
+			formattedDescription += tempStr_two + "<p></p>";
+			main_index = tempStr_one.indexOf("*P*");
+		}
+		formattedDescription += tempStr_one;
+		console.log("after main index T1: " + tempStr_one + " FMDes: " + formattedDescription);
 	}
+	exerIndex = formattedDescription.indexOf("*E*"); //parse the exercises/movements
+	if(exerIndex > -1) {
+		tempStr_one = formattedDescription;
+		formattedDescription = "";
+		while(exerIndex > -1) {
+			console.log("exerIndex  = "+exerIndex);
+			tempStr_two = "<p> "+tempStr_one.substring(0, exerIndex) + " </p>";
+			tempStr_one = tempStr_one.substring(exerIndex+3);
+			formattedDescription += tempStr_two;
+			exerIndex = tempStr_one.indexOf("*E*");
+			console.log("T1: " + tempStr_one + " T2: " + tempStr_two + " exerIndex: " + exerIndex);
+		}
+	}
+	formattedDescription += tempStr_one;
+	console.log("after exr index T1: " + tempStr_one + " FMDes: " + formattedDescription);
+	
+	npIndex = formattedDescription.indexOf("*N*"); //parse the WOD
+	if(npIndex > -1) {
+		tempStr_one = formattedDescription;
+		formattedDescription = "";
+		while(npIndex > -1) {
+			console.log("npIndex  = "+npIndex);
+			tempStr_two = tempStr_one.substring(0, npIndex);
+			tempStr_one = tempStr_one.substring(npIndex+3);
+			formattedDescription += tempStr_two + "<p></p>";
+			npIndex = tempStr_one.indexOf("*N*");
+			console.log("T1: " + tempStr_one + " T2: " + tempStr_two + " npIndex: " + npIndex);
+		}
+	}
+	formattedDescription += tempStr_one;
+	console.log("after np index T1: " + tempStr_one + " FMDes: " + formattedDescription);
+	console.log("Formatted: "+formattedDescription);
+	*/
+	}
+	formattedDescription = info;
+	
+	console.log("Formatted Description: " + formattedDescription);
 	
 	$( "#dialog-modal" ).dialog('option', 'title', title);
 	$('#workoutcontent').html(formattedDescription);
