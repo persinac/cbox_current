@@ -1,0 +1,8 @@
+How we are going to deploy from now on:
+
+1) We are going to have a build_<date> folder on the server
+	a) the date is to be the date that the build is being released
+
+2) All files created/edited/modified from the current time TO the build date will be placed in this build
+	a) They will however, follow the same folder structure as the /var/www/ directory 
+	

@@ -106,7 +106,7 @@ if (isset($_SESSION['MM_UserID'])) {
             <li id="wod" ><a href="user_wod_page.php" >WOD</a></li> 
             <li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li>
             <li id="admin" class="active"><a href="#" >ADMIN</a></li>
-            <li id="account" ><a href="#" >ACCOUNT</a></li> 
+            <li id="account" ><a href="tgv2.html" >ACCOUNT</a></li> 
             <li id="logout" ><a href="#" >LOGOUT</a></li>
         </ul> 
     </div>
@@ -117,6 +117,7 @@ if (isset($_SESSION['MM_UserID'])) {
             <p><a onclick="openWODModal()" class="btn btn-primary btn-large" id="new_wod_button" class="buttons_in_but_container">New WOD</a></p>
             <p><a onclick="openStrengthModal()" class="btn btn-primary btn-large" id="new_strength_button" class="buttons_in_but_container">New Strength</a></p>
             <p><a onclick="openPostWODModal()" class="btn btn-primary btn-large" id="new_postwod_button" class="buttons_in_but_container">New Post WOD</a></p>
+			<p><a onclick="manageSubscription()" class="btn btn-primary btn-large" id="new_submng_button" class="buttons_in_but_container">Manage Subscription</a></p>
         </div>
         <div id="calendar"></div>
         <div id="eventContent" title="Event Details">
@@ -731,9 +732,11 @@ $("#submitPartToText").click(function() {
 });	
 
 
-/********************************* GETTER METHODS *********************************/
+/***************************** Manage Subscription Page Change *****************************/
 
-
+function manageSubscription() {
+	window.location.replace("http://cboxbeta.com/billingTest.php");
+}
 
 /******************************** LOAD TABLES **************************************/
 

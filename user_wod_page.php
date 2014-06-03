@@ -218,7 +218,7 @@ else if ($_SESSION['MM_Admin'] == "1") {$link = "Admin_home_page.php";;} // COMM
 			</div>
 			<div id="custom_wod_score">
 				Score: <input type="text" name="custom_score" class="custom_score" id="custom_score"/>  
-				<div id="customWODSubmit"><button class="btn btn-success" id="submit_custom_wod">Submit</button></div>
+				</br><button class="btn btn-success" id="submit_custom_wod">Submit</button>
 			</div>
 		</div>
 		
@@ -554,13 +554,14 @@ $("#custom_wod").click( function() {
 
 $( "#list_of_cust_wods" ).on("click", ".date_link", function() {
 		var date = document.getElementById($(this).attr("id")).text;
-		console.log($(this).attr("id") + ", VALUE: " + document.getElementById($(this).attr("id")).text);
+		var t_custom_id = $(this).attr("id");
+		//console.log($(this).attr("id") + ", VALUE: " + document.getElementById($(this).attr("id")).text);
 		//parse the date - the value - and put the box_id in front of it
 		//then grab all the athletes that completed that wod
 		//and put the data into a table in the right side
 		var result = date.replace(/-/g, "");
-		console.log("Result: "+result);
-		//getLeaderBoardData(result);
+		//console.log("Result: "+result);
+		getSelectedCustomWOD(t_custom_id);
 		return false;
   });
 
@@ -941,7 +942,7 @@ function loadWODList(data_wods) {
 
 		html_sec1 += "<tr class="+sec1_classID+">";
 		//html_sec1 += "<td>"+dow+"</td>";
-		html_sec1 += "<td><div class=\"tdDivBox\" id=\"tdDivBox\"><a class=\"date_link\" id=\""+date_link_id+"\" href=\"#\">"+dow+"</a></div></td>";
+		html_sec1 += "<td><div class=\"tdDivBox\" id=\"tdDivBox\"><a class=\"date_link\" id=\""+custom_id+"\" href=\"#\">"+dow+"</a></div></td>";
 		html_sec1 +="<td class=\"customwod_descrip\">"+tow+"</td>";
 		html_sec1 += "<td class=\"customwod_score\">"+score+"</td>";
 		html_sec1 += "</tr>";
@@ -953,8 +954,81 @@ function loadWODList(data_wods) {
 	header_wod = "";
 }
  
+function getSelectedCustomWOD(c_id) {
 
+	console.log("get custom wod data on: " + c_id);
+	var t_id = c_id;
+	var gender = "";
+	var level = "";
+	/*
+	$('#avg_score').empty();
+	$('#wod_actual_description').empty();
+	$('#tbl_body_leaderboard').empty();
+	$('#chart_div').empty();
+	var comma_index = date.indexOf(",");
+	var temp_str = "";
+	var t_date = "";
+	
+	if(comma_index > -1) {
+		//console.log("I have more than just a date");
+		date = data.substring(0, comma_index);
+		temp_str = data.substring(comma_index+1);
+		//console.log("temp_string: " + temp_str);
+		comma_index = temp_str.indexOf(",");
+		gender = temp_str.substring(0, comma_index);
+		temp_str = temp_str.substring(comma_index);
+		//console.log("temp_string: " + temp_str);
+		level = temp_str.substring(comma_index);
+		
+	} else {
+		t_id = c_id;
+	}
+	*/
+	
+	console.log("date: " + t_id + " gender: "+gender+" level: "+level);
+	//pass this data to php file
+	$.ajax(
+	{ 
+	  type:"POST",                                     
+	  url:"getCustomWODStats.php",         
+	  data: { "date" : t_id }, //insert arguments here to $_POST
+	  dataType: "json",  //data format      
+	  success: function(response) //on receive of reply
+	  {
+		console.log("get wod and score: " + response);
+		loadCustomWODData(response);
+	  },
+  	  error: function(error){
+    		console.log('error receiving custom wod!' + error);
+  		}
+	});
 
+}
+
+function loadCustomWODData(response) {
+	$("#custom_wod_description").empty();
+	
+	var tow = "";
+	var dow = "";
+	var description = "";
+	var score = "";
+	var now = "";
+	
+	now = response[0].name_of_wod;
+	tow = response[0].type_of_wod;	
+	dow = response[0].date_of_wod;	
+	description = response[0].description;
+	score = response[0].score;
+	
+	var html = "";
+	
+	html += "<p id=\"date_of_custom_wod\"> Date: " + dow +"</p>";
+	html += "<p id=\"custom_wod_attributes\"> Name: " + now +"    Type of WOD: "+tow+"</p>";
+	html += "<p id=\"description_of_custom_wod\"> Description: </br>" + description +"</p>";
+	html += "<p id=\"score_of_custom_wod\"> Old Score: " + score +"</p>";
+	
+	$("#custom_wod_description").html(html);
+}
 
 </script>
 
