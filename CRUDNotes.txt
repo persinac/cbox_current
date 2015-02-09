@@ -1,0 +1,45 @@
+The CRUD...
+
+CRUD: 
+	- Create 
+	- Read
+	- Update
+	- Delete
+	
+These all pertain to operations performed on/in the database. Any .php scripts that Create, Read, Update, 
+or Delete anything on the database must be placed into the CRUD directory. 
+
+Now, within the CRUD directory are all the pages (exceptions being mobile, general***, and competitions) of 
+the web application. Each page will have its own directory, thus, each "page" directory will
+have its own CRUD operations that are specific to its page. For example, the admin page is 
+the only page that can add a WOD for a specific box, therefore the script that CREATES ("insert" for DB terms)
+the WOD will be placed in the following path: /CRUD/admin/ 
+
+To call scripts from that directory is exactly the same as it was before except you have to add
+the path to the script instead of just calling the script. For example:
+
+/*** OLD WAY ***/
+$.ajax({
+	type: "POST",
+	url: "adminAddWOD.php",
+	data: data,
+	dataType: "text",
+	success: function(response) {
+		console.log(response);
+	}
+}); 
+
+/*** NEW WAY ***/
+$.ajax({
+	type: "POST",
+	url: "/CRUD/amdin/adminAddWOD.php",
+	data: data,
+	dataType: "text",
+	success: function(response) {
+		console.log(response);
+	}
+}); 
+
+*** General means that the script is used across multiple pages. Example: the logout script that 
+destroys session data. Instead of placing that script in all directories, just place it in the /general
+directory for all pages to use. 

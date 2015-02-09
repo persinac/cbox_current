@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="/assets/kb.ico">
+
+    <title id="title"></title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="dist/css/jquery.qtip.css" />
+
+	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+    <link href="dist/css/first_page_css.css" rel="stylesheet">
+	<link href="dist/css/tabs.css" rel="stylesheet">
+  </head>
+<!-- NAVBAR
+================================================== -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="competitions.html">CBox Custom Competition</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul id="main_nav" class="nav navbar-nav">
+                <li id="comp_info" class="active"><a href="#comp_info">Competition Info</a></li>
+                <li id="comp_info" ><a href="#wod_info">WOD Info</a></li>
+                <li id="competitors"><a href="#competitors">Competitors</a></li>
+                <li><a href="#results">Results</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Registration <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#team_register">Team Registration</a></li>
+					<li><a href="#ind_register">Individual Registration</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+    <div class="container marketing">
+
+      <div class="row featurette">
+                
+		<div id="content" class="col-md-7">
+		  <h2 class="featurette-heading" id="heading"></h2>
+		  <div id="dyn_content"></div>
+
+		</div>
+	  </div>
+
+      <!-- /END THE FEATURETTES -->
+	  <!-- FOOTER -->
+      <footer>
+        <p class="pull-right"><a href="index.html">Back to home</a></p>
+        <p>&copy; 2014 CBox, Inc. &middot; <a href="privacy_policy.html">Privacy</a> &middot; <a href="tos.html">Terms</a>&middot; <a href="refundcancel_policy.html">Refund Policy</a></p>
+      </footer>
+    </div><!-- /.container -->
+	
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+	<!-- Required for full calendar -->
+	<script src='dist/lib/moment.min.js'></script>
+	<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+	<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+	<script src='dist/fullcalendar/fullcalendar.min.js'></script>
+
+	<!-- Required for date picker -->
+	<script src="dist/js/jquery.plugin.min.js"></script>
+	<script src="dist/js/jquery.datepick.min.js"></script> 
+
+	<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
+
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	
+	<script>
+	var url = "";
+	var competition_id = -1;
+	var divisions = "";
+	$(document).ready(function() {
+		url = window.location;
+		setCompID(url);
+		getCompInfo();
+	});	
+	
+	$("#main_nav").on("click", "li", function() {
+		var toParse = $(this).find('a').attr('href');
+		$("ul").find("li.active").removeClass("active");
+		$(this).addClass('active');
+		console.log(toParse);
+		if(toParse == "#comp_info") {
+			getCompInfo();
+		} else if(toParse == "#competitors") {
+			getCompetitors();
+		} else if(toParse == "#results") {
+			getResults();
+		} else if(toParse == "#team_register") {
+			openTeamRegistration();
+		} else if(toParse == "#ind_register") {
+			openIndRegistration();
+		} else if(toParse == "#wod_info") {
+			getWodInformation();
+		}
+	});
+	
+	$("#content").on("change", "#wod_selector", function() {
+		
+		 $( "#wod_selector option:selected" ).each(function() 
+		{
+			console.log($(this).text().substring(5));
+			getWod($(this).text().substring(5));
+			getWODResults($(this).text().substring(5));
+		});
+	});
+	
+	$("comp_info").on("click", "#submit_new_team", function () {
+		console.log($(this).text());
+		//submit_new_team();
+	});
+	
+	var currentAttrValue = "";
+	$("#dyn_content").on('click', '.tab-links a',function(e)  {
+        
+		currentAttrValue = $(this).attr('href');
+        // Show/Hide Tabs
+        $('.tabs ' + currentAttrValue).slideDown(400).siblings().slideUp(400);
+		$('.tabs ' + currentAttrValue).addClass('active').siblings().removeClass('active');
+
+        // Change/remove current tab to active
+        $(this).parent('li').addClass('active').siblings().removeClass('active');
+
+        e.preventDefault();
+    });
+	
+	/*
+	* Catches typos in the register form
+	* 
+	* Movement inputs: only alphabetical characters
+	* Weight inputs: only numerical
+	* Rep inputs: only numerical
+	*
+	* Should eventually prevent user from submitting
+	*/
+	$( this ).focusout(function (event) {
+		var id = event.target.id;
+		console.log("ID: " +id);
+		
+		var value = "";
+		var mvmReg = /^[a-zA-Z\s]*$/;
+		var weightReg = /^[0-9\/]*$/;
+		var repsReg = /^[a-zA-Z0-9\s]*$/;
+		
+		if ( id.indexOf("email") > -1 )
+		{
+			value = $("#" + id).val();
+			console.log("Is " + value + " valid?");
+			if(validateEmail(value)) {
+				$("#"+id).removeClass("input_error");
+				$("#"+id).qtip("destroy");
+			} else {
+				$("#"+id).addClass("input_error");
+				$("#"+id).qtip({ 
+					content: 'Please enter a valid email address'
+				});
+			}
+		} else if( id.indexOf("name") > -1 ||
+					id.indexOf("box") > -1 ||
+					id.indexOf("city") > -1 ||
+					id.indexOf("state") > -1  ) {
+			value = $("#" + id).val();
+			if(!repsReg.test(value))
+			{
+				$("#"+id).addClass("input_error");
+				$("#"+id).qtip({ 
+					content: 'Only letters and numbers please'
+				});
+			} else {
+				$("#"+id).removeClass("input_error");
+				$("#"+id).qtip("destroy");
+			}
+		} 
+	});
+	
+	/* FUNCTIONS */
+	function getCompInfo() {
+		console.log("GET INFO");
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/getBasicInfo.php",
+			data: {"comp_id":competition_id},
+			dataType: "json",
+			success: function(response) {
+				console.log("SUCCESS");
+				loadCompInfo(response);
+			}
+		});	
+	}
+	
+	function loadCompInfo(data) {
+		console.log("LOAD");
+		var static_ = '<div id="comp_info"><h3 id="hostbox"></h3>';
+		static_ +='<h4 id="location"></h4><h4 id="timedate"></h4><h4 id="information"></h4></div>';
+		$("#dyn_content").html(static_);
+		var heading = data[0].title;
+		var hostbox = "";
+		var location = data[0].location;
+		var time = data[0].time;
+		var date = data[0].date_;
+		var info = "";
+		divisions = data[0].divisions;
+		
+		hostbox = '<img src="'+data[0].picture_url+'" width="600" height="300">';
+		info = "<h4><b>DIVISIONS</b></h4><div id=\"available_spots\"></div><br/><h4><b>General Information</b></h4>";
+		info += "<p><b>Cost:</b> ";
+		info += "<p style=\"text-indent: 25px;\">Individual Competitor $" + data[0].costs.substring(4, data[0].costs.indexOf("*^*")) + "</p>";
+		info += "<p style=\"text-indent: 25px;\">Team $" + data[0].costs.substring(data[0].costs.indexOf("*^*")+8) + "</p>";
+		info += "</p>";
+		info +=	data[0].general+" <br/><br/>";
+		info += "For more information, contact: <b>Tim Kellinger at <a href=\"mailto:"+data[0].contact+"\">"+data[0].contact+"</a></b>";
+		$("#heading").html(heading);
+		$("#title").html(heading);
+		$("#hostbox").html(hostbox);
+		$("#location").html(location);
+		$("#timedate").html(time + " " + date);
+		$("#information").html(info);	
+		getTakenSpots(data[0].registration_limits);
+	}
+
+	function getTakenSpots(data) {
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/getTakenSpots.php",
+			data: {limits:data, id:competition_id},
+			dataType: "html",
+			success: function(response) {
+				console.log(response);
+				$("#available_spots").html(response);
+			}
+		});
+	}
+	
+	function getWodInformation() {
+		//notYetAvailable();
+		
+		$("#heading").html("WODs");
+		//first empty dyn_content
+		var static_ = '<div id="wod_info"></div>';
+		$("#dyn_content").html(static_);
+		
+		var tabs = '<div id="tabs" class="tabs"></div>'; //start tabs div
+		$("#wod_info").html(tabs);
+		
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/getWODsForAdmin.php",
+			data: {"c_id":competition_id, 
+					"admin":0},
+			dataType: "html",
+			success: function(response) {
+				$("#tabs").html(response);
+			}
+		});
+		
+	}
+
+	function getCompetitors() {
+		//notYetAvailable();
+		
+		$("#dyn_content").empty();
+		$("#heading").html("Competitors");
+		var tabs = '<div id="tabs" class="tabs"></div>'; //start tabs div
+		$("#dyn_content").html(tabs);
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/comp_getCompetitorsv2.php",
+			data: {"comp_id" : competition_id,
+					"divisions":divisions},
+			dataType: "html",
+			success: function(response) { 
+				console.log(response);
+				$("#tabs").html(response);
+			}
+		});
+		
+		
+	}
+	
+	function loadCompetitors(data) {
+	
+		var html = "<table class='competitors' id='competitors'><tr><th>Name</th><th>Box</th><th>Division</th></tr>";
+		
+		for(var i = 0; i < data.length; i++) {
+			html += "<tr>";
+			html += "<td>"+data[i].name+"</td>";
+			html += "<td>"+data[i].box+"</td>";
+			html += "<td>"+data[i].division+"</td>";
+			html += "</tr>";
+		}
+		html += "</table>";
+		
+		$("#dyn_content").html(html);
+		//getTeams();
+	}
+	
+	function getTeams() {
+		notYetAvailable();
+		/*
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/comp_getTeams.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "json",
+			success: function(response) { 
+				console.log(response);
+				loadTeams(response);
+			}
+		});
+		*/
+	}
+	
+	function loadTeams(data) {
+		
+		var html = "<br/><br/><h3>Teams</h3>";
+		html += "<table id='teams' class='competitors'><tr><th>Team Name</th><th>Number of Members</th></tr>";
+		
+		for(var i = 0; i < data.length; i++) {
+			html += "<tr>";
+			html += "<td>"+data[i].team_name+"</td>";
+			html += "<td>"+data[i].num_of_mems+"</td>";
+			html += "</tr>";
+		}
+		html += "</table>";
+		
+		$("#dyn_content").append(html);
+		$("#dyn_content").find(".competitors").addClass("competitors");
+	}
+	
+	function getResults() {
+		notYetAvailable();
+		/*
+		$("#dyn_content").empty();
+		$("#heading").html("Results");
+		
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/comp_getResults.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "html",
+			success: function(response) { 
+				console.log(response);
+				$("#dyn_content").html(response);
+			}
+		});
+		*/
+	}
+	
+	function getWod(num) {
+		notYetAvailable();
+		/*
+		$("#wod_desc").empty();
+		if(num.trim() == 'all') {
+			var response = "<br/><br/><b>Overall Points: </b>";
+			$("#wod_desc").html(response);
+		} else {
+			$.ajax({
+				type: "POST",
+				url: "/CRUD/competitions/comp_getWodDesc.php",
+				data: {"comp_id" : "10000000",
+						"wodNum":num},
+				dataType: "html",
+				success: function(response) { 
+					console.log(response);
+					$("#wod_desc").html(response);
+					
+				}
+			});
+		}
+		*/
+	}
+	
+	function getWODResults(num) {
+		notYetAvailable();
+		/*
+		$("#wod_score_results").empty();
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/comp_getWodScoreResults.php",
+			data: {"comp_id" : "10000000",
+					"wodNum":num},
+			dataType: "html",
+			success: function(response) { 
+				console.log(response);
+				$("#wod_score_results").html(response);
+			}
+		});
+		*/
+	}
+	
+	function openTeamRegistration() {
+		//notYetAvailable();
+		
+		var static_ = '<div id="comp_info"><h3 id="hostbox"></h3>';
+		static_ +='<h4 id="location"></h4><h4 id="timedate"></h4><h4 id="selector"></h4><h4 id="information"></h4></div>';
+		$("#dyn_content").html(static_);
+		var heading = "";
+		var info = "";
+		
+		heading = "Registration";
+		info = 'Division: <select id="division_select" >';
+		
+		var myarr = divisions.split(",");
+		for(var i = 0; i < myarr.length; i++) {
+			if(myarr[i].length > 0 && myarr[i].indexOf("_") > 1) {
+				info += '<option value="'+myarr[i]+'">';
+				info += translateDivisions(myarr[i]);
+				info += '</option>';
+			}
+		}
+		
+		info += '</select>';
+		$("#selector").html(info);
+		info = '<form id="register">';
+		info += '<h3>Team Info</h3>';
+		info += '<input type="text" name="team_name" id="team_name" class="form-control" placeholder="Team Name" required autofocus>';
+        info += '<br></br>';
+        info += '<input type="text" name="team_box" id="team_box" class="form-control" placeholder="Team Box" required>';
+        info += '<br></br>';
+		info += '<input type="text" name="team_box_city" id="team_box_city" class="form-control" placeholder="Box City" required>';
+        info += '<br></br>';
+		info += '<input type="text" name="team_box_state" id="team_box_state" class="form-control" placeholder="Box State" required>';
+        info += '<br></br>';
+		info += '<h3>Team Member #1 Info</h3>';
+        info += '<input type="text" name="full_name1" id="full_name1" class="form-control" placeholder="First and Last name" required >';
+        info += '<br></br>';
+        info += 'Male <input type="radio" name="gender1" class="radio_butts" value="M">';
+        info += 'Female <input type="radio" name="gender1" class="radio_butts" value="F">';
+        info += '  <br></br> ';
+        info += '<input type="email" name="email1" id="email1" class="form-control" placeholder="Email" required>';
+        info += '<br></br>';
+		info += '<h3>Team Member #2 Info</h3>';
+        info += '<input type="text" name="full_name2" id="full_name2" class="form-control" placeholder="First and Last name" required >';
+        info += '<br></br>';
+        info += 'Male <input type="radio" name="gender2" class="radio_butts" value="M">';
+        info += 'Female <input type="radio" name="gender2" class="radio_butts" value="F">';
+        info += '  <br></br> ';
+        info += '<input type="email" name="email2" id="email2" class="form-control" placeholder="Email" required>';
+        info += '<br></br>';
+        info += ' <input type="button" class="btn btn-lg btn-primary " onclick="submit_new_team();" value="Register"></input></form>';
+		
+		$("#heading").html(heading);
+		$("#information").html(info);
+		
+	} 
+	 
+	function openIndRegistration() {
+		//notYetAvailable();
+		
+		var static_ = '<div id="comp_info"><h3 id="hostbox"></h3>';
+		static_ +='<h4 id="location"></h4><h4 id="timedate"></h4><h4 id="selector"></h4><h4 id="information"></h4></div>';
+		$("#dyn_content").html(static_);
+		var heading = "";
+		var info = "";
+		
+		heading = "Registration";
+		info = 'Division: <select id="division_select" ><option value="m_rx">Male RX</option><option value="m_sc">Male Scaled</option>';
+		info += '<option value="f_rx">Female RX</option><option value="f_sc">Female Scaled</option></selection>';
+		info += '  <p></p> ';
+		$("#selector").html(info);
+		info = '<form id="register">';
+		info += '<h3>Athlete Info</h3>';
+        info += '<input type="text" name="full_name" id="full_name" class="form-control" placeholder="First and Last name" required >';
+        info += '  <br></br> ';
+        info += '<input type="email" name="email" id="email" class="form-control" placeholder="Email" required>';
+        info += '<br></br>';
+        info += '<input type="text" name="box" id="box" class="form-control" placeholder="Box" required>';
+        info += '<br></br>';
+		info += '<input type="text" name="city" id="city" class="form-control" placeholder="Box City" required>';
+        info += '<br></br>';
+		info += '<input type="text" name="state" id="state" class="form-control" placeholder="Box State" required>';
+        info += '<br></br>';
+        info += ' <input type="button" class="btn btn-lg btn-primary " onclick="submit_new_athlete();" value="Register"></input></form>';
+		
+		$("#heading").html(heading);
+		$("#information").html(info);
+		
+	}
+	
+	function submit_new_team() {
+		
+		
+		
+		var data = $("#register").serializeArray();
+		
+		var division = $("#division_select").val();
+		var comp_id = competition_id;
+		
+		var className = "";
+		var sendRequest = true;
+		$.each(data, function(i, field) {
+			className = $("#"+field.name+"").attr('class');
+			console.log(className);
+			if(field.value.length == 0) {
+				sendRequest = false;
+				$("#"+field.name+"").addClass("input_error");
+			}
+			if(className.indexOf("input_error") > -1) {
+				sendRequest = false;
+			}
+		});
+		
+		if(sendRequest == true) {
+			data.push({name:"division", value:division});
+			data.push({name:"comp_id", value:comp_id});
+			$.ajax({
+				type:"POST",
+				url: "/CRUD/competitions/comp_register_new_team.php",
+				data:data,
+				dataType:"text",
+				success: function(response) {
+					if(response.indexOf("4") > -1) {
+						alert("Could not create team or users! Try again!");	
+					} else if(response.indexOf("3") > -1) {
+						alert("Division is full!");	
+					} else if(response.indexOf("2") > -1) {
+						alert("Could not create users! Try again!");	
+					} else {
+						alert("Success!");	
+						clearInputs();
+					}
+					console.log(response);
+				}
+			});	
+		} else {
+			alert("Please fix errors before submitting");
+		}		
+	}
+	
+	
+	function submit_new_athlete() {
+		var data = $("#register").serializeArray();
+		
+		var division = $("#division_select").val();
+		var comp_id = competition_id;
+		
+		data.push({name:"division", value:division});
+		data.push({name:"comp_id", value:comp_id});
+		
+		var className = "";
+		var sendRequest = true;
+		$.each(data, function(i, field) {
+			className = $("#"+field.name+"").attr('class');
+			console.log(className);
+			if(field.value.length == 0) {
+				sendRequest = false;
+				$("#"+field.name+"").addClass("input_error");
+			}
+			if(className.indexOf("input_error") > -1) {
+				sendRequest = false;
+			}
+		});
+		
+		if(sendRequest == true) {
+			$.ajax({
+				type:"POST",
+				url: "/CRUD/competitions/register_new_athlete.php",
+				data:data,
+				dataType:"text",
+				success: function(response) {
+					if(response.indexOf("4") > -1) {
+						alert("Could not create team or users! Try again!");	
+					} else if(response.indexOf("2") > -1) {
+						alert("Could not create users! Try again!");	
+					} else if(response.indexOf("3") > -1) {
+						alert("Division is full!");	
+					} else {
+						alert("Success!");
+						clearInputs();
+					}
+					console.log(response);
+				}
+			});
+		} else { alert("Please fix errors before submitting"); }		
+	}
+	
+	function registration_closed() {
+		alert("Registration closed!");
+	}
+	
+	function notYetAvailable() {
+		alert("This feature is not yet available");
+	}
+	
+	function setCompID(data) {
+		var temp = data.toString();
+		var id = temp.substring(temp.indexOf("=")+1);
+		if(id.indexOf("#") > -1) {
+			id = id.substring(0, id.indexOf("#"));
+		}
+		console.log(id);
+		competition_id = id;
+	}
+	function clearInputs() {
+		$(':input','#register')
+		 .not(':button, :submit, :reset, :hidden')
+		 .val('')
+		 .removeAttr('checked')
+		 .removeAttr('selected');
+		/*$(':input','#pr_form_grl')
+		 .not(':button, :submit, :reset, :hidden')
+		 .val('')
+		 .removeAttr('checked')
+		 .removeAttr('selected');
+		$(':input','#pr_form_hro')
+		 .not(':button, :submit, :reset, :hidden')
+		 .val('')
+		 .removeAttr('checked')
+		 .removeAttr('selected');
+		$(':input','#pr_form_oly')
+		 .not(':button, :submit, :reset, :hidden')
+		 .val('')
+		 .removeAttr('checked')
+		 .removeAttr('selected');
+		$(':input','#pr_form_pwr')
+		 .not(':button, :submit, :reset, :hidden')
+		 .val('')
+		 .removeAttr('checked')
+		 .removeAttr('selected');
+		$(':input','#pr_form_mis')
+		 .not(':button, :submit, :reset, :hidden')
+		 .val('')
+		 .removeAttr('checked')
+		 .removeAttr('selected');
+		 */
+	}
+	
+	function translateDivisions(code) {
+		var value = "Unknown";
+		if(code == "m_rx") {
+			value = 'Male RX';
+		} else if(code == "f_rx") {
+			value = 'Female RX';
+		} else if(code == "m_sc") {
+
+			value = 'Male Scaled';
+		} else if(code == "f_sc") {
+
+			value = 'Female Scaled';
+		} else if(code == "mm_rx") {
+
+			value = 'Male/Male RX';
+		} else if(code == "ff_rx") {
+
+			value = 'Female/Female RX';
+		} else if(code == "mm_sc") {	
+
+			value = 'Male/Male Scaled';
+		} else if(code == "ff_sc") {
+
+			value = 'Female/Female Scaled';
+		} else if(code == "mf_rx") {
+
+			value = 'Male/Female RX';
+		} else if(code == "mf_sc") {
+
+			value = 'Male/Female Scaled';
+		}
+		return value;
+	}
+	
+	function validateEmail(email) { 
+		var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(email);
+	}
+	
+	</script>
+	
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  /* TEST SERVER */
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  /* LIVE SERVER */
+  //ga('create', 'UA-50665970-2', 'compete-box.com');
+  ga('send', 'pageview');
+
+</script>
+	
+  </body>
+</html>

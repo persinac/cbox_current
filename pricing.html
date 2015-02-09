@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="/assets/kb.ico">
+
+    <title>Cbox</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+  </head>
+<!-- NAVBAR
+================================================== -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">CBox</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contactform.php">Contact</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Registration <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="box_registration.php">Register as a Box</a></li>
+                    <li><a href="register_user.php">Register as a User</a></li>
+                  </ul>
+                </li>
+				<li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Competition Hosting <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="competition_hosting.html">Hosting Information</a></li>
+                    <li><a href="competitions.html">Past Competitions</a></li>
+                  </ul>
+                </li>
+				<li class="active"><a href="pricing.html">Pricing</a></li>
+				<li><a href="login_bootstrap.php">Login</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+    <div class="container marketing">
+
+
+      <!-- START THE FEATURETTES -->
+      <hr class="featurette-divider">
+	  
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Subscription Plan</h2>
+          <p class="lead">We offer a single, flexible monthly plan to accommodate your dynamic community. Based on the number of members per month, and free for the first 10 members, you will get access to all of the features presented. </p>
+		</div>
+        <div class="col-md-5">
+		  <p class="lead"> - $2.00, one-time activation fee (this gets your box set up and ready for members)</p>
+          <p class="lead"> - $1.50/member, capped at $200.00</p>
+		  <p class="lead"> - Access to all features (stat tracking, regional comparison, box metrics*)</p>
+		  <p class="lead"> - Future updates and upgrades at no cost and	24/7 support</p>
+		  <p class="lead"> - First month is on us!</p>
+		  <p> * Box metrics are available only to Administrators of the box. Whether they choose to display to the box is entirely up to them.</p>
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Still have questions? Or concerns?<span class="text-muted">Talk to us.</span></h2>
+          <p class="lead">We would be more than happy to speak to you about our services and how they would take your box to the next level.</p>
+		  <p class="lead">Contact our sales team at: <a href="mailto:sales@cboxbeta.com">sales@cboxbeta.com</a></p>
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <!-- /END THE FEATURETTES -->
+
+
+      <!-- FOOTER -->
+      <footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; 2014 CBox, Inc. &middot; <a href="privacy_policy.html">Privacy</a> &middot; <a href="tos.html">Terms</a>&middot; <a href="refundcancel_policy.html">Refund Policy</a></p>
+      </footer>
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- <script src="../dist/js/bootstrap.min.js"></script>
+    <script src="/assets/js/docs.min.js"></script>
+	<script src="../holderJS/holder.js"></script> -->
+    
+    <script src="dist/js/bootstrap.min.js"></script>
+    <script src="assets/js/docs.min.js"></script>
+	<script src="holderJS/holder.js"></script>
+<script>
+$('#signup').click(function(event) {
+	console.log("register_user redirect");
+	window.location.replace("http://compete-box.com/register_redirect.html");
+});
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50665970-1', 'compete-box.com');
+  ga('send', 'pageview');
+
+</script>
+  </body>
+</html>

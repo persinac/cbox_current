@@ -1,0 +1,24 @@
+Garrett Tasks:
+	***WILL BE UPDATED FREQUENTLY***
+	1. Create a Box Management page for administrators to adjust box info ($20.00)
+		a. Basically copy and paste the account management page and make it work with box information
+		b. I'll add the link from the Admin Page
+	
+	ALL PAGES
+	2. Adjust the nav bar positions across all pages to be even ($5.00)
+		- This will be tricky, you'll have to test across different monitor sizes and different browsers
+	
+	PROGRESS PAGE
+	3. Style the "New Open Data" and "Add some PR's" button to match color scheme ($2.00)
+	4. Style the modals that the aforementioned buttons open to match the color scheme ($3.00)
+	5a. Make the Olympic lifts (from clicking on the Olympic Sub Nav Bar) clickable ($5.00)
+		- I want users to be able to click the lift without the text changing color or being underlined
+		- Make sure to ID the links appropriately, as you will need them for the next task
+	5b. Show the user's progress from whichever lift they clicked overtime ($20.00)
+		- Display the users' log in the off-green sections beneath the section where the lists are displayed
+		- My log for my snatch progress, for example:
+			+ 1/18/2013 165lbs
+			+ 3/15/2013 175lbs
+			+ 10/21/2013 185lbs
+			+ 2/14/2014 190lbs
+		- Just display it like that for the time being

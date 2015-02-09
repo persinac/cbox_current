@@ -54,7 +54,7 @@ $query_getuserinfov2 = "select first_name, last_name,
 
 if ($result = $mysqli->query($query_getuserinfov2)) {
 	while ($row = $result->fetch_assoc()) {
-		$u->user_id = $row['user_id'];
+		$u->user_id = $userID;
 		$u->first_name = $row['first_name'];
 		$u->last_name = $row['last_name'];
 		$u->email = $row['email'];

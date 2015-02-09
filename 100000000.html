@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="/assets/kb.ico">
+
+    <title>Met-Con Wars III</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+    <link href="dist/css/first_page_css.css" rel="stylesheet">
+  </head>
+<!-- NAVBAR
+================================================== -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="competitions.html">CBox Custom Competition</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul id="main_nav" class="nav navbar-nav">
+                <li id="comp_info" class="active"><a href="#comp_info">Competition Info</a></li>
+                <li id="comp_info" ><a href="#wod_info">WOD Info</a></li>
+                <li id="competitors"><a href="#competitors">Competitors</a></li>
+                <li><a href="#results">Results</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Registration <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#register">Register your Team</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+    <div class="container marketing">
+      <div class="row featurette">       
+		<div id="content" class="col-md-7">
+		  <h2 class="featurette-heading" id="heading"></h2>
+		  <div id="dyn_content"></div>
+		</div>
+	  </div>
+
+      <!-- /END THE FEATURETTES -->
+	  <!-- FOOTER -->
+      <footer>
+        <p class="pull-right"><a href="index.html">Back to home</a></p>
+        <p>&copy; 2014 CBox, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+      </footer>
+    </div><!-- /.container -->
+	
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+	<!-- Required for full calendar -->
+	<script src='dist/lib/moment.min.js'></script>
+	<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+	<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+	<script src='dist/fullcalendar/fullcalendar.min.js'></script>
+
+	<!-- Required for date picker -->
+	<script src="dist/js/jquery.plugin.min.js"></script>
+	<script src="dist/js/jquery.datepick.min.js"></script> 
+
+	<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
+
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	
+	<script>
+		
+	$(document).ready(function() {
+		getCompInfo();
+	});	
+	
+	$("#main_nav").on("click", "li", function() {
+		var toParse = $(this).find('a').attr('href');
+		$("ul").find("li.active").removeClass("active");
+		$(this).addClass('active');
+		console.log(toParse);
+		if(toParse == "#comp_info") {
+			getCompInfo();
+		} else if(toParse == "#competitors") {
+			getCompetitors();
+		} else if(toParse == "#results") {
+			getResults();
+		} else if(toParse == "#register") {
+			openRegistration();
+		} else if(toParse == "#wod_info") {
+			getWodInformation();
+		}
+	});
+	
+	$("#content").on("change", "#wod_selector", function() {
+		
+		 $( "#wod_selector option:selected" ).each(function() 
+		{
+			console.log($(this).text().substring(5));
+			getWod($(this).text().substring(5));
+			getWODResults($(this).text().substring(5));
+		});
+	});
+	
+	$("comp_info").on("click", "#submit_new_team", function () {
+		console.log($(this).text());
+		//submit_new_team();
+	});
+	
+	function getCompInfo() {
+		
+		var static_ = '<div id="comp_info"><h3 id="hostbox"></h3>';
+		static_ +='<h4 id="location"></h4><h4 id="timedate"></h4><h4 id="information"></h4></div>';
+		$("#dyn_content").html(static_);
+		var heading = "";
+		var hostbox = "";
+		var location = "";
+		var time = "";
+		var date = "";
+		var info = "";
+		
+		heading = "Met-Con Wars III";
+		hostbox = '<img src="/competitions/metconwarsiii/images/CF301_Logo.png" width="600" height="300">';
+		location = "Hagerstown, MD";
+		time = "7:30pm";
+		date = "August 1st, 2014";
+		info = "<h4><b>TEAM COMPETITION</b></h4> Only room for 10 teams, so register now!<br/><h4><b>General Information</b></h4>Cost: $100.00 per team ";
+		info +=	" $5.00 Spectator Fee   Kids are free<br/>WODs will be posted two weeks prior to the event. Teams must be comprised of 2 men";
+		info += " and 2 women. <br/>For more information, contact: <b>Tim Kellinger at crossfit301elite@gmail.com</b>";
+		info += "<p style=\"color: red;\"><b>Registration Closed</b></p>";
+		
+		loadCompInfo(heading, hostbox, location, time, date, info);
+				
+	}
+	
+	function loadCompInfo(heading, hostbox, location, time, date, info) {
+		$("#heading").html(heading);
+		$("#hostbox").html(hostbox);
+		$("#location").html(location);
+		$("#timedate").html(time + " " + date);
+		$("#information").html(info);
+	}
+
+	function getWodInformation() {
+		var wodOne = "";
+		var wodTwo = "";
+		var wodThree = "";
+		var wodFour = "";
+		var wodFive = "";	
+		var wod_array = new Array();
+		
+		wodOne = '<p>Male/Male <p>21-15-9-6-3 reps for time of:</p> <p style="text-indent: 25px">Thrusters (95)</p> <p style="text-indent: 25px">Box jump overs (24")</p><p><b>*** 10 min time cap ***</b></p>';
+		wodOne += '<p>Both male athletes can work together to accumulate reps throughout the workout. Example: partner A may perform 10 thrusters and partner B perform 11. Same philosophy can be used for box jump overs. ONLY one athlete may work at a time. If the workout is not finished under the time cap your placement will be based on total reps completed. If the workout is completed within the time cap your placement is based on your finished time.';
+		wodOne += '</br></br><a href="https://www.facebook.com/photo.php?v=273329369457765&set=vb.208612532596116&type=2&theater">Standards</a></p></p>';
+		wodTwo = '<p>Female/Female <p>21-15-9-6-3 reps for time of:</p> <p style="text-indent: 25px">Thrusters (65)</p> <p style="text-indent: 25px">Box jump overs (20")</p><p><b>*** 10 min time cap ***</b></p>';
+		wodTwo += '<p>Both female athletes can work together to accumulate reps throughout the workout. Example: partner A may perform 10 thrusters and partner B perform 11. Same philosophy can be used for box jump overs. ONLY one athlete may work at a time. If the workout is not finished under the time cap your placement will be based on total reps completed. If the workout is completed within the time cap your placement is based on your finished time.';
+		wodTwo += '</br></br><a href="https://www.facebook.com/photo.php?v=273329369457765&set=vb.208612532596116&type=2&theater">Standards</a></p></p>';
+		wodThree = '<p>Male/Female <p>Complete the following as fast as possible: </p><p style="text-indent: 25px">150 wall balls (20,14)</p><p style="text-indent: 25px">30 snatches (135,65)</p><p><b>*** 10 min time cap ***</b></p>';
+		wodThree += '<p>Both athletes may work together to accumulate reps throughout the workout. Example: partner A will perform 75 wall balls, partner B will perform 75 wall balls broken up into sets for a total of 150 wall balls. All 150 wall balls must be competed before moving on to the 30 snatches, the same philosophy may be used for snatches. Again, ONLY one athlete is working at a time. If the workout is not completed within the time cap your placement is based on total reps completed. If you complete the workout within the time cap your placement is based on finished time.</p>';
+		wodThree += '<p><a href="https://www.facebook.com/photo.php?v=273331099457592&set=vb.208612532596116&type=2&theater">Standards</a></p></p>';
+		wodFour = '<p>Male/Female <p>Complete as many rounds as possible in 10 minutes of: </p>';
+		wodFour += '<p style="text-indent: 25px">25 calorie row (EACH athlete)<p style="text-indent: 25px">1 power clean (135,75)</p><p style="text-indent: 25px">1 pull-up</p><p style="text-indent: 25px">2 power cleans</p><p style="text-indent: 25px">2 pull-ups</p><p style="text-indent: 25px">3 power cleans</p><p style="text-indent: 25px">3 pull-ups</p><p style="text-indent: 25px">And so on until time is up...</p></p>';
+		wodFour += '<p>Both athletes must complete 25 calories each on the rower before moving on. Once completed athlete A will perform power cleans while athlete B performs pull-ups. Only one movement can be performed at a time, as well as only one athlete working at a time. At any time athletes can switch from cleans to pull-ups or vice versus. Both athletes may assist to accumulate reps for pull-ups and power cleans. Your placement will be based on total reps completed within the 10 min time cap.</p>';
+		wodFour +='<p><a href="https://www.facebook.com/photo.php?v=273333152790720&set=vb.208612532596116&type=2&theater">Standards</a></p></p>';
+		wodFive = '<p>Top 3 teams will advance to a final workout';
+		wodFive += '<p>Complete the following for time: </p>';
+		wodFive += '<p style="text-indent: 25px">20 deadlifts (225,135)</p><p style="text-indent: 25px">10 bar facing burpees</p><p style="text-indent: 25px">50 double unders</p><p style="text-indent: 25px">10 bar facing burpees</p><p style="text-indent: 25px">20 toes to bar</p></p>';
+		wodFive += '<p>*** 17 min time cap ***</p><p>This will be a team relay. The order of who goes may be designed by each team. An example would be Male/Female/Male/Female. The male athlete will perform the entire workout, once the 20th toe to bar is competed the female athlete can then go and must compete the entire workout and so on till all 4 athletes have either completed the workout or the time cap has expired.</p>';
+		wodFive += '<p><a href="https://www.facebook.com/photo.php?v=273335076123861&set=vb.208612532596116&type=2&theater">Standards</a></p></p>';		
+		
+		wod_array.push({name:"wOne", value:wodOne});
+		wod_array.push({name:"wTwo", value:wodTwo});
+		wod_array.push({name:"wThr", value:wodThree});
+		wod_array.push({name:"wFou", value:wodFour});
+		wod_array.push({name:"wFiv", value:wodFive});
+		
+		loadWODInfo(wod_array);
+	}
+
+	function loadWODInfo(data) {
+		wod_string = '<div id="wod_information">';
+		for(var i = 0; i < data.length; i++) {
+			wod_string += '<h3>WOD #' + (i+1) + '</h3>';
+			wod_string += data[i].value;
+		}
+		wod_string += '</div>';
+		
+		$("#dyn_content").html(wod_string);
+	}
+
+	function getCompetitors() {
+		$("#dyn_content").empty();
+		$("#heading").html("Competitors");
+		$.ajax({
+			type: "POST",
+			url: "comp_getCompetitors.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "json",
+			success: function(response) { 
+				console.log(response);
+				loadCompetitors(response);
+			}
+		});
+		
+	}
+	
+	function loadCompetitors(data) {
+	
+		var html = "<table class='competitors' id='competitors'><tr><th>Name</th><th>Box</th><th>Division</th><th>Team Name</th></tr>";
+		
+		for(var i = 0; i < data.length; i++) {
+			html += "<tr>";
+			html += "<td>"+data[i].name+"</td>";
+			html += "<td>"+data[i].box+"</td>";
+			html += "<td>"+data[i].division+"</td>";
+			html += "<td>"+data[i].team_name+"</td>";
+			html += "</tr>";
+		}
+		html += "</table>";
+		
+		$("#dyn_content").html(html);
+		getTeams();
+	}
+	
+	function getTeams() {
+
+		$.ajax({
+			type: "POST",
+			url: "comp_getTeams.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "json",
+			success: function(response) { 
+				console.log(response);
+				loadTeams(response);
+			}
+		});
+		
+	}
+	
+	function loadTeams(data) {
+		
+		var html = "<br/><br/><h3>Teams</h3>";
+		html += "<table id='teams' class='competitors'><tr><th>Team Name</th><th>Number of Members</th></tr>";
+		
+		for(var i = 0; i < data.length; i++) {
+			html += "<tr>";
+			html += "<td>"+data[i].team_name+"</td>";
+			html += "<td>"+data[i].num_of_mems+"</td>";
+			html += "</tr>";
+		}
+		html += "</table>";
+		
+		$("#dyn_content").append(html);
+		$("#dyn_content").find(".competitors").addClass("competitors");
+	}
+	
+	function getResults() {
+		$("#dyn_content").empty();
+		$("#heading").html("Results");
+		
+		$.ajax({
+			type: "POST",
+			url: "comp_getResults.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "html",
+			success: function(response) { 
+				console.log(response);
+				$("#dyn_content").html(response);
+			}
+		});
+	}
+	
+	function getWod(num) {
+		$("#wod_desc").empty();
+		if(num.trim() == 'all') {
+			var response = "<br/><br/><b>Overall Points: </b>";
+			$("#wod_desc").html(response);
+		} else {
+			$.ajax({
+				type: "POST",
+				url: "comp_getWodDesc.php",
+				data: {"comp_id" : "10000000",
+						"wodNum":num},
+				dataType: "html",
+				success: function(response) { 
+					console.log(response);
+					$("#wod_desc").html(response);
+					
+				}
+			});
+		}
+	}
+	
+	function getWODResults(num) {
+		$("#wod_score_results").empty();
+		$.ajax({
+			type: "POST",
+			url: "comp_getWodScoreResults.php",
+			data: {"comp_id" : "10000000",
+					"wodNum":num},
+			dataType: "html",
+			success: function(response) { 
+				console.log(response);
+				$("#wod_score_results").html(response);
+			}
+		});
+	}
+	
+	function openRegistration() {
+		
+		var static_ = '<div id="comp_info"><h3 id="hostbox"></h3>';
+		static_ +='<h4 id="location"></h4><h4 id="timedate"></h4><h4 id="information"></h4></div>';
+		$("#dyn_content").html(static_);
+		var heading = "";
+		var info = "";
+		
+		heading = "Met-Con Wars III Registration";
+		info = '<form id="register">';
+		info += '<h3>Team Info</h3>';
+		info += '<input type="text" name="team_name"class="form-control" placeholder="Team Name" required autofocus>';
+        info += '<br></br>';
+        info += '<input type="text" name="team_box"class="form-control" placeholder="Team Box" required>';
+        info += '<br></br>';
+		info += '<input type="text" name="team_box_city"class="form-control" placeholder="Box City" required>';
+        info += '<br></br>';
+		info += '<input type="text" name="team_box_state"class="form-control" placeholder="Box State" required>';
+        info += '<br></br>';
+		info += '<h3>Team Member #1 Info</h3>';
+        info += '<input type="text" name="full_name1"class="form-control" placeholder="First and Last name" required >';
+        info += '<br></br>';
+        info += 'Male <input type="radio" name="gender1" class="radio_butts" value="M">';
+        info += 'Female <input type="radio" name="gender1" class="radio_butts" value="F">';
+        info += '  <br></br> ';
+        info += '<input type="email" name="email1"class="form-control" placeholder="Email" required>';
+        info += '<br></br>';
+		info += '<h3>Team Member #2 Info</h3>';
+        info += '<input type="text" name="full_name2"class="form-control" placeholder="First and Last name" required >';
+        info += '<br></br>';
+        info += 'Male <input type="radio" name="gender2" class="radio_butts" value="M">';
+        info += 'Female <input type="radio" name="gender2" class="radio_butts" value="F">';
+        info += '  <br></br> ';
+        info += '<input type="email" name="email2"class="form-control" placeholder="Email" required>';
+        info += '<br></br>';
+		info += '<h3>Team Member #3 Info</h3>';
+        info += '<input type="text" name="full_name3"class="form-control" placeholder="First and Last name" required >';
+        info += '<br></br>';
+        info += 'Male <input type="radio" name="gender3" class="radio_butts" value="M">';
+        info += 'Female <input type="radio" name="gender3" class="radio_butts" value="F">';
+        info += '  <br></br> ';
+        info += '<input type="email" name="email3"class="form-control" placeholder="Email" required>';
+        info += '<br></br>';
+		info += '<h3>Team Member #4 Info</h3>';
+        info += '<input type="text" name="full_name4"class="form-control" placeholder="First and Last name" required >';
+        info += '<br></br>';
+        info += 'Male <input type="radio" name="gender4" class="radio_butts" value="M">';
+        info += 'Female <input type="radio" name="gender4" class="radio_butts" value="F">';
+        info += '  <br></br> ';
+        info += '<input type="email" name="email4"class="form-control" placeholder="Email" required>';
+        info += '<br></br>';
+        info += ' <input type="button" class="btn btn-lg btn-primary " onclick="submit_new_team();" value="Register"></input></form>';
+		
+		$("#heading").html(heading);
+		$("#information").html(info);
+				
+	}
+	
+	function submit_new_team() {
+		var data = $("#register").serializeArray();
+		
+		var division = "team";
+		var comp_id = "10000000";
+		
+		data.push({name:"division", value:division});
+		data.push({name:"comp_id", value:comp_id});
+		$.ajax({
+			type:"POST",
+			url: "comp_register_new_team.php",
+			data:data,
+			dataType:"text",
+			success: function(response) {
+				if(response.indexOf("4") > -1) {
+					alert("Could not create team or users! Try again!");	
+				} else if(response.indexOf("2") > -1) {
+					alert("Could not create users! Try again!");	
+				} else {
+					alert("Success!");	
+				}
+				console.log(response);
+			}
+		});
+			
+	}
+	
+	</script>
+	
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('send', 'pageview');
+
+</script>
+	
+  </body>
+</html>

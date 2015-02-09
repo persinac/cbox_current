@@ -43,7 +43,6 @@ if (isset($_SESSION['MM_UserID'])) {
 }
 
 $mysqli = new mysqli($hostname_cboxConn, $username_cboxConn, $password_cboxConn, $database_cboxConn);
-$t_date = $_POST['date'];
 /* check connection */
 if (mysqli_connect_errno()) {
     printf("Connect failed: %s\n", mysqli_connect_error());
@@ -98,7 +97,7 @@ $query_getAdminWODs = "select wod_id
 , rx_descrip
  from wods
 WHERE SUBSTRING(wods.wod_id, 1, {$length_of_box_id}) = '{$box_id}'";
-
+//echo $query_getAdminWODs;
 if ($result = $mysqli->query($query_getAdminWODs)) {
 	$wods = array();
 	$index = 7;
@@ -156,7 +155,7 @@ if ($result = $mysqli->query($query_getAdminWODs)) {
 
 		$wods[] = $w;
 		$index = $index + 1;
-		$prev_date = $row["date"];
+		$prev_date = $row["date_of_wod"];
 		$count = $count + 1;
 	}
 	echo json_encode($wods);

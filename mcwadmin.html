@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="/assets/kb.ico">
+
+    <title>Met-Con Wars III Admin</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+    <link href="dist/css/first_page_css.css" rel="stylesheet">
+  </head>
+<!-- NAVBAR
+================================================== -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="competitions.html">CBox Custom Competition</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul id="main_nav" class="nav navbar-nav">
+                <li class="active" id="add_scores" ><a href="#add_scores">Add Scores</a></li>
+                <li id="team_manage"><a href="#team_manage">Team Management</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+    <div class="container marketing">
+
+      <div class="row featurette">
+                
+		<div id="content" class="col-md-7">
+		  <h2 class="featurette-heading" id="heading"></h2>
+		  <div id="dyn_content"></div>
+
+		</div>
+	  </div>
+
+      <!-- /END THE FEATURETTES -->
+	  <!-- FOOTER -->
+      <footer>
+        <p class="pull-right"><a href="index.html">Back to home</a></p>
+        <p>&copy; 2014 CBox, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+      </footer>
+    </div><!-- /.container -->
+	
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+	<!-- Required for full calendar -->
+	<script src='dist/lib/moment.min.js'></script>
+	<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+	<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+	<script src='dist/fullcalendar/fullcalendar.min.js'></script>
+
+	<!-- Required for date picker -->
+	<script src="dist/js/jquery.plugin.min.js"></script>
+	<script src="dist/js/jquery.datepick.min.js"></script> 
+
+	<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
+
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	
+	<script>
+	var comp_id = 10000000;
+	$(document).ready(function() {
+		getResults();
+	});	
+	
+	$("#main_nav").on("click", "li", function() {
+		var toParse = $(this).find('a').attr('href');
+		$("ul").find("li.active").removeClass("active");
+		$(this).addClass('active');
+		console.log(toParse);
+		if(toParse == "#add_scores") {
+			getResults();
+		} else if(toParse == "#team_manage") {
+			getTeamStuff();
+		}
+	});
+	
+	$("#content").on("change", "#wod_selector", function() {
+		
+		$( "#wod_selector option:selected" ).each(function() 
+		{
+			console.log($(this).text().substring(5));
+			getWod($(this).text().substring(5));
+			
+			getTeams();
+		});
+	});
+	
+	$("#content").on("click", "li", function() {
+		var toParse = $(this).find('a').attr('href');
+		console.log(toParse);
+		if(toParse == "#edit_members") {
+			editMembers();
+		} else if(toParse == "#wod_comp") {
+			adjustTeams();
+		}
+	});
+	
+	var team_id = "";
+	
+	$("#content").on("change", "#team_selector", function() {
+		
+		$( "#team_selector option:selected" ).each(function() 
+		{
+			console.log($(this).val());
+			team_id = $(this).val();
+			getAthletes($(this).val());
+		});
+	});
+	
+	function getResults() {
+		$("#dyn_content").empty();
+		$("#heading").html("Add/Adjust Scores");
+		
+		$.ajax({
+			type: "POST",
+			url: "comp_getResults.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "html",
+			success: function(response) { 
+				console.log(response);
+				$("#dyn_content").html(response);
+			}
+		});
+	} 
+	
+	function getWod(num) {
+		$("#wod_desc").empty();
+		
+		if(num.trim() == 'all') {
+			var response = "<br/><br/><b>Overall Points: </b>";
+			$("#wod_desc").html(response);
+		} else {
+			$.ajax({
+				type: "POST",
+				url: "comp_getWodDesc.php",
+				data: {"comp_id" : "10000000",
+						"wodNum":num},
+				dataType: "html",
+				success: function(response) { 
+					console.log(response);
+					$("#wod_desc").html(response);
+				}
+			});
+		}
+	}
+	
+	function getTeams() {
+		
+		$.ajax({
+			type: "POST",
+			url: "comp_getTeams.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "json",
+			success: function(response) { 
+				console.log(response);
+				loadTeams(response);
+			}
+		});
+	}
+	
+	function loadTeams(data) {
+		
+		var html = "<br/><br/><h3>Teams</h3>";
+		html += "<form id=\"score_form\"><table id='teams' class='competitors'><tr><th>Team Name</th><th>Score</th><th>Points Awarded</th></tr>";
+		
+		for(var i = 0; i < data.length; i++) {
+			html += "<tr>";
+			html += "<td>"+data[i].team_name+" <input type=\"hidden\" name=\"team_id_"+i+"\" value="+data[i].team_id+"></td>";
+			html += '<td> <input type="text" name="team_score_'+i+'" required> </td>';
+			html += '<td> <input type="text" name="team_points_'+i+'" required> </td>';
+			html += "</tr>";
+		}
+		html += '</table><input type="button" class="btn btn-lg btn-primary " onclick="submit_scores();" value="Submit"></input></form>';
+		
+		$("#wod_score_results").html(html);
+		$("#wod_score_results").find(".competitors").addClass("competitors");
+	}
+	
+	function submit_scores() {
+	
+		var data = $("#score_form").serializeArray();
+		
+		var wod = "";
+		$( "#wod_selector option:selected" ).each(function() 
+		{
+			console.log($(this).text().substring(5));
+			wod = $(this).text().substring(5);
+		});
+		
+		data.push({name:"wod_num", value:wod});
+		data.push({name:"comp_id", value:comp_id});
+		
+		$.ajax({
+			type:"POST",
+			url:"comp_submitScores.php",
+			data: data,
+			dataType: "text",
+			success: function(response){
+				console.log(response);
+				if(response.indexOf("2") > -1) {
+					alert("Submit Scores Error! Please contact administrator");
+				} else {
+					alert("Success!");
+				}
+			}
+		});
+		
+	}
+	
+	function getTeamStuff() {
+		$("#dyn_content").empty();
+		$("#heading").html("Team Management");
+		
+		var html = '<div id="team_mng">';
+		html += '<ul id="team_mng_sidebar">';
+        html += '<li id="edit_members" ><a href="#edit_members">Edit Members</a></li>';
+        html += '<li id="wod_comp"><a href="#wod_comp">Edit WOD Composition</a></li>';
+        html += '</ul>';
+		html += '</div><div id="content_edit"></div>';
+		
+		$("#dyn_content").html(html);
+	}
+	
+	function mapTeams(data) {
+		var html = '<select id="team_selector">';
+		html += '<option value="none"> - </option>';
+		for(var i = 0; i < data.length; i++) {
+			console.log(data[i].team_id+' > '+data[i].team_name);
+			html += '<option value="'+data[i].team_id+'">'+data[i].team_name+'</option>';
+		}
+		html += '</select>';
+		html += '<p></p><div id="wod_adjustment"><p></p><form id="wod_adj">';
+		html += '<h4>WOD #1 Team Composition</h4><p id="wod_one"></p>';
+		html += '<h4>WOD #2 Team Composition</h4><p id="wod_two"></p>';
+		html += '<h4>WOD #3 Team Composition</h4><p id="wod_three"></p>';
+		html += '<h4>WOD #4 Team Composition</h4><p id="wod_four"></p>';
+		html += '<input type="button" class="btn btn-primary " onclick="submit_new_team_comp();" value="Submit"></input></form></div>';
+		$("#content_edit").html(html);
+	} 
+	
+	function adjustTeams() {
+		$("#content_edit").empty();
+		$.ajax({
+			type: "POST",
+			url: "comp_getTeams.php",
+			data: {"comp_id" : "10000000"},
+			dataType: "json",
+			success: function(response) { 
+				console.log(response);
+				mapTeams(response);
+			}
+		});
+	}
+	
+	var athleteMapJSON = "";
+	function getAthletes(team_id) {
+		$.ajax({
+			type: "POST",
+			url: "comp_getAthletes.php",
+			data: {"comp_id" : "10000000", "team_id":team_id},
+			dataType: "json",
+			success: function(response) { 
+				console.log("GET ATHLETES: "+response);
+				buildTeamAthletesSelector(response);
+			}
+		});
+	}
+	var index = 0;
+	function buildTeamAthletesSelector(data) {
+		var html = '';
+		
+		for(var j = 0; j < 2; j++) {
+			html += '<select name="as_'+index+'"><option value="none_'+index+'"> - </option>';
+			for(var i = 0; i < data.length; i++) {
+				//console.log(data[i].name);
+				html += '<option value="ath_'+data[i].name+'">'+data[i].name+'</option>';
+			}
+			html += '</select>';
+			if(j == 0) {
+				html += ' and ';
+			}
+			index = index + 1;
+		}
+		
+		$("#wod_one").html(html);
+		
+		var html = '';
+		
+		for(var j = 0; j < 2; j++) {
+			html += '<select name="as_'+index+'"><option value="none_'+index+'"> - </option>';
+			for(var i = 0; i < data.length; i++) {
+				//console.log(data[i].name);
+				html += '<option value="ath_'+data[i].name+'">'+data[i].name+'</option>';
+			}
+			html += '</select>';
+			if(j == 0) {
+				html += ' and ';
+			}
+			index = index + 1;
+		}
+		$("#wod_two").html(html);
+		var html = '';
+		
+		for(var j = 0; j < 2; j++) {
+			html += '<select name="as_'+index+'"><option value="none_'+index+'"> - </option>';
+			for(var i = 0; i < data.length; i++) {
+				//console.log(data[i].name);
+				html += '<option value="ath_'+data[i].name+'">'+data[i].name+'</option>';
+			}
+			html += '</select>';
+			if(j == 0) {
+				html += ' and ';
+			}
+			index = index + 1;
+		}
+		$("#wod_three").html(html);
+		var html = '';
+		
+		for(var j = 0; j < 2; j++) {
+			html += '<select name="as_'+index+'"><option value="none_'+index+'"> - </option>';
+			for(var i = 0; i < data.length; i++) {
+				//console.log(data[i].name);
+				html += '<option value="ath_'+data[i].name+'">'+data[i].name+'</option>';
+			}
+			html += '</select>';
+			if(j == 0) {
+				html += ' and ';
+			}
+			index = index + 1;
+		}
+		$("#wod_four").html(html);
+		index = 0;
+	}
+	
+	function editMembers() {
+		$("#dyn_content").empty();
+	}
+	
+	function submit_new_team_comp() {
+		var data = $("#wod_adj").serializeArray();
+		
+		data.push({name:"team_id", value:team_id});
+		data.push({name:"comp_id", value:"10000000"});
+		
+		$.ajax({
+			type: "POST",
+			url: "comp_submitTeamComp.php",
+			data: data,
+			dataType: "text",
+			success: function(response) {
+				console.log(response);
+				if(response.indexOf("2") > -1) {
+					alert("Submit Team Comp Error! Contact administrator");
+				} else {
+					alert("Successfully set team composition!");
+				}
+			}
+		});
+		
+	}
+	
+	</script>
+	
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('send', 'pageview');
+
+</script>
+	
+  </body>
+</html>

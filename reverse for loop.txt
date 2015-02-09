@@ -1,0 +1,45 @@
+I have an array that looks like this:
+
+Array: 
+	[0] = Name, ID, Scores[]
+						[0] = x
+						[1] = y
+	[1] = Name, ID, Scores[]
+						[0] = x
+						[1] = y
+	[2] = Name, ID, Scores[]
+						[0] = x
+						[1] = y
+	
+Well, this is kind of a 2D array, kind of not, and here's how you typically access a 2D array:
+
+for(int i = 0; i < array.length; i++) {
+	for(int j = 0; j < array[i].length; j++) {
+		System.out.println(array[i][j].toString()); //or whatever
+	}
+}
+
+Which would output the following: 
+Trey, 20, 400, 3:45
+Bob, 21, 376, 5:09
+Susan, 22, 355, 5:44
+
+The above algorithm produces the following grouping by name, and displaying scores associated with that name and ID.
+In order for me to group it a little differently, by scores, I had to reverse the algorithm like so:
+
+for(int j = 0; j < myCounter; j++) {
+	for(int i = 0; i < array.length; i++) {
+		System.out.println(array[i][j].toString()); //or whatever
+	}
+}
+
+Which would produce the following:
+Trey, 20, 400
+Bob, 21, 376
+Susan, 22, 355
+
+Trey, 20, 3:45
+Bob, 21, 5:09
+Susan, 22, 5:44
+
+Just a little nifty algorithm to wrap your head around 

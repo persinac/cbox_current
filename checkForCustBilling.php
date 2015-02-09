@@ -21,27 +21,39 @@ class billing_info {
 }
 
 $u = new billing_info();
-//echo "New user before credentials: " . $u->first_name . " ". $u->last_name . ", ". $u->email . ", ". $u->box_id . " ";
-$query_checkCustDetail = "select user_id, box_id, 
-						customer_id, 
-						subscription_id
-						FROM customer_detail 
-						WHERE user_id = $userID";
 
-//echo "\nMain Query: " .$query_getuserinfov2 ."\n";
+if($stmt = $mysqli->prepare('select user_id, box_id, customer_id, subscription_id
+						FROM customer_details WHERE user_id = ?')) 
+{
+	$stmt->bind_param('s', $userID);
+	$stmt->execute();
+	$stmt->store_result();
 
-if ($result = $mysqli->query($query_checkCustDetail)) {
-	while ($row = $result->fetch_assoc()) {
-		$u->user_id = $row['user_id'];
-		$u->box_id = $row['box_id'];
-		$u->customer_id = $row['customer_id'];
-		$u->subscription_id = $row['subscription_id'];
-	}
-	echo json_encode($u);
+	/* Get the number of rows */
+	$num_of_rows = $stmt->num_rows;
+	//echo $num_of_rows . "    ";
 	
-	$result->free();
-} else {
-	echo "1";
+	if($num_of_rows > 0) {
+
+		/* Bind the result to variables */
+		$stmt->bind_result($u_id, $b_id, $c_id, $s_id);
+
+		while ($stmt->fetch()) {
+			//echo " " . $u_id. " " . $b_id . " " . $c_id ." ". $s_id;
+			$u->user_id = $u_id;
+			$u->box_id = $b_id;
+			$u->customer_id = $c_id;
+			$u->subscription_id = $s_id;
+		}
+
+		/* free results */
+		$stmt->free_result();
+
+		echo json_encode($u);
+	}
+	else {
+		echo "1";
+	}
 }
 
 $mysqli->close();

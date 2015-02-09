@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="/assets/kb.ico">
+
+    <title>Competition Management Console</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="dist/css/jquery.qtip.css" />
+
+	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+    <!-- Custom styles for this template -->
+	<link href="dist/css/first_page_css.css" rel="stylesheet">
+	<link href="dist/css/tabs.css" rel="stylesheet">
+  </head>
+<!-- NAVBAR
+================================================== -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">CBox</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul id="main_nav" class="nav navbar-nav">
+                <li id="comp_info"><a href="#basics">Basics</a></li>
+                <li id="comp_wods" ><a href="#wods">WODs</a></li>
+                <li id="preview"><a href="#preview">Preview</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+	
+    <div class="container marketing">
+		<div class="row featurette">
+			<div id="content" class="col-md-7">
+				<h2 class="featurette-heading" id="heading"></h2>
+				<div id="dyn_content">
+				
+				
+				
+				</div>
+			</div>
+		</div>
+	
+      <footer>
+        <p>&copy; 2014 CBox, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+      </footer>
+	</div><!-- /.container -->
+	
+	<div id="dialog-modal" title="Admin Login" style="display:none;">
+			<div id="admin_login">
+
+			
+
+			</div>
+		</div>
+	
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	<!-- These must be in THIS ORDER! DO NOT FUCK WITH -->
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="dist/js/bootstrap.min.js"></script>
+
+	<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+	<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+
+	<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
+		
+<script>
+	
+	var competition_id = -1;
+	$(document).ready(function() {
+		adminLogin();
+	});	
+	
+	$("#main_nav").on("click", "li", function() {
+		var toParse = $(this).find('a').attr('href');
+		$("ul").find("li.active").removeClass("active");
+		$(this).addClass('active');
+		console.log(toParse);
+		if(toParse == "#basics") {
+			getCompInfo(competition_id);
+		} else if(toParse == "#wods") {
+			getWODs(competition_id);
+		} else if(toParse == "#preview") {
+			/* 
+			 * Need to get name of comp from Tim and create <name>.html instead of preview_001
+			 * also, when going live, make sure to change cboxbeta to compete-box
+			 */
+			window.open("http://cboxbeta.com/preview_001.html?cid="+competition_id+"");
+		} 
+		/*else if(toParse == "#register") {
+			openRegistration();
+		} else if(toParse == "#wod_info") {
+			getWodInformation();
+		}*/
+	});
+	
+	$("#dyn_content").on("mousedown", ".divisions", function() {
+		console.log("mousedown event WORKING");
+		var id = $(this).attr("value");
+		if (!$(this).is(':checked')) {
+			console.log("CHECK: " + id);
+			$(this).trigger("change");
+			addRegistrationLimitInput(id);
+		} else {
+			console.log("UNCHECK: " + id);
+			$(this).trigger("change");
+			$("#p_"+id+"").remove();
+		}
+	});
+	
+	var currentAttrValue = "";
+	$("#dyn_content").on('click', '.tab-links a',function(e)  {
+        
+		currentAttrValue = $(this).attr('href');
+        // Show/Hide Tabs
+        $('.tabs ' + currentAttrValue).slideDown(400).siblings().slideUp(400);
+		$('.tabs ' + currentAttrValue).addClass('active').siblings().removeClass('active');
+ 
+ 
+        // Change/remove current tab to active
+        $(this).parent('li').addClass('active').siblings().removeClass('active');
+		
+		
+		
+        e.preventDefault();
+    });
+	
+	/*
+	* Catches typos in the register form
+	* 
+	* Movement inputs: only alphabetical characters
+	* Weight inputs: only numerical
+	* Rep inputs: only numerical
+	*
+	* Should eventually prevent user from submitting
+	*/
+	$( this ).focusout(function (event) {
+		var id = event.target.id;
+		console.log("ID: " +id);
+		
+		var value = "";
+		var generalReg = /^[a-zA-Z0-9\,\-\/\:\s]*$/;
+		var limitReg = /^[0-9]*$/;
+		var priceReg = /^[0-9\.]*$/;
+		
+		//value = $("#" + id).val();
+		//console.log("Is " +value + " valid? " + generalReg.test(value));
+		if(id != "") {
+			if ( id.indexOf("contact") > -1 )
+			{
+				value = $("#" + id).val();
+				//console.log("Is " + value + " valid?");
+				if(validateEmail(value)) {
+					$("#"+id).removeClass("input_error");
+					$("#"+id).qtip("destroy");
+				} else {
+					$("#"+id).addClass("input_error");
+					$("#"+id).qtip({ 
+						content: 'Please enter a valid email address'
+					});
+				}
+			} else if( id.indexOf("reg_") > -1 ) {
+				value = $("#" + id).val();
+				if(!limitReg.test(value))
+				{
+					$("#"+id).addClass("input_error");
+					$("#"+id).qtip({ 
+						content: 'Only numbers please'
+					});
+				} else {
+					$("#"+id).removeClass("input_error");
+					$("#"+id).qtip("destroy");
+				}
+			} else if( id.indexOf("_costs") > -1 ) {
+				value = $("#" + id).val();
+				if(!priceReg.test(value))
+				{
+					$("#"+id).addClass("input_error");
+					$("#"+id).qtip({ 
+						content: 'Only numbers and a period please'
+					});
+				} else {
+					$("#"+id).removeClass("input_error");
+					$("#"+id).qtip("destroy");
+				}
+			} else {
+				value = $("#" + id).val();
+				if(!generalReg.test(value))
+				{
+					$("#"+id).addClass("input_error");
+					$("#"+id).qtip({ 
+						content: 'Only letters and numbers please'
+					});
+				} else {
+					$("#"+id).removeClass("input_error");
+					$("#"+id).qtip("destroy");
+				}
+			}
+		}
+	});
+	
+	
+	/* FUNCTIONS */
+	function getCompInfo(comp_id) {
+		var static_ = '<div id="comp_info"><h3 id="hostbox"></h3>';
+		static_ +='<h4 id="location"></h4><h4 id="timedate"></h4><h4 id="information"></h4></div>';
+		$("#dyn_content").html(static_);
+		
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/getBasicInfo.php",
+			data: {"comp_id":comp_id},
+			dataType: "json",
+			success: function(response) {
+				loadCompInfo(response);
+			}
+		});				
+	}
+	
+	function loadCompInfo(data) {
+		var heading = "";
+		var hostbox = "";
+		var location = "";
+		var divisions = "";
+		var time = "";
+		var date = "";
+		var info = "";
+		var registration_limits = "";
+		var costs = "";
+		var general_info = "";
+		var contact = "";
+		
+		heading = ' <input type="text" size="24px" name="c_title" id="c_title" value="'+data[0].title+'"/> ';
+		heading += ' <button class="btn btn-success" onclick="changeBasicInfo(0);">Change Title</button>';
+		hostbox = '<img src="'+data[0].picture_url+'" width="600" height="300">';
+		location = ' <input type="text" size="16px" name="c_location" id="c_location" value="'+data[0].location+'"/> ';
+		location += ' <button class="btn btn-success" onclick="changeBasicInfo(1);">Change Location</button>';
+		time = ' <input type="text" size="16px" name="c_time" id="c_time" value="'+data[0].time+'"/> ';
+		time += ' <button class="btn btn-success" onclick="changeBasicInfo(2);">Change Time</button>';
+		date = ' <input type="text" size="16px" name="c_date" id="c_date" value="'+data[0].date_+'"/> ';
+		date += ' <button class="btn btn-success" onclick="changeBasicInfo(3);">Change Date</button>';
+		
+		divisions = '<h4>Divisions</h4><input type="checkbox" id="m_rx" name="divisions" class="divisions" value="m_rx">Ind Male RX<br>';
+		divisions += '<input type="checkbox" id="m_sc" name="divisions" class="divisions" value="m_sc">Ind Male Scaled<br>';
+		divisions += '<input type="checkbox" id="f_rx" name="divisions" class="divisions" value="f_rx">Ind Female RX<br>';
+		divisions += '<input type="checkbox" id="f_sc" name="divisions" class="divisions" value="f_sc">Ind Female Scaled<br>';
+		divisions += '<input type="checkbox" id="mm_rx" name="divisions" class="divisions" value="mm_rx">Team Male RX<br>';
+		divisions += '<input type="checkbox" id="mm_sc" name="divisions" class="divisions" value="mm_sc">Team Male Scaled<br>';
+		divisions += '<input type="checkbox" id="ff_rx" name="divisions" class="divisions" value="ff_rx">Team Female RX<br>';
+		divisions += '<input type="checkbox" id="ff_sc" name="divisions" class="divisions" value="ff_sc">Team Female Scaled<br>';
+		divisions += '<input type="checkbox" id="mf_rx" name="divisions" class="divisions" value="mf_rx">Team M/F RX<br>';
+		divisions += '<input type="checkbox" id="mf_sc" name="divisions" class="divisions" value="mf_sc">Team M/F Scaled<br><br>';
+		divisions += ' <button class="btn btn-success" onclick="changeBasicInfo(4);">Update Available Divisions</button><br> ';
+		
+		registration_limits = "<h4>Registration Limits:</h4><div id=\"div_reg_lim\"></div><br>";
+		registration_limits += ' <button class="btn btn-success" onclick="changeBasicInfo(5);">Change Registration Limits</button><br><br>';
+		
+		costs = "<h4>Costs:</h4>";
+		costs += ' Individual Competitor $';
+		costs += '<input type="text" size="16px" name="c_ind_costs" id="c_ind_costs" value="';
+		costs += data[0].costs.substring(4, data[0].costs.indexOf("*^*")) + '"><br><br> ';
+		costs += ' Teams $<input type="text" size="16px" name="c_team_costs" id="c_team_costs" value="';
+		costs += data[0].costs.substring(data[0].costs.indexOf("*^*")+8)+'"><br><br> ';
+		costs += ' <button class="btn btn-success" onclick="changeBasicInfo(6);">Change Pricing</button> ';
+		general_info = "<h4>General Information:</h4>";
+		general_info += ' <textarea rows="5" cols="100" size="16px" name="c_gi" id="c_gi">'+data[0].general+' </textarea>';
+		general_info += ' <button class="btn btn-success" onclick="changeBasicInfo(7);">Change General Information</button> ';
+		contact = "<h4>Contact:</h4>";
+		contact += ' <input type="text" size="16px" name="c_contact" id="c_contact" value="'+data[0].contact+'"/>';
+		contact += ' <button class="btn btn-success" onclick="changeBasicInfo(8);">Change Contact Information</button> ';
+		
+		info = divisions + registration_limits + costs + general_info + contact;
+			
+		
+		$("#heading").html(heading);
+		$("#hostbox").html(hostbox);
+		$("#location").html(location);
+		$("#timedate").html(time + " " + date);
+		$("#information").html(info);
+		//console.log(data[0].registration_limits);
+		var t_string = data[0].divisions;
+		var display_string = "";
+		var t_array = new Array();
+		while(t_string.length > 1) {
+			display_string = t_string.substring(0, t_string.indexOf(",")+1);
+			t_string = t_string.substring(t_string.indexOf(",")+1);
+			t_array.push(display_string.substring(0,display_string.length-1));
+		}
+		
+		checkDivisionBoxesBasedOnData(t_array);
+		
+		t_string = data[0].registration_limits;
+		display_string = "";
+		t_array = new Array();
+		while(t_string.length > 1) {
+			display_string = t_string.substring(0, t_string.indexOf(",")+1);
+			t_string = t_string.substring(t_string.indexOf(",")+1);
+			t_array.push(display_string.substring(0,display_string.length-1));
+		}
+		populateRegistrationLimits(t_array);
+	}
+	
+	function addRegistrationLimitInput(data) {
+
+		var display_string = data;
+		registration_limits = "<p id=\"p_"+display_string+"\">" 	
+		if(display_string == "m_rx") {
+			registration_limits += 'Ind Male RX <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_m_rx"/> Athletes';
+		} else if(display_string == "f_rx") {
+			registration_limits += 'Ind Female RX <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_f_rx"/> Athletes';
+		} else if(display_string == "m_sc") {
+			registration_limits += 'Ind Male Scaled <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_m_sc"/> Athletes';
+		} else if(display_string == "f_sc") {
+			registration_limits += 'Ind Female Scaled <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_f_sc"/> Athletes';
+		} else if(display_string == "mm_rx") {
+			registration_limits += 'Team Male/Male RX <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_mm_rx"/> Team Cap';
+		} else if(display_string == "ff_rx") {
+			registration_limits += 'Team Female/Female RX <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_ff_rx"/> Team Cap';
+		} else if(display_string == "mm_sc") {
+			registration_limits += 'Team Male/Male Scaled <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_mm_sc"/> Team Cap';
+		} else if(display_string == "ff_sc") {
+			registration_limits += 'Team Female/Female Scaled <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_ff_sc"/> Team Cap';
+		} else if(display_string == "mf_rx") {
+			registration_limits += 'Team Male/Female RX <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_mf_rx"/> Team Cap';
+		} else if(display_string == "mf_sc") {
+			registration_limits += 'Team Male/Female Scaled <input type="text" size="16px" class="c_reg_limits" name="c_reg_limits" id="reg_mf_sc"/> Team Cap';
+		}
+		registration_limits += "</p>";
+		
+		$("#div_reg_lim").append(registration_limits);
+	}
+	
+	function checkDivisionBoxesBasedOnData(data) {
+		$('input[type=checkbox]').each(function (i, field) {
+			for(var i = 0; i < data.length; i++) {
+				if(data[i]  == $(this).val()) {
+					//console.log("MATCH: "+$(this).val() + ", "+$(this).attr('id'));
+					$(this).prop( "checked", true );
+					addRegistrationLimitInput($(this).val());
+				}
+			}
+		});
+	}
+	
+	function changeBasicInfo(data) {
+		var whatToUpdate = "";
+		var text = "";
+		var sendRequest = true;
+		var className = "";
+		
+		if(data == 0) {
+			text = $("#c_title").val();
+			className = $("#c_title").attr('class');
+		} else if(data == 1) {
+			text = $("#c_location").val();
+			className = $("#c_location").attr('class');
+		} else if(data == 2) {
+			text = $("#c_time").val();
+			className = $("#c_time").attr('class');
+		} else if(data == 3) {
+			text = $("#c_date").val();
+			className = $("#c_date").attr('class');
+		} else if(data == 4) {
+			text = getCheckedDivisions();
+		} else if(data == 5) {
+			text = getRegistrationLimits();
+		} else if(data == 6) {
+			className = $("#c_ind_costs").attr('class');
+			text = "ind_"+$("#c_ind_costs").val() + "*^*team_"+$("#c_team_costs").val();
+		} else if(data == 7) {
+			className = $("#c_gi").attr('class');
+			text = $("#c_gi").val();
+		} else if(data == 8) {
+			className = $("#c_contact").attr('class');
+			text = $("#c_contact").val();
+		}
+		
+		console.log(className);
+		if(typeof className !== "undefined") {
+			if(className.indexOf("input_error") > -1) {
+				sendRequest = false;
+				alert("Please fix errors before submitting");
+			} else if(sendRequest == true && text.indexOf("false") < 0) {
+				$.ajax({
+					type: "POST",
+					url: "/CRUD/competitions/changeBasicInfo.php",
+					data: {"c_id":competition_id,"id":data,"text":text},
+					dataType: "text",
+					success: function(response) {
+						console.log(response);
+						if(response == "1") {
+							alert("Successfully updated "+whatToUpdate+"!");
+							getCompInfo(competition_id);
+						} else {
+							alert("Could not update "+whatToUpdate+"! Please try again or contact admin@cboxbeta.com");
+						}
+					}
+				});
+			} else { alert("Please fix errors before submitting"); }
+		} else {
+			if(sendRequest == true && text.indexOf("false") < 0) {
+				$.ajax({
+					type: "POST",
+					url: "/CRUD/competitions/changeBasicInfo.php",
+					data: {"c_id":competition_id,"id":data,"text":text},
+					dataType: "text",
+					success: function(response) {
+						console.log(response);
+						if(response == "1") {
+							alert("Successfully updated "+whatToUpdate+"!");
+							getCompInfo(competition_id);
+						} else {
+							alert("Could not update "+whatToUpdate+"! Please try again or contact admin@cboxbeta.com");
+						}
+					}
+				});
+			} else { alert("Please fix errors before submitting"); }
+		}
+	}
+	
+	function getCheckedDivisions() {
+		var value = "";
+		
+		$('input[type=checkbox]').each(function () {
+			value += (this.checked ? $(this).val()+"," : "");
+		});
+		
+		return value;
+	}
+	
+	function getRegistrationLimits() {
+		var value = "";
+		var limitReg = /^[0-9]*$/;
+		$('.c_reg_limits').each(function () {
+			if(limitReg.test($(this).val())) {
+				console.log($(this).val() +"_"+$(this).attr("id").substring(4) + ",");
+				value += $(this).val() +"_"+$(this).attr("id").substring(4) + ",";
+			} else {
+				value += "false,";
+			}
+			
+		});
+		
+		return value;
+	}
+	
+	function populateRegistrationLimits(data) {
+		var limit = "";
+		var id = "";
+		$('.c_reg_limits').each(function () {
+			for(var i = 0; i < data.length; i++) {
+				limit = data[i].substring(0, data[i].indexOf("_"));
+				id = data[i].substring(data[i].indexOf("_")+1);
+				console.log(limit + ", " + id);
+				if(id  == $(this).attr("id").substring(4)) {
+					$(this).val(limit);
+				}
+			}
+		});
+	}
+	
+	function getWODs(id) {
+		console.log(id);
+		$("#heading").html("WODs");
+		//first empty dyn_content
+		var static_ = '<div id="wod_info"></div>';
+		$("#dyn_content").html(static_);
+		
+		var tabs = '<div id="tabs" class="tabs"></div>'; //start tabs div
+		$("#wod_info").html(tabs);
+		
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/getWODsForAdmin.php",
+			data: {"c_id":id, 
+					"admin":1},
+			dataType: "html",
+			success: function(response) {
+				//console.log(response);
+				$("#tabs").html(response);
+			}
+		});
+	}
+	
+	function saveDivisionWODs(div) {
+		var a = div;
+		console.log(a);
+		var items = [];
+		var generalReg = /^[a-zA-Z0-9\,\-\/\:\.\s]*$/;
+		var sendRequest = true;
+		$(".tab.active").find(".textarea").each(function(i, field) {
+			console.log($(this).val() + ", " + $(this).attr("id") + ", " + i);
+			if(!generalReg.test($(this).val())) {
+				sendRequest = false;
+			}
+			//console.log("Radio  button: " + $('#rad_'+$(this).attr("id")+'_div input[name=rad_'+$(this).attr("id")+']:checked').val());
+			var f = new Object();
+			f.cid = competition_id;
+			f.division = a;
+			f.description = $(this).val();
+			f.wod_type = $('#rad_'+$(this).attr("id")+'_div input[name=rad_'+$(this).attr("id")+']:checked').val()
+			f.wod_num = (i+1);
+			items.push(f);
+		});
+		var jsonProducts = JSON.stringify(items); 
+		console.log(items);
+		if(sendRequest == true) {
+		$.ajax({
+			type: "POST",
+			url: "/CRUD/competitions/saveWODs.php",
+			data: {items: jsonProducts},
+			dataType: "text",
+			success: function(response) {
+				console.log(response);
+				if(response == 0) {
+					alert("Successfully updated WODs for chosen division");
+				} else {
+					alert("Error! Could not update WODs for chosen division");
+				}
+			}
+		});
+		} else { alert("Please fix errors before submitting"); }
+	}
+	
+	/***** Admin login stuff - keep at bottom *****/
+	function adminLogin(data) {
+		if(competition_id == -1) {
+			var html = '<p>Please input the unique key we gave you in order to edit your event:</p>';
+			if(data == 0) {
+				html += '<input type="text" name="a_key" id="a_key"/><span>Invalid key</span>';
+			} else {
+				html += '<input type="text" name="a_key" id="a_key"/>';
+			}
+			html += '<button class="btn btn-success" onclick="checkAKey();">Submit</button>';
+			
+			$( "#dialog-modal" ).dialog({
+			  height: 320,
+			  width: 400,
+			  modal: true
+			});
+			$( "#dialog-modal" ).dialog();
+			$("#admin_login").html(html);
+		} else {
+			getCompInfo(competition_id);
+		}
+	}
+	
+	function checkAKey() {
+		var t_html = "Checking admin key...";
+		var key = $("#a_key").val();
+		
+		$.ajax({
+			type:"POST",
+			url: "/CRUD/competitions/checkAdminKey.php",
+			data: {"key":key},
+			datatype: "text",
+			success: function(response) {
+				if(response == 0) {
+					adminLogin(response);
+				} else {
+					$( "#dialog-modal" ).dialog('close');
+					competition_id = response;
+					getCompInfo(competition_id);
+				}
+			}
+		});
+		
+	}
+	
+	function validateEmail(email) { 
+		var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(email);
+	}
+</script>
+		
+		
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  //TEST
+  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  //LIVE
+  //ga('create', 'UA-50665970-2', 'compete-box.com');
+  ga('send', 'pageview');
+
+</script>
+	
+  </body>
+</html>

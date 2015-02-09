@@ -1,12 +1,12 @@
 <?php
 
-$my_dir =  __DIR__ . "/BrainTree/braintree-php-2.27.2/lib/";
+$my_dir =  __DIR__ . "/Braintree/braintree-php-2.27.2/lib/";
 require_once($my_dir . "/Braintree.php");
 
-Braintree_Configuration::environment('sandbox');
-Braintree_Configuration::merchantId('2fq4dyy72z2bfzq4');
-Braintree_Configuration::publicKey('y8f2fpcrcc9v5zmf');
-Braintree_Configuration::privateKey('567d770926501e99b780c56ee45b1e91');
+Braintree_Configuration::environment('production');
+Braintree_Configuration::merchantId('mmrksdmc2rg3zyxs');
+Braintree_Configuration::publicKey('g6kfxbnn5cqsk43t');
+Braintree_Configuration::privateKey('abc1f9d809865a61f42da2c7906d7419');
 
 
 $result = Braintree_Customer::create(array(

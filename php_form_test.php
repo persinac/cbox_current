@@ -60,16 +60,32 @@ if($t_is_custom == "1") {
 
 	if ($result = $mysqli->query($query_getBoxID)) {
 		$row = $result->fetch_assoc();
-		$t_box_id = $row['user_id'];
+		$t_user_id = $row['user_id'];
 		$t_wodID = $row['user_id'] . "_" . str_replace("-", "", $t_date);
 		$t_first_name = $row['first_name'];
-		$length_of_box_id = strlen($t_box_id);
+		$length_of_user_id = strlen($t_user_id);
 	}
-	
+	$t_temp_date = str_replace("-", "",$_POST['date']);
 	$max_id = "";
-	$query_getMaxIDCount = "select MAX(custom_id) AS maxID from custom_wods WHERE SUBSTRING(custom_id, 1, {$length_of_box_id}) = '{$t_box_id}'";
+	if($t_user_id < 10) {
+		$t_id_loc = 12;
+	} else if($t_user_id < 100) {
+		$t_id_loc = 13;
+	} else if($t_user_id < 1000) {
+		$t_id_loc = 14;
+	} else if($t_user_id < 10000) {
+		$t_id_loc = 15;
+	} else if($t_user_id < 100000) {
+		$t_id_loc = 16;
+	}
+	$uscore_loc = (int)$length_of_user_id + 1;
+	$first_date_uscore = (int)$length_of_user_id + 2;
+	$second_date_uscore = (int)$length_of_user_id + 3;
+	$query_getMaxIDCount = "select SUBSTRING(custom_id, $t_id_loc) AS maxID from custom_wods WHERE SUBSTRING(custom_id, 1, $length_of_user_id) = '$t_user_id' AND LOCATE('_',custom_id) = $uscore_loc 
+	AND SUBSTRING(custom_id, $first_date_uscore, LOCATE('_',SUBSTRING(custom_id, $second_date_uscore))) = '$t_temp_date'";
 	echo "Query: " . $query_getMaxIDCount;
 	if ($result = $mysqli->query($query_getMaxIDCount)) {
+		$row = $result->fetch_assoc();
 		$max_id = $row['maxID'];
 		echo "MAX ID: " . $max_id;
 	}
@@ -99,7 +115,7 @@ if($t_is_custom == "1") {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$description .= '<p class="new_part_for_wod"> - ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$description .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$description .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$first_count++;
@@ -109,7 +125,7 @@ if($t_is_custom == "1") {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$description .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$description .= '<p class="new_part_for_wod"> -  Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$description .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
 					$first_count++;
@@ -133,7 +149,7 @@ if($t_is_custom == "1") {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$description .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$description .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$description .= '<p class="movement_for_wod"> '. $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$first_count++;
@@ -143,7 +159,7 @@ if($t_is_custom == "1") {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$description .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$description .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$description .= '<p class="movement_for_wod">' . $t_movement . "</p> " ;
 					$first_count++;
@@ -167,7 +183,7 @@ if($t_is_custom == "1") {
 	}
 	echo "\n".$description;
 	
-	if($max_id > 0) {
+	if($max_id > -1) {
 		$custom_wod_id = $max_id + 1;
 		echo "\nUse max_id+1 as the insert ID...Wod ID: " . $t_wodID . " Custom ID num: ".$custom_wod_id;
 		$t_wodID .= "_" . $custom_wod_id;
@@ -177,7 +193,7 @@ if($t_is_custom == "1") {
 		$t_wodID .= "_0";
 		echo "\nNew custom ID...Wod ID: " . $t_wodID; 
 	}
-	
+	echo "\n\n DESCRIPTION: $description \n\n";
 	#######
 	#
 	# Custom WOD insert
@@ -197,11 +213,6 @@ if($t_is_custom == "1") {
 	} else {
 		echo "1 ";
 	}
-	
-	
-	
-	
-	
 	$mysqli->close();
 } 
 else {
@@ -261,7 +272,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$rx_wod .= '<p class="new_part_for_wod"> - ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$rx_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$rx_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$first_count++;
@@ -271,7 +282,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$rx_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$rx_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$rx_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
 					$first_count++;
@@ -289,7 +300,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$inter_wod .= '<p class="new_part> - '. substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$inter_wod .= '<p class="new_part> - Then '. substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$inter_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$second_count++;
@@ -299,7 +310,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$inter_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$inter_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$inter_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
 					$second_count++;
@@ -317,7 +328,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$nov_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$nov_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$nov_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$third_count++;
@@ -327,7 +338,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$nov_wod .= 'p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$nov_wod .= 'p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$nov_wod .= '<p class="movement_for_wod">' . $t_reps . " reps of " . $t_movement . " </p> " ;
 					$third_count++;
@@ -351,7 +362,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$rx_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$rx_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$rx_wod .= '<p class="movement_for_wod"> '. $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$first_count++;
@@ -361,7 +372,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$rx_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$rx_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$rx_wod .= '<p class="movement_for_wod">' . $t_movement . "</p> " ;
 					$first_count++;
@@ -379,7 +390,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$inter_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$inter_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$inter_wod .= '<p class="movement_for_wod"> ' . $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$second_count++;
@@ -389,7 +400,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$inter_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$inter_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$inter_wod .=  '<p class="movement_for_wod">' . $t_movement . "</p> " ;
 					$second_count++;
@@ -407,7 +418,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$nov_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$nov_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$nov_wod .= '<p class="movement_for_wod"> ' . $t_movement . " @ " . $t_weight . "lbs </p> " ;
 					$third_count++;
@@ -417,7 +428,7 @@ else {
 			{
 				$t_to_compare = substr($t_movement, 0, strpos($t_movement, "*"));
 				if($t_to_compare == "r0000") {
-					$nov_wod .= '<p class="new_part_for_wod"> -  ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
+					$nov_wod .= '<p class="new_part_for_wod"> - Then ' . substr($t_movement, strpos($t_movement, "*")+1) . " - </p>";
 				} else {
 					$nov_wod .= '<p class="movement_for_wod">' . $t_movement . "</p> " ;
 					$third_count++;

@@ -12,10 +12,10 @@
 
     <!-- Bootstrap core CSS -->
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
 
     <!-- Custom styles for this template -->
     <link href="dist/css/signin.css" rel="stylesheet">
-
 
 </head>
 
@@ -33,7 +33,7 @@
           <br></br>     
         <input type="email" name="email"class="form-control" placeholder="Email" required>
         <br></br>
-        <input type="text" name="box_id"class="form-control" placeholder="box id" required>
+        <input type="text" name="box_id" id="box_id" class="form-control" placeholder="box id" required>
         <br></br>
         <input type="text" name="street_address"class="form-control" placeholder="Street Address" required>
         <br></br>
@@ -65,6 +65,10 @@
         <option value="Southern California">Southern California</option>
         </select>
         <br></br>
+		Are you an administrator?
+		Yes <input type="radio" name="admin" class="admin_butts" value="Y">
+                No <input type="radio" name="admin" class="admin_butts" value="N">
+          <br></br> 
         <br><h3>Login Info</h3></br>
         <input type="text" name="username" id="username" class="form-control" placeholder="Desired Username" required>
         <br></br>
@@ -73,77 +77,137 @@
         <button name="submit" class="btn btn-lg btn-primary " id="submit_new_user" type="submit">Register</button>
       </form>
 
+	  <div id="admin_modal">
+		<div id="modal_content">
+			
+		</div>
+	</div>
+	  
 </div> <!-- /container -->
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<!-- Required for full calendar -->
+<script src='dist/lib/moment.min.js'></script>
+<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+
+<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
 
 <script id="source" language="javascript" type="text/javascript">
+
+adminKey = false;
+globalCount = 0;
 
 $(function() {
 	//twitter bootstrap script
 	$("button#submit_new_user").click(function(e){
-		//alert("HELLO");
 		e.preventDefault();
-		submit_new_user(e);
+		submit_new_user(false);
 	});
 });
 
-function submit_new_user()
+$( "#modal_content" ).on("click","#submit_admin_key",function(){
+	var key = $("#modal_content :text").val();
+	//check key against the key in the DB
+	checkKey(key);
+	//set window time out before continuing
+	setTimeout(function(){
+				if(adminKey === true) {
+					console.log("It worked!");
+					$("#admin_modal").dialog('close');
+					submit_new_user(true);
+					
+				} else {
+					console.log("It didn't work...");
+					$("#admin_modal :input").addClass("_input_error");
+					/*$('#admin_modal :input').qtip({ 
+						content: 'Invalid Key, please try again. It IS case sensitive.'
+					});*/
+					globalCount = globalCount+1;
+				}
+	}, 500);
+});
+
+function submit_new_user(bool)
 {
-	//alert("HELLO");
 	var datastring = $("#register").serializeArray();
 	var sendRequest = true;
 	var username = "";
-	//alert("HELLO");
+	var content = "";
+	var isAdmin = false;
+	console.log("BOOL: " + bool);
 	$.each(datastring, function(i, field){
-    	//alert("DATA: " +field.name + ":" + field.value + " ");
 		if(field.value == "") {
 			sendRequest = false;	
 		}
 		if(field.name == "username") {
 			username = field.value;	
-			//alert("Username: " + username);
+		} 
+		if(field.name == "admin") {
+			if(bool === false) {
+				if(field.value == "Y") {
+					isAdmin = true;
+					content = "Please enter the Admin key we emailed you:<br/><br/>";
+					content += "<input type=\"text\" name=\"admin_key\" id=\"admin_key\" /><br/><br/>";
+					content += "<button name=\"submit_admin_key\" class=\"btn btn-lg btn-primary\" id=\"submit_admin_key\" type=\"submit\">Submit</button>";
+					//openModal(content);
+				}
+			} else {
+				//just in case...
+			}
 		}
   	});
-	//alert("Username 2 : " + username);
 
-	
-	$.ajax({
-		type: "POST",
-		url: "checkForUsername.php",
-		data: {"username" : username},
-		success: function(data) {
-			//alert("DATA: " + data);
-			if(data > 0){
-				alert("Username is taken");
-				sendRequest = false;
-			}
-			else if(data == 0){
-				
-				if(sendRequest == true)
-				{
-					registerUser(datastring);
+	if(bool === false && isAdmin === true) {
+		openModal(content);
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "checkForUsername.php",
+			data: {"username" : username},
+			success: function(data) {
+				if(data > 0){
+					alert("Username is taken");
+					sendRequest = false;
+				}
+				else if(data == 0){
+					
+					if(sendRequest == true)
+					{
+						registerUser(datastring);
+					}
+				}
+				else{
+					alert('Problem with sql query');
 				}
 			}
-			else{
-				alert('Problem with sql query');
-			}
-		}
-	});	
+		});
+	}	
 	username = "";
 }
 
 function registerUser(data)
 {
+	var isAdmin = "0";
 	var sendRequest = true;
-	//alert("Let's see...");
 	$.each(data, function(i, field){
     	console.log("DATA: " +field.name + ":" + field.value + " ");
 		if(field.value == "") {
 			sendRequest = false;	
 		}
+		if(field.name == "admin") {
+			if(field.value == "Y") {
+				isAdmin = "1";
+			}
+		}
   	});
-	//sendRequest = false;
+	console.log(isAdmin);
+	data.push({name:"isAdmin", value:isAdmin});
+	$.each(data, function(i, field){
+    	console.log("DATA TWO: " +field.name + ":" + field.value + " ");
+  	});
 	if(sendRequest == true) {
 	$.ajax({
             type: "POST",
@@ -161,7 +225,8 @@ function registerUser(data)
 }
 
 function overlay(data) {
-	if(data == "1") {
+	console.log(data.substring(0,1) + ", " + data.substring(1,2));
+	if(data.substring(0,1) == "1" && data.substring(1,2) == "1") {
 		alert("Registration Successful");
 		clearForm();
 	} else { alert("Contact System Administrator");}
@@ -172,8 +237,43 @@ function clearForm() {
         console.log(index + " : " + $(this).text());
 		$(this).val('');
     });
-		
 }
+
+function openModal(content) {
+
+	$( "#admin_modal" ).dialog({
+		height: 300,
+		width: 400,
+		modal: true
+	});
+	
+	$("#forgot_modal").dialog();
+	$("#modal_content").html(content);
+}
+
+function checkKey(keyToCheck) {
+	var b_id = $("#box_id").val();
+	console.log("check key values: " + keyToCheck + ", " + b_id);
+	$.ajax({
+		type:"POST",
+		url: "checkAdminKey.php",
+		data: {
+			"key":keyToCheck,
+			"box_id":b_id
+			},
+		dataType: "text",
+		success: function(response) {
+			console.log(response);
+			if(response.substring(0,1) == "1") {
+				adminKey = true;
+			} else {
+				alert(response);
+				adminKey = false;
+			}
+		}
+	});
+}
+
 </script>
 
 <script>

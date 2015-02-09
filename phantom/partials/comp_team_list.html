@@ -1,0 +1,24 @@
+<div class="container-fluid">
+	<div class="row">
+	  <div class="col-md-2">
+		Search: <input ng-model="query"></br>
+		Sort by:
+		  <select ng-model="orderProp">
+			<option value="name">Alphabetical</option>
+			<option value="team_id">Newest</option>
+			<option value="-team_id">Oldest</option>
+		  </select>
+		  <p><i>Sorting by: {{orderProp}}</i></p>
+	  </div>
+	  
+		<div class="col-md-10">
+			<table class='competitors'>
+			<tr><th>Team Name</th><th>Team ID</th></tr>
+			  <tr ng-repeat="teams in data | filter:query | orderBy:orderProp" >
+				<td><a href="teams/{{teams.team_id}}">{{teams.team_name}}</a></td>
+				<td>{{teams.team_id}}</td>
+			  </tr>
+			</table>
+		</div>
+	</div>
+</div>

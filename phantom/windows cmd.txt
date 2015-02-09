@@ -1,0 +1,20 @@
+
+Phantom 
+	Windows Setup:
+		Download Phantom 1.9.7 for windows 
+		Unzip into your C:\ drive
+		Set your system environment PATH
+
+PJScrape
+	Windows:
+		Copy the pjscrape-master folder from server and paste into C:\ drive
+
+Require
+	Windows:
+		Copy the require.js file into the main phantom directory, pjscrape directory, and the directory in which your .js files are located
+		
+When this is all setup, create a folder on your C drive named "leaderboard_output"
+Open up a cmd shell
+Navigate to C:\leaderboard_output
+Within this folder, run the following command in the windows shell:
+path\to\phantomjs.exe path\to\pjscrape.js path\to\<your_js_file(s)> ARGUMENT= year you wish to extract data from

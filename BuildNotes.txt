@@ -1,0 +1,24 @@
+The build directory will contain directories pertaining to release dates (build dates)
+
+We will release every Tuesday pretty much. The next build date will be 2014-09-09. 
+The build directory for that release date is labeled: build20140909
+Build directories are labeled: build<date> ... 
+
+Inside each build directory will be the following directories:
+	- CRUD
+		/admin
+		/compare
+		/competitions
+		/general
+		/mobile
+		/profiles
+		/progress
+		/wod
+	- CSS
+	- JS
+	
+Every change you make on the test site, I need you to put the changed files into the appropriate directory 
+of the build directory. The reason I do this is because of the way I have to place new files on the 
+live server. This also helps in keeping track of builds and what we changed. If you feel so inclined, you 
+can keep a build log in each build directory to track the changes made - however that is not necessary 
+as of today (2014-09-02). 

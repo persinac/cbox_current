@@ -1,6 +1,10 @@
 <?php require_once('Connections/cboxConn.php'); ?>
 <?php
 session_start();
+if(!(isset($_SESSION['MM_Username'])))
+{
+	header("Location: Error401UnauthorizedAccess.php");
+}
 if (!function_exists("GetSQLValueString")) {
 function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDefinedValue = "") 
 {
@@ -31,46 +35,9 @@ function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDe
   return $theValue;
 }
 }
-####Set for debugging purposes
-#	$_SESSION['MM_Username'] = "kellintc";
-####
-if(!(isset($_SESSION['MM_Username'])))
-{
-	header("Location: Error401UnauthorizedAccess.php");
-}
-mysql_select_db($database_cboxConn, $cboxConn);
-$colname_getUserBox = "-1";
-$userBoxID = "";
 
-####Set for debugging purposes
-#	$_SESSION['MM_UserID'] = "2";
-####
-if (isset($_SESSION['MM_UserID'])) {
-  $colname_getUserBox = $_SESSION['MM_UserID'];
-  
-  $LoginRS__query="select box.box_id from box JOIN athletes AS a ON box.box_id=a.box_id where user_id='{$colname_getUserBox}'"; 
-   
-  $LoginRS = mysql_query($LoginRS__query, $cboxConn) or die(mysql_error());
-  $loginFoundBox = mysql_num_rows($LoginRS);
-  if ($loginFoundBox) {
-    $row = mysql_fetch_row($LoginRS);
-	if (PHP_VERSION >= 5.1) {
-		session_regenerate_id(true);
-	} 
-	else {
-			session_regenerate_id();
-	}
-    //declare boxID session variable and assign them
-    $_SESSION['MM_BoxID'] = $row[0];   
 
-    if (isset($_SESSION['PrevUrl']) && false) {
-      $MM_redirectLoginSuccess = $_SESSION['PrevUrl'];	
-    }
-  }
-  else {
-    header("Location: ". $MM_redirectLoginFailed );
-  }
-}
+
 ?>
 
 <!DOCTYPE html>
@@ -106,7 +73,7 @@ if (isset($_SESSION['MM_UserID'])) {
             <li id="wod" ><a href="user_wod_page.php" >WOD</a></li> 
             <li id="progress" ><a href="User_progress_page.php" >PROGRESS</a></li>
             <li id="admin" class="active"><a href="#" >ADMIN</a></li>
-            <li id="account" ><a href="tgv2.html" >ACCOUNT</a></li> 
+            <li id="account" ><a href="user_information.php" >ACCOUNT</a></li>
             <li id="logout" ><a href="#" >LOGOUT</a></li>
         </ul> 
     </div>
@@ -117,7 +84,7 @@ if (isset($_SESSION['MM_UserID'])) {
             <p><a onclick="openWODModal()" class="btn btn-primary btn-large" id="new_wod_button" class="buttons_in_but_container">New WOD</a></p>
             <p><a onclick="openStrengthModal()" class="btn btn-primary btn-large" id="new_strength_button" class="buttons_in_but_container">New Strength</a></p>
             <p><a onclick="openPostWODModal()" class="btn btn-primary btn-large" id="new_postwod_button" class="buttons_in_but_container">New Post WOD</a></p>
-			<p><a onclick="manageSubscription()" class="btn btn-primary btn-large" id="new_submng_button" class="buttons_in_but_container">Manage Subscription</a></p>
+			<p><a onclick="manageSubscription()" class="btn btn-primary btn-large" id="sub_manager_button" class="buttons_in_but_container">Manage Subscription</a></p>
         </div>
         <div id="calendar"></div>
         <div id="eventContent" title="Event Details">
@@ -311,10 +278,12 @@ $("#navbar_main_ul li").click(function() {
 			success: function(response) //on recieve of reply
 			{
 				console.log("logged out...");
-				window.location.replace("http://cboxbeta.com/login_bootstrap.php");
+				window.location.replace("http://compete-box.com/login_bootstrap.php");
 			} 
 		});
-	}
+	} else if (id=="compare" || id=="COMPARE") {
+			window.location.replace("http://compete-box.com/user_compare_page.php");
+		}
 });	
 
 /*
@@ -735,7 +704,7 @@ $("#submitPartToText").click(function() {
 /***************************** Manage Subscription Page Change *****************************/
 
 function manageSubscription() {
-	window.location.replace("http://cboxbeta.com/billingTest.php");
+	window.location.replace("http://compete-box.com/billingTest.php");
 }
 
 /******************************** LOAD TABLES **************************************/
@@ -1841,7 +1810,7 @@ function getWorkouts() {
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('create', 'UA-50665970-2', 'compete-box.com');
   ga('send', 'pageview');
 
 </script>

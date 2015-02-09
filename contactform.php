@@ -47,10 +47,18 @@
                 <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown">Registration <b class="caret"></b></a>
                   <ul class="dropdown-menu">
-                    <li><a href="box_registration">Register as a Box</a></li>
-                    <li><a href="register_user">Register as a User</a></li>
+                    <li><a href="box_registration.php">Register as a Box</a></li>
+                    <li><a href="register_user.php">Register as a User</a></li>
                   </ul>
                 </li>
+				<li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Competition Hosting <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="competition_hosting.html">Hosting Information</a></li>
+                    <li><a href="competitions.html">Past Competitions</a></li>
+                  </ul>
+                </li>
+				<li><a href="pricing.html">Pricing</a></li>
 				<li><a href="login_bootstrap.php">Login</a></li>
               </ul>
             </div>
@@ -76,7 +84,7 @@
                   <img class="featurette-image img-responsive" src="images/contact_page/contact_me_on_floor.jpg" alt="Generic placeholder image">
                 </div>
                 <div class="col-md-7">
-                  <h2 class="featurette-heading">Just shoot this guy an email admin@cboxbeta.com- <span class="text-muted"> we promise he'll respond</span></h2>
+                  <h2 class="featurette-heading">Just shoot this guy an email <a href="mailto:admin@cboxbeta.com">admin@cboxbeta.com</a>- <span class="text-muted"> we promise he'll respond</span></h2>
                   <p class="lead">Just message our admin with any questions, comments, concerns, inquiries, or really anything about our product and we'll do our best to respond in a quick manner.</p>
                 </div>
               </div>
@@ -87,7 +95,7 @@
       <!-- FOOTER -->
       <footer>
         <p class="pull-right"><a href="index.html">Back to home</a></p>
-        <p>&copy; 2014 CBox, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+        <p>&copy; 2014 CBox, Inc. &middot; <a href="privacy_policy.html">Privacy</a> &middot; <a href="tos.html">Terms</a>&middot; <a href="refundcancel_policy.html">Refund Policy</a></p>
       </footer>
 
     </div><!-- /.container -->
@@ -111,7 +119,7 @@
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-50665970-1', 'cboxbeta.com');
+  ga('create', 'UA-50665970-1', 'compete-box.com');
   ga('send', 'pageview');
 
 </script>

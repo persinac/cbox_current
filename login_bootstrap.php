@@ -41,12 +41,13 @@ if (!isset($_SESSION)) {
 }
 
 ### For the live server ###
+/*
 if($_SERVER["HTTPS"] != "on")
 {
 	header("Location: https://" . "compete-box.com\/" . $_SERVER["REQUEST_URI"]);
 	exit();
 }
-
+*/
 $loginForm = $_SERVER['PHP_SELF'];
 if (isset($_GET['accesscheck'])) 
 {
@@ -134,12 +135,16 @@ function isAuthorized($adminCode, $UserName)
     <link rel="shortcut icon" href="../assets/ico/favicon.ico">
 
     <title>CBOX SIGNIN</title>
+	
 
     <!-- Bootstrap core CSS -->
-    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
+	<link href="dist/css/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="dist/css/jquery.qtip.css" />
+	<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+	
+    	<!-- Custom styles for this template -->
     <link href="dist/css/signin.css" rel="stylesheet">
+	
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -159,17 +164,239 @@ function isAuthorized($adminCode, $UserName)
         <label class="checkbox">
           <input type="checkbox" value="remember-me"> Remember me
         </label>
-        <button name="submit"class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <button name="submit" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+		<div>
+			<a class="forgot_link" id="forgot_username" href="#">Forgot Username?</a>
+			<a class="forgot_link" id="forgot_password" href="#">Forgot Password?</a>
+		</div>
       </form>
-
+	
     </div> <!-- /container -->
 
+	<div id="forgot_modal">
+		<div id="modal_content">
+			
+		</div>
+	</div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<!-- These must be in THIS ORDER! DO NOT FUCK WITH -->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<!-- Required for full calendar -->
+<script src='dist/lib/moment.min.js'></script>
+<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+
+<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
+
 	<script>
+	$("#forgot_username").click( function() {
+		var html = "";
+		
+		html += '<form id="username_request">';
+		html += 'Box name that you are registered to: <input type="text" name="box_name" id="box_name"/><br/><br/>';
+		html += 'Email associated with account: <input type="text" name="email" id="email"/><br/><br/>';
+		html += '<input type="button" name="btn_request_un" id="btn_request_un" class="btn btn-lg btn-primary btn-block" onclick="sendUsernameToEmail();" value="Email me">';
+		html += '</form>';
+		openModal(html);
+	
+	});
+	
+	$("#forgot_password").click( function() {
+		var html = "";
+		
+		html += '<form id="password_request">';
+		html += 'Box name that you are registered to: <input type="text" name="box_name" id="box_name"/><br/><br/>';
+		html += 'Email associated with account: <input type="text" name="email" id="email"/><br/><br/>';
+		html += '<input type="button" name="btn_request_pw" id="btn_request_pw" class="btn btn-lg btn-primary btn-block" onclick="sendPasswordToEmail();" value="Email me">';
+		html += '</form>';
+		openModal(html);
+	
+	});
+	
+	function openModal(content) {
+		
+		$( "#forgot_modal" ).dialog({
+			height: 300,
+			width: 400,
+			modal: true
+		});
+		
+		$("#forgot_modal").dialog();
+		$("#modal_content").html(content);
+	}
+	
+	function sendUsernameToEmail() {
+		var data = $("#username_request").serializeArray();
+		var box_name = "";
+		var email = "";
+		var boxReg = /^[a-zA-Z0-9\s]*$/;
+		var emailReg = /[^\s@]+@[^\s@]+\.[^\s@]+/;
+		var valid = false;
+		$.each(data, function(i, field) {
+			console.log("DATA: "+field.name +" : "+field.value);
+			if(field.name == "box_name") {
+				console.log("Send box name to validateBox()");
+				box_name = field.value;
+				
+				if(!boxReg.test(box_name))
+				{
+					$("#box_name").addClass("_input_error");
+					valid = false;
+					console.log("BOX NAME - valid: " + valid);
+				} else {
+					
+					$("#box_name").removeClass("_input_error");
+					valid = true;
+					console.log("BOX NAME - valid: " + valid);
+				}
+			} else {
+				email = field.value;
+				
+				if(!emailReg.test(email))
+				{
+					
+					$("#email").addClass("_input_error");
+					valid = false;
+					console.log("EMAIL - valid: " + valid);
+				} else {
+					
+					$("#email").removeClass("_input_error");
+					valid = true;
+					console.log("EMAIL - valid: " + valid);
+				}
+				
+			}
+		});
+		validateForm(box_name, email, valid, "u");
+	}
+	
+	function sendPasswordToEmail() {
+		var data = $("#password_request").serializeArray();
+		var box_name = "";
+		var email = "";
+		var boxReg = /^[a-zA-Z0-9\s]*$/;
+		var emailReg = /[^\s@]+@[^\s@]+\.[^\s@]+/;
+		var valid = false;
+		$.each(data, function(i, field) {
+			console.log("DATA: "+field.name +" : "+field.value);
+			if(field.name == "box_name") {
+				console.log("Send box name to validateBox()");
+				box_name = field.value;
+				
+				if(!boxReg.test(box_name))
+				{
+					$("#box_name").addClass("_input_error");
+					valid = false;
+					console.log("BOX NAME - valid: " + valid);
+				} else {
+					
+					$("#box_name").removeClass("_input_error");
+					valid = true;
+					console.log("BOX NAME - valid: " + valid);
+				}
+			} else {
+				email = field.value;
+				
+				if(!emailReg.test(email))
+				{
+					
+					$("#email").addClass("_input_error");
+					valid = false;
+					console.log("EMAIL - valid: " + valid);
+				} else {
+					
+					$("#email").removeClass("_input_error");
+					valid = true;
+					console.log("EMAIL - valid: " + valid);
+				}
+				
+			}
+		});
+		validateForm(box_name, email, valid, "p");
+	}
+
+	function validateForm(box_name, email, valid, whereToGo) {
+
+		console.log("END CHECKS - valid: " + valid);
+		if(valid === true) {
+			$.ajax(
+			{
+				type:"POST",                                     
+				url:"validateBoxName.php",         
+				data: {"name":box_name}, //insert argumnets here to pass to getAdminWODs
+				dataType: "text",                //data format      
+				success: function(response) //on recieve of reply
+				{
+					console.log("response validateBoxName: " + response);
+					if(response == "0") {
+						console.log('Found box!');
+						validateUserEmail(email, box_name, whereToGo);
+					} else {
+						console.log('Could not find box, please check spelling and try again.');
+					}
+				},
+				error: function(error){
+					console.log('Could not find box, please check spelling and try again.' + error);
+				}
+			});
+		} else {
+			//openModal("Please correct the highlighted inputs before continuing");
+		}
+	
+	}
+	
+	function validateUserEmail(email, box_name, whereToGo) {
+		$.ajax(
+			{
+				type:"POST",                                     
+				url:"validateEmail.php",         
+				data: {"name":email}, //insert argumnets here to pass to getAdminWODs
+				dataType: "text",                //data format      
+				success: function(response) //on recieve of reply
+				{
+					console.log("response validateEmail: " + response);
+					if(response.substring(0,1) == "0") {
+						console.log('Found Email!');
+						sendTo(response.substring(1,response.length), box_name, whereToGo);
+					} else {
+						console.log('Could not find email, please check spelling and try again.');
+					}
+				},
+				error: function(error){
+					console.log('Could not find box, please check spelling and try again.' + error);
+				}
+			});
+	}
+	
+	function sendTo(email, box_name, whereToGo) {
+		console.log(email.trim() + ", " + box_name + ", " + whereToGo);
+		
+		$.ajax(
+			{
+				type:"POST",                                     
+				url:"sendEmail.php",         
+				data: { "name":email.trim(),
+						 "box":box_name,
+						 "whereTo":whereToGo}, 
+				dataType: "text",                //data format      
+				success: function(response) //on recieve of reply
+				{
+					console.log("response send Email: " + response);
+					openModal(response);
+				},
+				error: function(error){
+					console.log('Could not find box, please check spelling and try again.' + error);
+				}
+			});
+		openModal("Please wait a minute, your information is being requested. (Seriously, wait a full minute)");
+	}
+	
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)

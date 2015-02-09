@@ -1,0 +1,369 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>NPGL Test</title>
+	
+	<link href="dist/css/npgl.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="my_container">
+	<div id="d3_chart_div"></div>
+	<button type="button" onclick="moveToStart(35,225);">Move Athletes to Start</button>
+	<button type="button" onclick="startRace();">Start!</button>
+</div> <!-- END CONTAINER -->
+
+<!-- JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<!-- These must be in THIS ORDER! DO NOT FUCK WITH -->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="dist/js/npgl_location.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<!-- Required for full calendar -->
+<script src='dist/lib/moment.min.js'></script>
+<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+<script src='dist/fullcalendar/fullcalendar.min.js'></script>
+
+<!-- Required for date picker -->
+<script src="dist/js/jquery.plugin.min.js"></script>
+<script src="dist/js/jquery.datepick.min.js"></script> 
+
+<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
+
+<!-- d3js.org/d3.v3.min.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js" charset="utf-8"></script>
+<script>
+
+$(document).ready(function() {
+	drawD3Grid();
+	setTimeout(function(){drawSquare();}, 1000);
+	//setTimeout(function(){moveSquare();}, 2000);
+});
+
+/* GLOBALS */
+var mySquare = [{"x_axis": 50, "y_axis": 60, "height": 50, "width":50, "color" : "green", "id":"rect1", "gender":"male", "name":"M1", "whereAmI":"actives"},
+				{"x_axis": 110, "y_axis": 60, "height": 50, "width":50, "color" : "green", "id":"rect2", "gender":"male", "name":"M2", "whereAmI":"actives"},
+				{"x_axis": 170, "y_axis": 60, "height": 50, "width":50, "color" : "green", "id":"rect3", "gender":"male", "name":"M3", "whereAmI":"actives"},
+				{"x_axis": 230, "y_axis": 60, "height": 50, "width":50, "color" : "green", "id":"rect4", "gender":"male", "name":"M4", "whereAmI":"actives"},
+				{"x_axis": 290, "y_axis": 60, "height": 50, "width":50, "color" : "green", "id":"rect5", "gender":"male", "name":"M5", "whereAmI":"actives"},
+				{"x_axis": 350, "y_axis": 60, "height": 50, "width":50, "color" : "purple", "id":"rect6", "gender":"female", "name":"F1", "whereAmI":"actives"},
+				{"x_axis": 410, "y_axis": 60, "height": 50, "width":50, "color" : "purple", "id":"rect7", "gender":"female", "name":"F2", "whereAmI":"actives"},
+				{"x_axis": 470, "y_axis": 60, "height": 50, "width":50, "color" : "purple", "id":"rect8", "gender":"female", "name":"F3", "whereAmI":"actives"},
+				{"x_axis": 530, "y_axis": 60, "height": 50, "width":50, "color" : "purple", "id":"rect9", "gender":"female", "name":"F4", "whereAmI":"actives"},
+				{"x_axis": 590, "y_axis": 60, "height": 50, "width":50, "color" : "purple", "id":"rect10", "gender":"female", "name":"F5", "whereAmI":"actives"}];
+var gridGraph;
+var selected = "";
+
+function drawD3Grid() {
+	var width = 1425;
+	var height = 650;
+	
+	gridGraph = d3.select("#d3_chart_div")
+     .append("svg")
+     .attr("width", width)     // Set width of the SVG canvas
+     .attr("height", height) // Set height of the SVG canvas
+	 .on("click", click);    // Set SVG Click event to: click
+	
+	// Add a background
+	gridGraph.append("rect")
+	  .attr("width", width)
+	  .attr("height", height)
+	  .style("stroke", "#999999")
+	  .style("fill", "#F6F6F6")
+		
+	// the yaxiscoorddata gives the y coordinates
+	// for horizontal lines ("x1" = 25 and, "x2"=width-25)
+	var yaxiscoorddata = d3.range(25, height, 25);
+
+	// the xaxiscoorddata gives the x coordinates
+	// for vertical lines ("y1" = 25 and, "y2"=height-25)
+	var xaxiscoorddata = d3.range(25, width, 25);
+	
+	// Using the xaxiscoorddata to generate vertical lines.
+	gridGraph.selectAll("line.vertical")
+		.data(xaxiscoorddata)
+		.enter().append("svg:line")
+		.attr("x1", function(d){return d;})
+		.attr("y1", 25)
+		.attr("x2", function(d){return d;})
+		.attr("y2", height-25)
+		.style("stroke", "rgb(6,120,155)")
+		.style("stroke-width", 1);  
+		
+
+
+	// Using the yaxiscoorddata to generate horizontal lines.       
+	gridGraph.selectAll("line.horizontal")
+		.data(yaxiscoorddata)
+		.enter().append("svg:line")
+		.attr("x1", 25)
+		.attr("y1", function(d){return d;})
+		.attr("x2", width-25)
+		.attr("y2", function(d){return d;})
+		.style("stroke", "rgb(6,120,155)")
+		.style("stroke-width", 1);
+
+	gridGraph.append("svg:image")
+		.attr("xlink:href", "images/npgl/grid/gridlayout.png")
+		.attr("width", 1375)
+		.attr("height", 600)
+		.attr("x", 25)
+		.attr("y",25)
+		.style('opacity', .5);
+}
+
+function drawSquare() {
+	var rectangles = gridGraph.selectAll("svg")
+		.data(mySquare)
+		.enter()
+		.append("rect");
+
+	var rectangleAttributes = rectangles
+		.attr("x", function (d) { return d.x_axis; })
+		.attr("y", function (d) { return d.y_axis; })
+		.attr("height", function (d) { return d.height; })
+		.attr("width", function (d) { return d.width; })
+		.attr("id", function (d) { return d.id; })
+		.attr("class", "rectangles")
+		.style("fill", function(d) { return d.color; });
+		
+	
+	var text = gridGraph.selectAll("text")
+		.data(mySquare)
+		.enter()
+		.append("svg:text");
+	// define text attributes
+	var textAttr = text
+		.attr("id", function (d) { return "text_"+d.id; })
+		.attr("x", function(d){return (d.x_axis + (.5 * d.height));})
+		.attr("y", function(d){return (d.y_axis +(.5 * d.height));})
+		.text(function(d){return d.name;})
+		.attr("text-anchor", "middle")
+		.attr("font-family","sans-serif")
+		.attr("fill", function(d){ if(d.color == "purple") { return "green"; } else { return "black" } });	 
+}
+
+function moveSquareTo(objID, x, y, whereAmI) {
+	var squareToMove = d3.select("#"+objID+"")
+	  .transition()
+	  .attr("x",x)
+	  .attr("y",y);
+	
+	var squareTextToMove = d3.select("#text_"+objID+"")
+	  .transition()
+	  .attr("x",(x + 25))
+	  .attr("y",(y + 25));
+	  
+	for(var i = 0; i < mySquare.length; i++) {
+		if(mySquare[i].id == objID) {
+			mySquare[i].x_axis = x;
+			mySquare[i].y_axis = y;
+			if(whereAmI.length > 2) {
+				mySquare[i].whereAmI = whereAmI;
+			}
+			break;
+		}
+	}
+	
+	console.log(selected + " is now in " + checkLocation(x, y));
+	selected = "";
+}
+var prevClick = "";
+function click(){
+  // Ignore the click event if it was suppressed
+  if (d3.event.defaultPrevented) return;
+
+  // Extract the click location   
+  var point = d3.mouse(this)
+  , p = {x: point[0], y: point[1] };
+
+  var val = compareBoxCoord(p.x, p.y);
+  
+  if(val != "none") {
+	selected = val;
+	console.log("selected: " + selected);
+	if(checkLocation(p.x, p.y).indexOf("swit_") > -1) {
+		console.log("clicked on athlete in switch area");
+		prevClick = "athSwitch";
+	} else {
+		prevClick = "";
+	}
+  } else if(val == "none" && selected.length > 0) {
+	 
+	var loc = checkLocation(p.x, p.y)
+	var switchAthID = "";
+	var oldX = 0;
+	var oldY = 0;
+	var newX = 0;
+	var newY = 0;
+	
+	var work_ath_index = 0;
+	var sel_ath_index = 0;
+	
+	if(prevClick == "athSwitch") {
+		if(loc.indexOf("wrk_") > -1) {
+			
+			//grab working athlete coordinates
+			for(var i = 0; i < mySquare.length; i++) {
+				if(mySquare[i].whereAmI == "work") {
+					newX = mySquare[i].x_axis;
+					newY = mySquare[i].y_axis;
+					work_ath_index = i;
+					break;
+				}
+			}
+			//grab selected athlete coordinates
+			for(var i = 0; i < mySquare.length; i++) {
+				if(mySquare[i].id == selected) {
+					oldX = mySquare[i].x_axis;
+					oldY = mySquare[i].y_axis;
+					sel_ath_index = i;
+					break;
+				}
+			}
+		}
+		moveSquareTo(mySquare[sel_ath_index].id, newX, newY, "work");
+		moveSquareTo(mySquare[work_ath_index].id, oldX, oldY, "switch");
+		prevClick = "";
+	} else {
+		moveSquareTo(selected, p.x, p.y, "-");
+	}
+	
+	/*
+	
+	*/
+  }
+
+  /* Append a new point
+  svg.append("circle")
+      .attr("transform", "translate(" + p.x + "," + p.y + ")")
+      .attr("r", "5")
+      .attr("class", "dot")
+      .style("cursor", "pointer")
+      .call(drag);
+	*/
+}
+
+/*
+* Did the user select a rectangle (athlete)?
+* Check all the x and y values of each athlete and compare them to the point at 
+* which the user clicked
+*/
+function compareBoxCoord(x, y) {
+	var xVal = false;
+	var yVal = false;
+	var whichObj = "none";
+	
+	for(var i = 0; i < mySquare.length; i++) {
+		if(x >= mySquare[i].x_axis && x <= (mySquare[i].x_axis + mySquare[i].width)) {
+			xVal = true;
+		}
+		if(y >= mySquare[i].y_axis && y <= (mySquare[i].y_axis + mySquare[i].height)) {
+			yVal = true;
+		}
+		if(xVal == true && yVal == true) {
+			whichObj = mySquare[i].id;
+			break;
+		} else {
+			xVal = false;
+			yVal = false;
+		}
+	}
+	return whichObj;
+}
+
+function moveToStart(x, y) {
+	//males
+	console.log("MALES");
+	for(var i = 1; i < 2; i++) {
+		var squareToMove = d3.select("#rect"+(i)+"")
+		  .transition()
+		  .attr("x",x)
+		  .attr("y",y);
+		
+		var squareTextToMove = d3.select("#text_rect"+(i)+"")
+		  .transition()
+		  .attr("x",(x + 25))
+		  .attr("y",(y + 25));
+
+		if(mySquare[i-1].id == "rect"+i+"") {
+			mySquare[i-1].x_axis = x;
+			mySquare[i-1].y_axis = y;
+			mySquare[i-1].whereAmI = "start";
+			break;
+		}
+	}
+	//females
+	console.log("FEMALES");
+	y = y+60;
+	for(var i = 6; i < 7; i++) {
+		var squareToMove = d3.select("#rect"+(i)+"")
+		  .transition()
+		  .attr("x",x)
+		  .attr("y",y);
+		
+		var squareTextToMove = d3.select("#text_rect"+(i)+"")
+		  .transition()
+		  .attr("x",(x + 25))
+		  .attr("y",(y + 25));
+		   
+		if(mySquare[i-1].id == "rect"+(i)+"") {
+			mySquare[i-1].x_axis = x;
+			mySquare[i-1].y_axis = y;
+			mySquare[i-1].whereAmI = "start";
+			break;
+		}
+	}
+}
+
+function startRace() {
+	var x = 175;
+	var y = 200;
+	var squareToMove = d3.select("#rect1")
+		  .transition()
+		  .attr("x",x)
+		  .attr("y",y);
+		
+	var squareTextToMove = d3.select("#text_rect1")
+	  .transition()
+	  .attr("x",(x + 25))
+	  .attr("y",(y + 25));
+		  
+	mySquare[0].x_axis = x;
+	mySquare[0].y_axis = y;
+	mySquare[0].whereAmI = "work";
+	
+	x = 200;
+	y = 535;
+	var squareToMove = d3.select("#rect6")
+		  .transition()
+		  .attr("x",x)
+		  .attr("y",y);
+		
+	var squareTextToMove = d3.select("#text_rect6")
+	  .transition()
+	  .attr("x",(x + 25))
+	  .attr("y",(y + 25));
+		  
+	mySquare[5].x_axis = x;
+	mySquare[5].y_axis = y;
+	mySquare[5].whereAmI = "switch";
+	
+}
+
+function switchWorkingAthlete(selectedAthlete) {
+	//Selected athlete is the athlete in the switch area
+}
+
+</script>
+</body>
+</html>

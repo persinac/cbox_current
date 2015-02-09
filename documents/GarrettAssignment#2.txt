@@ -1,0 +1,147 @@
+Garrett Assignment #2:
+
+Style the Account Management page:
+	- Your own style sheet
+	- All the fields on the left side of the page
+	- Make the text boxes a little smaller
+		- The less the user has to scroll to see their information, the better
+	- Put a label IN FRONT OF each text box so that the user is aware of what they are editing (users are stupid)
+	- Title the page: Update / Edit User Information
+	- Nav Bar of the following links: 
+		- Home
+		- Compare
+		- WOD
+		- Progress
+		- Logout
+		- Admin (if an admin is logged in - this will require some javascript/php)
+		+++++ In that order please +++++
+
+Password Change:
+	- Have a button to update the password, do not update the password with the rest of the user information
+		- Make the password field readonly
+		- When the user presses the button, a modal pops up with the following:
+			* Empty Current Password field - to ensure that the user is actually the user and knows the password
+			* New password field
+			* Confirm New password field
+			* Button that reads: "Change Password"
+		- When the user presses change password, I think the order of logic should be:
+			* Ensure that all fields are NOT EMPTY
+				+ If empty: error modal pop up with appropriate message
+			* Check for illegal characters in all fields
+				+ If illegal character: error modal pop up with appropriate message
+			* Check the Current password input against the password that is stored in the database
+				+ If invalid password: error modal pop up with appropriate message
+			* Check the New password input against the Confirm password input to ensure that they are exactly the same
+				+ If passwords don't match: error modal pop up with appropriate message
+			* If all checks come back as TRUE (or are successful/valid), run a function to update the password of the CURRENT USER
+
+Modal pop up:
+	- Copy and paste the following into your file: 
+		<!----------------CSS---------------------->
+		<link href="dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="dist/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link type="text/css" rel="stylesheet" href="dist/css/jquery.qtip.css" />
+		<link href="dist/css/jquery.datepick.css" rel="stylesheet">
+
+		<!-- Calendar stuff -->
+		<link href='dist/fullcalendar/fullcalendar.css' rel='stylesheet' />
+		<link href='dist/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+		<link rel="stylesheet" href="dist/jq_ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+			
+			
+			
+		<!------------------JAVASCRIPT------------------------->
+		<!-- These must be in THIS ORDER! DO NOT FUCK WITH -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="dist/js/bootstrap.min.js"></script>
+
+
+		<!-- Required for full calendar -->
+		<script src='dist/lib/moment.min.js'></script>
+		<script src="dist/jq_ui/js/jquery-1.10.2.js"></script>
+		<script src="dist/jq_ui/js/jquery-ui-1.10.4.custom.min.js"></script>
+
+		<script type="text/javascript" src="dist/js/jquery.qtip.js"></script>
+
+		<script> //javascript
+		...
+		...your functions/code...
+		...
+		</script>
+	
+	As for how to create the modals... Create three empty divs in your html right before you start your	
+	javascript like so:
+	<div id="information_modal">
+		<div id="info_content">
+		</div>
+	</div>
+	<div id="error_modal">
+		<div id="error_content">
+		</div>
+	</div>
+	<div id="change_pw_modal">
+		<div id="change_pw_content">
+		</div>
+	</div>
+	
+	In your javascript, create the following functions:
+	function openModal(whichModal, msg) {
+		if(whichModal == "information") {
+			openInfoModal(msg, 600, 400);
+		} else if (whichModal == "error") {
+			//I'll let you fill this one in
+		} else if(whichModal == "change_password") {
+			//I'll let you fill this one in
+		}
+	}
+	function openInfoModal(info, height, width) {
+		
+		var html_content = info;
+		var title = "Information";
+		var opt_height = (typeof height === "undefined") ? 400 : height;
+		var opt_width = (typeof width === "undefined") ? 300 : width;
+		
+		$( "#information_modal" ).dialog({
+		  height: opt_height,
+		  width: opt_width,
+		  modal: true
+		});
+		
+		$( "#information_modal" ).dialog('title', title);
+		$( "#info_content" ).html(html_content);
+	}
+	function openErrorModal(error_msg, height, width) {
+		var html_content = error_msg;
+		var title = "Error";
+		var opt_height = (typeof height === "undefined") ? 400 : height;
+		var opt_width = (typeof width === "undefined") ? 300 : width;
+		
+		$( "#error_modal" ).dialog({
+		  height: opt_height,
+		  width: opt_width,
+		  modal: true
+		});
+		
+		$( "#error_modal" ).dialog('title', title);
+		$( "#error_content" ).html(html_content);
+	}
+	function openChangePWModal() {
+		var html_content = "";
+		var title = "Change Password";
+		
+		$( "#change_pw_modal" ).dialog({
+		  height: 400,
+		  width: 300,
+		  modal: true
+		});
+		
+		html_content = '<form id="change_password">';
+		html_content += 'Current Password: <input type="password" name="cur_pw" id="cur_pw" required>';
+		html_content += 'New Password: <input type="password" name="new_pw" id="new_pw" required>';
+		html_content += 'Confirm New Password: <input type="password" name="confirm_new_pw" id="confirm_new_pw" required>';
+		html_content += '<button class="btn btn-lg btn-primary" id="change_pw" type="submit">Change Password</button>';
+		html_content += '</form>';
+		
+		$( "#change_pw_modal" ).dialog('title', title);
+		$( "#change_pw_content" ).html(html_content);
+	}

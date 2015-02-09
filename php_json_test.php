@@ -51,7 +51,7 @@ if (isset($_SESSION['MM_UserID'])) {
 mysql_select_db($database_cboxConn, $cboxConn);
 
 ###
-# Defualt view is Crossfit->Foundamental benchmarks
+# Defualt view is Crossfit->Fundamental benchmarks
 ###
 $movement_id = $_POST['dataString'];
 if($movement_id == "grl") {
@@ -65,11 +65,27 @@ if($movement_id == "grl") {
 	wod_type
 	from benchmarks where user_id = $colname_getUserBenchmarks AND mvmnt_id LIKE '{$movement_id}%'
 	group by mvmnt_id ";
-} else {
-	$query_getUserCFBenchmarks = "select bs.mvmnt_id, bs.weight, bs.date_achieved from benchmarks bs join (select user_id, mvmnt_id, max(weight) weight, max(date_achieved) date_achieved from benchmarks where user_id = $colname_getUserBenchmarks group by user_id, mvmnt_id) bb on bs.mvmnt_id = bb.mvmnt_id AND bs.weight = bb.weight AND bs.date_achieved = bb.date_achieved
-WHERE bs.user_id = $colname_getUserBenchmarks AND bs.mvmnt_id LIKE '{$movement_id}%' 
-ORDER BY bs.mvmnt_id ";
+} else { //to select by personal best 1RM
+	$query_getUserCFBenchmarks = "select max(bs.weight) weight, bs.mvmnt_id
+from benchmarks bs
+WHERE bs.user_id = {$colname_getUserBenchmarks} AND bs.mvmnt_id LIKE '{$movement_id}%'
+group by bs.mvmnt_id
+ORDER BY bs.mvmnt_id; ";
 }
+
+/******************
+Select by most recent 1RM (by date)
+
+SELECT max(bs.date_achieved), bs.mvmnt_id, bb.weight
+FROM benchmarks bs 
+	JOIN (SELECT weight, mvmnt_id, date_achieved 
+		FROM benchmarks where user_id = {$colname_getUserBenchmarks} 
+		) bb ON bs.mvmnt_id = bb.mvmnt_id AND bs.date_achieved = bb.date_achieved
+WHERE bs.user_id = 1 AND bs.mvmnt_id LIKE '{$movement_id}%' 
+group by bs.mvmnt_id
+ORDER BY bs.mvmnt_id; 
+******************/
+
 $getUserCFBenchmarks = mysql_query($query_getUserCFBenchmarks, $cboxConn) or die(mysql_error());
 #$rows = mysql_fetch_assoc($getUserBenchmarks);
 $totalRows_getUserBenchmarks = mysql_num_rows($getUserCFBenchmarks);
